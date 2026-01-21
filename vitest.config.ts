@@ -7,6 +7,7 @@ export default defineConfig({
       mpay: path.resolve(import.meta.dirname, 'src'),
       '~test': path.resolve(import.meta.dirname, 'test'),
     },
+    include: ['src/**/*.test.ts'],
     globals: true,
     testTimeout: 60_000,
     hookTimeout: 60_000,
