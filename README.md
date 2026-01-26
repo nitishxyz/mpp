@@ -173,20 +173,11 @@ import { Challenge } from 'mpay'
 
 const challenge = Challenge.from({
   id: 'challenge-id',
+  realm: 'api.example.com',
   method: 'tempo',
   intent: 'charge',
-  request: { amount: '1000000', asset: '0x...', destination: '0x...' },
+  request: { amount: '1000000', currency: '0x...', recipient: '0x...' },
 })
-```
-
-#### `Challenge.fromHeaders`
-
-Parses and defines a challenge from HTTP headers.
-
-```ts
-import { Challenge } from 'mpay'
-
-const challenge = Challenge.fromHeaders(response.headers)
 ```
 
 #### `Challenge.fromIntent`
@@ -208,62 +199,112 @@ const challenge = Challenge.fromIntent(Intents.charge, {
     chainId: 42431,
   },
 })
+```
 
+#### `Challenge.fromHeader`
+
+Parses a challenge from a WWW-Authenticate header value.
+
+```ts
+import { Challenge } from 'mpay'
+
+const challenge = Challenge.fromHeader(response.headers.get('WWW-Authenticate')!)
+```
+
+#### `Challenge.fromHeaders`
+
+Parses a challenge from HTTP headers.
+
+```ts
+import { Challenge } from 'mpay'
+
+const challenge = Challenge.fromHeaders(response.headers)
+```
+
+#### `Challenge.fromResponse`
+
+Parses a challenge from a 402 response.
+
+```ts
+import { Challenge } from 'mpay'
+
+const challenge = Challenge.fromResponse(response)
 ```
 
 #### `Challenge.serialize`
 
-Serialize a challenge to a base64url string.
+Serialize a challenge to the WWW-Authenticate header format.
 
 ```ts
 import { Challenge } from 'mpay'
 
-const serialized = Challenge.serialize(challenge)
+const header = Challenge.serialize(challenge)
+// => 'Payment id="...", realm="...", method="...", intent="...", request="..."'
 ```
 
 #### `Challenge.deserialize`
 
-Deserialize a base64url string to a challenge.
+Deserialize a WWW-Authenticate header value to a challenge.
 
 ```ts
 import { Challenge } from 'mpay'
 
-const challenge = Challenge.deserialize(serialized)
+const challenge = Challenge.deserialize(header)
+```
+
+#### `Challenge.verify`
+
+Verifies that a challenge ID matches the expected HMAC for the given parameters.
+
+```ts
+import { Challenge } from 'mpay'
+
+const isValid = Challenge.verify(challenge, { secretKey: 'my-secret' })
 ```
 
 #### `Credential.from`
 
-Create a credential with a challenge and payload.
+Create a credential with a challenge ID and payload.
 
 ```ts
 import { Credential } from 'mpay'
 
 const credential = Credential.from({
-  challenge,
+  id: 'challenge-id',
   source: 'did:pkh:eip155:1:0x1234567890abcdef',
   payload: { signature: '0x...', type: 'transaction' },
 })
+```
 
+#### `Credential.fromRequest`
+
+Parses a credential from a request's Authorization header.
+
+```ts
+import { Credential } from 'mpay'
+
+const credential = Credential.fromRequest(request)
 ```
 
 #### `Credential.serialize`
 
-Serialize a credential to a base64url string.
+Serialize a credential to the Authorization header format.
 
 ```ts
 import { Credential } from 'mpay'
 
-const serialized = Credential.serialize(credential)
+const header = Credential.serialize(credential)
+// => 'Payment eyJpZCI6Li4ufQ'
 ```
 
 #### `Credential.deserialize`
 
-Deserialize a base64url string to a credential.
+Deserialize an Authorization header value to a credential.
 
 ```ts
 import { Credential } from 'mpay'
 
-const credential = Credential.deserialize(serialized)
+const credential = Credential.deserialize(header)
 ```
 
 #### `Intent.from`
@@ -325,6 +366,26 @@ const receipt = Receipt.from({
   timestamp: new Date().toISOString(),
   reference: '0x...',
 })
+```
+
+#### `Receipt.serialize`
+
+Serialize a receipt to a base64url string for the Payment-Receipt header.
+
+```ts
+import { Receipt } from 'mpay'
+
+const header = Receipt.serialize(receipt)
+```
+
+#### `Receipt.deserialize`
+
+Deserialize a Payment-Receipt header value to a receipt.
+
+```ts
+import { Receipt } from 'mpay'
+
+const receipt = Receipt.deserialize(header)
 ```
 
 #### `Request.fromIntent`
