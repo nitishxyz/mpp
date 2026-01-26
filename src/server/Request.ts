@@ -1,13 +1,13 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
 /**
- * Converts a Node.js IncomingMessage to a Fetch API Request.
+ * Converts a Node.js listener to a Fetch API Request.
  *
  * @param req - The Node.js IncomingMessage.
  * @param res - The Node.js ServerResponse (used for abort signal).
  * @returns A Fetch API Request.
  */
-export function fromNodeRequest(req: IncomingMessage, res?: ServerResponse): Request {
+export function fromNodeListener(req: IncomingMessage, res?: ServerResponse): Request {
   let controller: AbortController | null = new AbortController()
 
   if (res) {

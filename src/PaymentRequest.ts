@@ -16,7 +16,7 @@ import type * as MethodIntent from './MethodIntent.js'
  * }
  * ```
  */
-export type Request = Record<string, unknown>
+export type Request<request extends Record<string, unknown> = Record<string, unknown>> = request
 
 /**
  * Deserializes a base64url string to a request.
@@ -81,8 +81,8 @@ export function from<const request extends Request>(request: request): request {
 export function fromIntent<const intent extends MethodIntent.MethodIntent>(
   intent: intent,
   request: z.input<intent['schema']['request']>,
-): z.output<intent['schema']['request']> {
-  return intent.schema.request.parse(request) as z.output<intent['schema']['request']>
+): Request<z.output<intent['schema']['request']>> {
+  return intent.schema.request.parse(request) as Request<z.output<intent['schema']['request']>>
 }
 
 /**

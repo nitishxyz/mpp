@@ -1,6 +1,6 @@
 import { Base64 } from 'ox'
 import type * as Challenge from './Challenge.js'
-import * as PaymentRequest from './Request.js'
+import * as PaymentRequest from './PaymentRequest.js'
 
 /**
  * A payment credential containing the challenge and payment proof.

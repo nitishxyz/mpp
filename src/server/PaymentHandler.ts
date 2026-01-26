@@ -91,7 +91,7 @@ export declare namespace VerifyFn {
         z.output<intents[key]['schema']['credential']['payload']>,
         Challenge.Challenge<z.output<intents[key]['schema']['request']>, intents[key]['name']>
       >
-      request: Request
+      request: globalThis.Request
     }
   }[keyof intents]
 }
@@ -184,8 +184,7 @@ function createIntentFn<intent extends MethodIntent.MethodIntent>(
     }
 
     async function handleNode(request: IncomingMessage, response: ServerResponse): Promise<void> {
-      const fetchRequest = Request.fromNodeRequest(request, response)
-      const result = await handleFetch(fetchRequest)
+      const result = await handleFetch(Request.fromNodeListener(request, response))
 
       if (result.status === 402) {
         // 402: write full response and end—caller should not continue
@@ -205,7 +204,7 @@ function createIntentFn<intent extends MethodIntent.MethodIntent>(
       first instanceof globalThis.Request
         ? handleFetch(first)
         : // biome-ignore lint/style/noNonNullAssertion: _
-          handleNode(first, second!)) as IntentFn.Handler<intent>
+          handleNode(first, second!)) as IntentFn.Handler
   }
 }
 
@@ -223,11 +222,11 @@ declare namespace createIntentFn {
 /** @internal */
 type IntentFn<intent extends MethodIntent.MethodIntent> = (
   options: z.input<intent['schema']['request']>,
-) => IntentFn.Handler<intent>
+) => IntentFn.Handler
 
 /** @internal */
 declare namespace IntentFn {
-  export type Handler<intent extends MethodIntent.MethodIntent> = FetchFn & NodeFn
+  export type Handler = FetchFn & NodeFn
 
   export type FetchFn = (request: globalThis.Request) => Promise<IntentFn.Response>
 

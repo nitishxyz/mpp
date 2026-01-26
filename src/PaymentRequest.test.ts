@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
-import * as Request from './Request.js'
+import * as PaymentRequest from './PaymentRequest.js'
 import * as Intents from './tempo/Intents.js'
 
 describe('from', () => {
   test('creates a request', () => {
-    const request = Request.from({
+    const request = PaymentRequest.from({
       amount: '1000000',
       currency: 'USD',
       recipient: '0x1234',
@@ -21,7 +21,7 @@ describe('from', () => {
 
 describe('fromIntent', () => {
   test('creates a validated request from intent', () => {
-    const request = Request.fromIntent(Intents.charge, {
+    const request = PaymentRequest.fromIntent(Intents.charge, {
       amount: '1000000',
       currency: '0x20c0000000000000000000000000000000000001',
       recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
@@ -38,7 +38,7 @@ describe('fromIntent', () => {
   })
 
   test('includes methodDetails fields', () => {
-    const request = Request.fromIntent(Intents.charge, {
+    const request = PaymentRequest.fromIntent(Intents.charge, {
       amount: '1000000',
       currency: '0x20c0000000000000000000000000000000000001',
       recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
@@ -60,7 +60,7 @@ describe('fromIntent', () => {
 
   test('throws on invalid request', () => {
     expect(() =>
-      Request.fromIntent(Intents.charge, {
+      PaymentRequest.fromIntent(Intents.charge, {
         amount: 123,
         currency: '0x20c0000000000000000000000000000000000001',
         recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
@@ -83,11 +83,11 @@ describe('fromIntent', () => {
 
 describe('serialize', () => {
   test('serializes request to base64url', () => {
-    const request = Request.from({
+    const request = PaymentRequest.from({
       amount: '1000000',
       currency: 'USD',
     })
-    const serialized = Request.serialize(request)
+    const serialized = PaymentRequest.serialize(request)
     expect(serialized).toMatch(/^[A-Za-z0-9_-]+$/)
     expect(serialized).not.toContain('=')
     expect(serialized).not.toContain('+')
@@ -95,13 +95,13 @@ describe('serialize', () => {
   })
 
   test('roundtrips correctly', () => {
-    const original = Request.from({
+    const original = PaymentRequest.from({
       amount: '1000000',
       currency: 'USD',
       recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
     })
-    const serialized = Request.serialize(original)
-    const deserialized = Request.deserialize(serialized)
+    const serialized = PaymentRequest.serialize(original)
+    const deserialized = PaymentRequest.deserialize(serialized)
     expect(deserialized).toMatchInlineSnapshot(`
       {
         "amount": "1000000",
@@ -115,8 +115,8 @@ describe('serialize', () => {
 describe('deserialize', () => {
   test('deserializes base64url to request', () => {
     const original = { amount: '500', currency: 'EUR' }
-    const serialized = Request.serialize(original)
-    const result = Request.deserialize(serialized)
+    const serialized = PaymentRequest.serialize(original)
+    const result = PaymentRequest.deserialize(serialized)
     expect(result).toMatchInlineSnapshot(`
       {
         "amount": "500",
@@ -130,8 +130,8 @@ describe('deserialize', () => {
       amount: '1000000',
       description: 'Payment for café & más',
     }
-    const serialized = Request.serialize(original)
-    const result = Request.deserialize(serialized)
+    const serialized = PaymentRequest.serialize(original)
+    const result = PaymentRequest.deserialize(serialized)
     expect(result).toMatchInlineSnapshot(`
       {
         "amount": "1000000",

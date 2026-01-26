@@ -3,7 +3,7 @@ import { sha256 } from '@noble/hashes/sha2.js'
 import { Base64, Bytes } from 'ox'
 import type { OneOf } from './internal/types.js'
 import type * as MethodIntent from './MethodIntent.js'
-import * as Request from './Request.js'
+import * as PaymentRequest from './PaymentRequest.js'
 import * as z from './zod.js'
 
 /**
@@ -132,7 +132,7 @@ export declare namespace from {
     /** Server realm (e.g., hostname). */
     realm: string
     /** Method-specific request data. */
-    request: Request.Request
+    request: PaymentRequest.Request
   }
 
   type ReturnType<parameters extends Parameters> = Challenge<parameters['request']>
@@ -177,7 +177,7 @@ export function fromIntent<const intent extends MethodIntent.MethodIntent>(
   const { method, name } = intent
   const { digest, expires, id, realm, secretKey } = parameters
 
-  const request = Request.fromIntent(intent, parameters.request)
+  const request = PaymentRequest.fromIntent(intent, parameters.request)
 
   return from({
     ...(id ? { id } : { secretKey }),
@@ -236,7 +236,7 @@ export function serialize(challenge: Challenge): string {
     `realm="${challenge.realm}"`,
     `method="${challenge.method}"`,
     `intent="${challenge.intent}"`,
-    `request="${Request.serialize(challenge.request)}"`,
+    `request="${PaymentRequest.serialize(challenge.request)}"`,
   ]
 
   if (challenge.digest !== undefined) parts.push(`digest="${challenge.digest}"`)
@@ -280,7 +280,7 @@ export function deserialize(value: string): Challenge {
 
   return {
     ...parsed,
-    request: Request.deserialize(parsed.request),
+    request: PaymentRequest.deserialize(parsed.request),
   }
 }
 
@@ -372,7 +372,7 @@ function computeId(challenge: Omit<Challenge, 'id'>, options: { secretKey: strin
     challenge.realm,
     challenge.method,
     challenge.intent,
-    Request.serialize(challenge.request),
+    PaymentRequest.serialize(challenge.request),
     challenge.expires ?? '',
   ].join('|')
 
