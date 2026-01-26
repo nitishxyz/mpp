@@ -19,9 +19,10 @@ const handler = PaymentHandler.from({
   },
   async verify() {
     return {
+      method: 'tempo',
+      reference: `0x${'a'.repeat(64)}`,
       status: 'success' as const,
       timestamp: new Date().toISOString(),
-      reference: `0x${'a'.repeat(64)}`,
     }
   },
 })
@@ -126,6 +127,7 @@ describe('intent function', () => {
     const receipt = Receipt.deserialize(res.headers.get('Payment-Receipt')!)
     expect({ ...receipt, timestamp: '[timestamp]' }).toMatchInlineSnapshot(`
       {
+        "method": "tempo",
         "reference": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "status": "success",
         "timestamp": "[timestamp]",
@@ -279,6 +281,7 @@ describe('intent function (Node.js)', () => {
       }).toMatchInlineSnapshot(`
         {
           "receipt": {
+            "method": "tempo",
             "reference": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             "status": "success",
             "timestamp": "[timestamp]",

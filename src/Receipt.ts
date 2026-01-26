@@ -1,4 +1,26 @@
 import { Base64 } from 'ox'
+import * as z from './zod.js'
+
+/**
+ * Schema for a payment receipt.
+ *
+ * @example
+ * ```ts
+ * import { Receipt } from 'mpay'
+ *
+ * const receipt = Receipt.Schema.parse(data)
+ * ```
+ */
+export const Schema = z.object({
+  /** Payment method used (e.g., "tempo", "stripe"). */
+  method: z.string(),
+  /** Method-specific reference (e.g., transaction hash). */
+  reference: z.string(),
+  /** Payment status. */
+  status: z.union([z.literal('success'), z.literal('failed')]),
+  /** ISO 8601 settlement timestamp. */
+  timestamp: z.datetime(),
+})
 
 /**
  * Payment receipt returned after verification.
@@ -8,20 +30,14 @@ import { Base64 } from 'ox'
  * import { Receipt } from 'mpay'
  *
  * const receipt: Receipt.Receipt = {
+ *   method: 'tempo',
  *   status: 'success',
  *   timestamp: new Date().toISOString(),
  *   reference: '0x...',
  * }
  * ```
  */
-export type Receipt = {
-  /** Payment status. */
-  status: 'success' | 'failed'
-  /** ISO 8601 settlement timestamp. */
-  timestamp: string
-  /** Method-specific reference (e.g., transaction hash). */
-  reference: string
-}
+export type Receipt = z.infer<typeof Schema>
 
 /**
  * Deserializes a Payment-Receipt header value to a receipt.
@@ -38,7 +54,7 @@ export type Receipt = {
  */
 export function deserialize(encoded: string): Receipt {
   const json = Base64.toString(encoded)
-  return JSON.parse(json)
+  return from(JSON.parse(json))
 }
 
 /**
@@ -52,28 +68,19 @@ export function deserialize(encoded: string): Receipt {
  * import { Receipt } from 'mpay'
  *
  * const receipt = Receipt.from({
+ *   method: 'tempo',
  *   status: 'success',
  *   timestamp: new Date().toISOString(),
  *   reference: '0x...',
  * })
  * ```
  */
-export function from(parameters: from.Parameters): from.ReturnType {
-  return {
-    status: parameters.status,
-    timestamp: parameters.timestamp,
-    reference: parameters.reference,
-  }
+export function from(parameters: from.Parameters): Receipt {
+  return Schema.parse(parameters)
 }
 
 export declare namespace from {
-  type Parameters = {
-    status: 'success' | 'failed'
-    timestamp: string
-    reference: string
-  }
-  type ReturnType = Receipt
-  type ErrorType = never
+  type Parameters = z.input<typeof Schema>
 }
 
 /**

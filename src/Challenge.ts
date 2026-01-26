@@ -99,7 +99,7 @@ export function from<const parameters extends from.Parameters>(
   const { digest, expires, method, intent, realm, request, secretKey } = parameters
   const id = secretKey ? computeId(parameters, { secretKey }) : (parameters as { id: string }).id
 
-  return {
+  return Schema.parse({
     id,
     realm,
     method,
@@ -107,7 +107,7 @@ export function from<const parameters extends from.Parameters>(
     request,
     ...(digest && { digest }),
     ...(expires && { expires }),
-  } as from.ReturnType<parameters>
+  }) as from.ReturnType<parameters>
 }
 
 export declare namespace from {
@@ -271,17 +271,13 @@ export function deserialize(value: string): Challenge {
     if (key && value) result[key] = value
   }
 
-  const parsed = z
-    .object({
-      ...Schema.shape,
-      request: z.string(),
-    })
-    .parse(result)
+  const { request, ...rest } = result
+  if (!request) throw new Error('Missing request parameter.')
 
-  return {
-    ...parsed,
-    request: PaymentRequest.deserialize(parsed.request),
-  }
+  return from({
+    ...rest,
+    request: PaymentRequest.deserialize(request),
+  } as from.Parameters)
 }
 
 /**

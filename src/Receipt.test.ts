@@ -4,13 +4,15 @@ import * as Receipt from './Receipt.js'
 describe('from', () => {
   test('behavior: creates receipt with success status', () => {
     const receipt = Receipt.from({
+      method: 'tempo',
+      reference: '0x1234',
       status: 'success',
       timestamp: '2025-01-21T12:00:00.000Z',
-      reference: '0x1234',
     })
 
     expect(receipt).toMatchInlineSnapshot(`
       {
+        "method": "tempo",
         "reference": "0x1234",
         "status": "success",
         "timestamp": "2025-01-21T12:00:00.000Z",
@@ -20,13 +22,15 @@ describe('from', () => {
 
   test('behavior: creates receipt with failed status', () => {
     const receipt = Receipt.from({
+      method: 'tempo',
+      reference: '0xabcd',
       status: 'failed',
       timestamp: '2025-01-21T13:00:00.000Z',
-      reference: '0xabcd',
     })
 
     expect(receipt).toMatchInlineSnapshot(`
       {
+        "method": "tempo",
         "reference": "0xabcd",
         "status": "failed",
         "timestamp": "2025-01-21T13:00:00.000Z",
@@ -38,15 +42,16 @@ describe('from', () => {
 describe('serialize', () => {
   test('behavior: serializes receipt to base64url', () => {
     const receipt = Receipt.from({
+      method: 'tempo',
+      reference: '0x1234',
       status: 'success',
       timestamp: '2025-01-21T12:00:00.000Z',
-      reference: '0x1234',
     })
 
     const header = Receipt.serialize(receipt)
 
     expect(header).toMatchInlineSnapshot(
-      `"eyJzdGF0dXMiOiJzdWNjZXNzIiwidGltZXN0YW1wIjoiMjAyNS0wMS0yMVQxMjowMDowMC4wMDBaIiwicmVmZXJlbmNlIjoiMHgxMjM0In0"`,
+      `"eyJtZXRob2QiOiJ0ZW1wbyIsInJlZmVyZW5jZSI6IjB4MTIzNCIsInN0YXR1cyI6InN1Y2Nlc3MiLCJ0aW1lc3RhbXAiOiIyMDI1LTAxLTIxVDEyOjAwOjAwLjAwMFoifQ"`,
     )
   })
 })
@@ -54,12 +59,13 @@ describe('serialize', () => {
 describe('deserialize', () => {
   test('behavior: deserializes base64url to receipt', () => {
     const encoded =
-      'eyJzdGF0dXMiOiJzdWNjZXNzIiwidGltZXN0YW1wIjoiMjAyNS0wMS0yMVQxMjowMDowMC4wMDBaIiwicmVmZXJlbmNlIjoiMHgxMjM0In0'
+      'eyJtZXRob2QiOiJ0ZW1wbyIsInJlZmVyZW5jZSI6IjB4MTIzNCIsInN0YXR1cyI6InN1Y2Nlc3MiLCJ0aW1lc3RhbXAiOiIyMDI1LTAxLTIxVDEyOjAwOjAwLjAwMFoifQ'
 
     const receipt = Receipt.deserialize(encoded)
 
     expect(receipt).toMatchInlineSnapshot(`
       {
+        "method": "tempo",
         "reference": "0x1234",
         "status": "success",
         "timestamp": "2025-01-21T12:00:00.000Z",
