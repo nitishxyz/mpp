@@ -3,24 +3,25 @@
 HTTP Payment Authentication for TypeScript. Implements the ["Payment" HTTP Authentication Scheme](https://datatracker.ietf.org/doc/draft-ietf-httpauth-payment/) with pluggable payment methods & intents.
 
 ```
-Client                                              Server
+Client (PaymentHandler)                             Server (PaymentHandler)
    │                                                   │
-   │  (1) fetch('/resource')                           │
+   │  (1) GET /resource                                │
    ├──────────────────────────────────────────────────>│
    │                                                   │
-   │       (2) challenge = method.intent(request, { ... })
-   │             402 + WWW-Authenticate: Payment ...   │
+   │             (2) handler.intent(request, { ... })  │
+   │                   402 + WWW-Authenticate: Payment │
    │<──────────────────────────────────────────────────┤
    │                                                   │
-   │  (3) credential = Credential.fromChallenge(challenge)
+   │  (3) handler.createCredential(response)           │
    │                                                   │
-   │  (4) fetch('/resource', Authorization: Payment credential)
+   │  (4) GET /resource                                │
+   │      Authorization: Payment <credential>          │
    ├──────────────────────────────────────────────────>│
    │                                                   │
-   │                    (5) intent.verify(credential)  │
+   │               (5) handler.verify(request)         │
    │                                                   │
-   │                    (6) Response.json({ ... })     │
-   │                        Payment-Receipt: <receipt> │
+   │               (6) 200 OK                          │
+   │                   Payment-Receipt: <receipt>      │
    │<──────────────────────────────────────────────────┤
    │                                                   │
 ```
@@ -36,19 +37,15 @@ npm i mpay
 ### Server
 
 ```ts
-import { Mpay, tempo } from 'mpay/server'
+import { PaymentHandler } from 'mpay/server'
 
-const mpay = Mpay.define({
-  methods: [
-    tempo({
-      rpcUrl: 'https://rpc.testnet.tempo.xyz',
-    }),
-  ],
+const payment = PaymentHandler.tempo({
+  rpcUrl: 'https://rpc.testnet.tempo.xyz',
   realm: 'api.example.com',
 })
 
 export async function handler(request: Request) {
-  const challenge = await mpay.tempo.charge(request, {
+  const challenge = await payment.charge(request, {
     amount: '1000000',
     asset: '0x20c0000000000000000000000000000000000001',
     destination: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',
@@ -73,7 +70,7 @@ Intents can write directly to `http.ServerResponse` by passing the response (`re
 import * as http from 'node:http'
 
 http.createServer(async (req, res) => {
-  const challenge = await mpay.charge(req, res, {
+  const challenge = await payment.charge(req, res, {
     amount: '1000000',
     asset: '0x20c0000000000000000000000000000000000001',
     destination: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',
@@ -102,7 +99,7 @@ const account = privateKeyToAccount('0x...')
 Fetch.polyfill({
   methods: [
     tempo({
-      account,
+      account: privateKeyToAccount('0x...'),
       rpcUrl: 'https://rpc.testnet.tempo.xyz',
     }),
   ],
@@ -144,22 +141,18 @@ For more control, you can manually create credentials:
 
 ```ts
 import { privateKeyToAccount } from 'viem/accounts'
-import { Credential, tempo } from 'mpay/client'
-import { Challenge } from 'mpay' // for Challenge.fromHeader
+import { PaymentHandler } from 'mpay/client'
+import { Challenge } from 'mpay' 
 
-const account = privateKeyToAccount('0x...')
+const payment = PaymentHandler.tempo({
+  account: privateKeyToAccount('0x...'),
+  rpcUrl: 'https://rpc.testnet.tempo.xyz',
+})
 
 const res = await fetch('https://api.example.com/resource')
 if (res.status !== 402) return
 
-const challenge = Challenge.fromHeader(res.headers.get('www-authenticate')!)
-
-const credential = await Credential.fromChallenge(challenge, {
-  method: tempo({
-    account,
-    rpcUrl: 'https://rpc.testnet.tempo.xyz',
-  }),
-})
+const credential = await payment.createCredential(res)
 
 // Retry with credential
 const res2 = await fetch('https://api.example.com/resource', {
@@ -169,24 +162,11 @@ const res2 = await fetch('https://api.example.com/resource', {
 
 ## API Reference
 
-### `mpay`
+### Core
 
-#### `Challenge`
+#### `Challenge.from`
 
-A parsed payment challenge from a `WWW-Authenticate` header.
-
-```ts
-type Challenge = {
-  /** Unique challenge identifier */
-  id: string
-  /** Payment method (e.g., "tempo", "stripe") */
-  method: string
-  /** Intent type (e.g., "charge", "authorize") */
-  intent: string
-  /** Method-specific request data */
-  request: unknown
-}
-```
+Defines a challenge.
 
 ```ts
 import { Challenge } from 'mpay'
@@ -199,171 +179,146 @@ const challenge = Challenge.from({
 })
 ```
 
-#### `Credential`
+#### `Challenge.fromHeader`
 
-The credential passed to the `verify` function, containing the challenge ID and client payload.
+Parses and defines a challenge from a `WWW-Authenticate` header.
 
 ```ts
-type Credential<payload = unknown> = {
-  /** The challenge ID from the original 402 response */
-  id: string
-  /** The validated credential payload */
-  payload: payload
-  /** Optional payer identifier as a DID (e.g., "did:pkh:eip155:1:0x...") */
-  source?: string
-}
+import { Challenge } from 'mpay'
+import { Intents } from 'mpay/tempo'
+
+const challenge = Challenge.fromHeader(res.headers.get('www-authenticate')!, {
+  intents: [Intents.charge],
+})
 ```
+
+#### `Challenge.fromIntent`
+
+Defines a challenge from an intent.
+
+```ts
+import { Challenge } from 'mpay'
+import { Intents } from 'mpay/tempo'
+
+const challenge = Challenge.fromIntent(Intents.charge, {
+  id: 'challenge-id',
+  realm: 'api.example.com',
+  request: {
+    amount: '1000000',
+    currency: '0x20c0000000000000000000000000000000000001',
+    recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
+    expires: '2025-01-06T12:00:00Z',
+    chainId: 42431,
+  },
+})
+
+```
+
+#### `Challenge.serialize`
+
+Serialize a challenge to a base64url string.
+
+```ts
+import { Challenge } from 'mpay'
+
+const serialized = Challenge.serialize(challenge)
+```
+
+#### `Challenge.deserialize`
+
+Deserialize a base64url string to a challenge.
+
+```ts
+import { Challenge } from 'mpay'
+
+const challenge = Challenge.deserialize(serialized)
+```
+
+#### `Credential.from`
+
+Create a credential with a challenge and payload.
 
 ```ts
 import { Credential } from 'mpay'
 
 const credential = Credential.from({
-  id: 'challenge-id',
-  payload: { signature: '0x...' },
+  challenge,
+  source: 'did:pkh:eip155:1:0x1234567890abcdef',
+  payload: { signature: '0x...', type: 'transaction' },
 })
+
 ```
 
-#### `Method.define`
+#### `Credential.serialize`
 
-##### Example
+Serialize a credential to a base64url string.
 
 ```ts
-import { Method } from 'mpay'
-import { Intents } from 'mpay/tempo'
-import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
+import { Credential } from 'mpay'
 
-export function tempo(options: { rpcUrl?: string | undefined } = {}) {
-  const { rpcUrl } = options
-
-  const client = createClient({
-    chain: tempo,
-    transport: http(rpcUrl),
-  })
-
-  return Method.define({
-    name: 'tempo',
-    intents: {
-      authorize: Intent.authorize(client),
-      charge: Intent.charge(client),
-      subscribe: Intent.subscribe(client),
-    },
-  })
-}
-
-const { charge } = tempo({
-  rpcUrl: 'https://rpc.testnet.tempo.xyz',
-})
+const serialized = Credential.serialize(credential)
 ```
 
-#### `Intent.define`
+#### `Credential.deserialize`
 
-Defines a base intent — a type of payment operation (e.g., `charge`, `authorize`, `subscription`). 
-Returns an intent with an `.implement()` method that payment methods use to create their specific implementation.
-
-##### Definition
+Deserialize a base64url string to a credential.
 
 ```ts
-import { Schema } from 'mpay'
+import { Credential } from 'mpay'
 
-declare function define(options: {
+const credential = Credential.deserialize(serialized)
+```
+
+#### `Intent.from`
+
+Define a method-agnostic intent with a validated request schema.
+
+```ts
+import { Intent, z } from 'mpay'
+
+const charge = Intent.from({
+  name: 'charge',
   schema: {
-    /** Request schema as an object of field schemas */
-    request: Record<string, Schema.Schema>
-  }
-}): Intent
-
-interface Intent {
-  /** Creates a method-specific implementation of this intent */
-  implement(options: {
-    schema: {
-      request?: {
-        /** Optional fields from base schema that this method requires */
-        requires?: string[]
-        /** Method-specific fields (flattened onto request) */
-        methodDetails?: Schema.Schema
-      }
-      credential: {
-        /** Schema for the credential payload */
-        payload: Schema.Schema
-      }
-    }
-    /** Verifies a credential and returns a receipt */
-    verify(credential: Credential, request: Request): Promise<{ receipt: Receipt }>
-  }): MethodIntent
-}
-```
-
-> **Note:** `Schema.Schema` is a [Standard Schema](https://github.com/standard-schema/standard-schema) — an interoperable schema format supported by [Zod](https://zod.dev), [Valibot](https://valibot.dev), [ArkType](https://arktype.io), and others.
-
-##### Example
-
-This example uses [Zod](https://zod.dev), but any [Standard Schema](https://github.com/standard-schema/standard-schema)-compatible library works.
-
-```ts
-import { Intent } from 'mpay'
-import { z } from 'zod/mini'
-
-// 1. Define the base Charge intent.
-const Charge = Intent.define({
-  schema: {
-    request: {
+    request: z.object({
       amount: z.string(),
       currency: z.string(),
-      recipient: z.optional(z.string()),
-      expires: z.optional(z.string()),
       description: z.optional(z.string()),
-    },
+      expires: z.optional(z.string()),
+      recipient: z.optional(z.string()),
+    }),
   },
 })
+```
 
-// 2. Payment methods implement the intent.
-const charge = Charge.implement({
+#### `MethodIntent.fromIntent`
+
+Extend a base intent with method-specific details, required fields, and credential payload schema.
+
+```ts
+import { MethodIntent, z } from 'mpay'
+
+const tempoCharge = MethodIntent.fromIntent(charge, {
+  method: 'tempo',
   schema: {
-    request: {
-      // Make optional fields required for this method.
-      requires: ['expires', 'recipient'],
-      
-      // Add method-specific fields.
-      methodDetails: z.object({
-        chainId: z.number(),
-      }),
-    },
     credential: {
       payload: z.object({
         signature: z.string(),
+        type: z.literal('transaction'),
       }),
     },
-  },
-
-  async verify(credential, request) {
-    // request has: amount, currency, expires, recipient, chainId
-    // credential.payload has: signature
-    return {
-      receipt: {
-        status: 'success',
-        timestamp: new Date().toISOString(),
-        reference: '0x...',
-      },
-    }
+    request: {
+      methodDetails: z.object({
+        chainId: z.optional(z.number()),
+      }),
+      requires: ['recipient', 'expires'],
+    },
   },
 })
 ```
 
-#### `Receipt`
+#### `Receipt.from`
 
-Payment receipt returned after successful verification, sent via the `Payment-Receipt` header.
-
-```ts
-type Receipt = {
-  /** Payment status */
-  status: 'success' | 'failed'
-  /** ISO 8601 settlement timestamp */
-  timestamp: string
-  /** Method-specific reference (e.g., transaction hash) */
-  reference: string
-}
-```
+Create a payment receipt after successful verification.
 
 ```ts
 import { Receipt } from 'mpay'
@@ -375,9 +330,47 @@ const receipt = Receipt.from({
 })
 ```
 
-### `mpay/server`
+#### `Request.fromIntent`
 
-#### `Mpay.create`
+Create a validated request from a method intent.
+
+```ts
+import { Request } from 'mpay'
+import { Intents } from 'mpay/tempo'
+
+const request = Request.fromIntent(Intents.charge, {
+  amount: '1000000',
+  currency: '0x20c0000000000000000000000000000000000001',
+  recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
+  expires: '2025-01-06T12:00:00Z',
+  chainId: 42431,
+})
+
+```
+
+#### `Request.serialize`
+
+Serialize a request to a base64url string.
+
+```ts
+import { Request } from 'mpay'
+
+const serialized = Request.serialize(request)
+```
+
+#### `Request.deserialize`
+
+Deserialize a base64url string to a request.
+
+```ts
+import { Request } from 'mpay'
+
+const request = Request.deserialize(serialized)
+```
+
+### Server
+
+#### `Mpay`
 
 ##### Example
 
@@ -387,5 +380,109 @@ import { Mpay, tempo } from 'mpay/server'
 const mpay = Mpay.create({
   methods: [tempo()],
   realm: 'api.example.com',
+})
+```
+
+#### `PaymentHandler.from`
+
+Defines a payment handler for a payment method.
+
+```ts
+import { PaymentHandler } from 'mpay/server'
+import { Intents } from 'mpay/tempo'
+
+export function tempo(options: tempo.Options) {
+  return PaymentHandler.from({
+    method: 'tempo',
+    intents: {
+      authorize: Intents.authorize,
+      charge: Intents.charge,
+      subscription: Intents.subscription,
+    },
+    async verify(credential, request) {
+      // ... verify the credential and request, and return a receipt
+    },
+  })
+}
+```
+
+##### Usage
+
+```ts
+import { PaymentHandler } from 'mpay/server'
+
+const payment = PaymentHandler.tempo({
+  rpcUrl: 'https://rpc.testnet.tempo.xyz',
+})
+
+export async function handler(request: Request) {
+  const challenge = await payment.charge(request, {
+    amount: '1000000',
+    asset: '0x20c0000000000000000000000000000000000001',
+    destination: '0x742d35Cc6634c0532925a3b844bC9e7595F8fE00',
+    expires: '2030-01-20T12:00:00Z',
+  })
+  if (challenge) return challenge
+
+  return Response.json({ data: '...' })
+}
+```
+
+### Client
+
+#### `PaymentHandler.from`
+
+Defines a client-side payment handler for a payment method.
+
+```ts
+import { PaymentHandler } from 'mpay/client'
+import { Intents } from 'mpay/tempo'
+
+export function tempo(options: tempo.Options) {
+  return PaymentHandler.from({
+    method: 'tempo',
+    intents: {
+      authorize: Intents.authorize,
+      charge: Intents.charge,
+      subscription: Intents.subscription,
+    },
+    async createCredential(response) {
+      // ... parse challenge from response and create a credential
+    },
+  })
+}
+```
+
+#### `Fetch.from`
+
+Create a fetch function with payment handler(s).
+
+```ts
+import { Fetch, tempo } from 'mpay/client'
+
+const fetch = Fetch.from({
+  methods: [
+    tempo({ 
+      account, 
+      rpcUrl: 'https://rpc.testnet.tempo.xyz' 
+    })
+  ],
+})
+```
+
+#### `Fetch.polyfill`
+
+Polyfill the global `fetch` function with payment handler(s).
+
+```ts
+import { Fetch } from 'mpay/client'
+
+Fetch.polyfill({
+  methods: [
+    tempo({
+      account,
+      rpcUrl: 'https://rpc.testnet.tempo.xyz',
+    }),
+  ],
 })
 ```

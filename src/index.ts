@@ -1,4 +1,8 @@
 export * as Challenge from './Challenge.js'
 export * as Credential from './Credential.js'
+export * as Intent from './Intent.js'
+export * as MethodIntent from './MethodIntent.js'
 export * as Receipt from './Receipt.js'
+export * as Request from './Request.js'
 export * as Schema from './Schema.js'
+export * as z from './zod.js'

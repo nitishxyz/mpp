@@ -1,0 +1,142 @@
+import { describe, expect, test } from 'vitest'
+import * as Request from './Request.js'
+import * as Intents from './tempo/Intents.js'
+
+describe('from', () => {
+  test('creates a request', () => {
+    const request = Request.from({
+      amount: '1000000',
+      currency: 'USD',
+      recipient: '0x1234',
+    })
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "amount": "1000000",
+        "currency": "USD",
+        "recipient": "0x1234",
+      }
+    `)
+  })
+})
+
+describe('fromIntent', () => {
+  test('creates a validated request from intent', () => {
+    const request = Request.fromIntent(Intents.charge, {
+      amount: '1000000',
+      currency: '0x20c0000000000000000000000000000000000001',
+      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
+      expires: '2025-01-06T12:00:00Z',
+    })
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "amount": "1000000",
+        "currency": "0x20c0000000000000000000000000000000000001",
+        "expires": "2025-01-06T12:00:00Z",
+        "recipient": "0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00",
+      }
+    `)
+  })
+
+  test('includes methodDetails fields', () => {
+    const request = Request.fromIntent(Intents.charge, {
+      amount: '1000000',
+      currency: '0x20c0000000000000000000000000000000000001',
+      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
+      expires: '2025-01-06T12:00:00Z',
+      chainId: 42431,
+    })
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "amount": "1000000",
+        "currency": "0x20c0000000000000000000000000000000000001",
+        "expires": "2025-01-06T12:00:00Z",
+        "methodDetails": {
+          "chainId": 42431,
+        },
+        "recipient": "0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00",
+      }
+    `)
+  })
+
+  test('throws on invalid request', () => {
+    expect(() =>
+      Request.fromIntent(Intents.charge, {
+        amount: 123,
+        currency: '0x20c0000000000000000000000000000000000001',
+        recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
+        expires: '2025-01-06T12:00:00Z',
+      } as any),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [$ZodError: [
+        {
+          "expected": "string",
+          "code": "invalid_type",
+          "path": [
+            "amount"
+          ],
+          "message": "Invalid input"
+        }
+      ]]
+    `)
+  })
+})
+
+describe('serialize', () => {
+  test('serializes request to base64url', () => {
+    const request = Request.from({
+      amount: '1000000',
+      currency: 'USD',
+    })
+    const serialized = Request.serialize(request)
+    expect(serialized).toMatch(/^[A-Za-z0-9_-]+$/)
+    expect(serialized).not.toContain('=')
+    expect(serialized).not.toContain('+')
+    expect(serialized).not.toContain('/')
+  })
+
+  test('roundtrips correctly', () => {
+    const original = Request.from({
+      amount: '1000000',
+      currency: 'USD',
+      recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00',
+    })
+    const serialized = Request.serialize(original)
+    const deserialized = Request.deserialize(serialized)
+    expect(deserialized).toMatchInlineSnapshot(`
+      {
+        "amount": "1000000",
+        "currency": "USD",
+        "recipient": "0x742d35Cc6634C0532925a3b844Bc9e7595f8fE00",
+      }
+    `)
+  })
+})
+
+describe('deserialize', () => {
+  test('deserializes base64url to request', () => {
+    const original = { amount: '500', currency: 'EUR' }
+    const serialized = Request.serialize(original)
+    const result = Request.deserialize(serialized)
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "amount": "500",
+        "currency": "EUR",
+      }
+    `)
+  })
+
+  test('handles special characters in values', () => {
+    const original = {
+      amount: '1000000',
+      description: 'Payment for café & más',
+    }
+    const serialized = Request.serialize(original)
+    const result = Request.deserialize(serialized)
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "amount": "1000000",
+        "description": "Payment for café & más",
+      }
+    `)
+  })
+})

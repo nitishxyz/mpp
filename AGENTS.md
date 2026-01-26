@@ -8,11 +8,46 @@ mpay provides abstractions for the complete HTTP 402 payment flow — both clien
 
 ### Core Abstractions
 
-1. **`Mpay`** — Top-level abstraction over the HTTP payment spec. Handles challenge/credential parsing, header serialization, and the 402/401 response flow. This is the protocol skeleton that works with any payment network.
+1. **`PaymentHandler`** — Top-level abstraction over a payment method. Groups related `MethodIntent`s and handles the HTTP 402 flow (challenge/credential parsing, header serialization, verification).
 
-2. **`PaymentMethod`** — Extensible adapters for specific payment networks (Tempo, Stripe, x402, Lightning, etc.). Each method defines its own request/payload schemas and verification logic. Consumers can build custom methods to plug into `Mpay`.
+2. **`Intent`** — Method-agnostic action definitions. Standard intents include `charge`, `authorize`, and `subscription`. Each intent defines what the server requests and validates the request schema.
 
-3. **`Intent`** — Actions that hang off a `PaymentMethod`. Standard intents include `charge`, `authorize`, and `subscription`. Each intent defines what the server requests and what the client must prove.
+3. **`MethodIntent`** — Method-specific intent extensions. Each method intent adds credential payload schemas, method-specific details, and can require optional base fields.
+
+```
+┌────────────────────┐       ┌────────────────┐       ┌─────────────────┐
+│   PaymentHandler   │ 1   * │  MethodIntent  │ *   1 │     Intent      │
+│     (method)       ├───────┤   (adapter)    ├───────┤    (action)     │
+└────────────────────┘ has   └────────────────┘extends└─────────────────┘
+│ tempo              │       │ tempo/charge   │       │ charge          │
+│ stripe             │       │ tempo/authorize│       │ authorize       │
+│ x402               │       │ stripe/charge  │       │ subscription    │
+└────────────────────┘       └────────────────┘       └─────────────────┘
+```
+
+```
+Client (PaymentHandler)                             Server (PaymentHandler)
+   │                                                   │
+   │  (1) GET /resource                                │
+   ├──────────────────────────────────────────────────>│
+   │                                                   │
+   │             (2) handler.charge(request, { ... })  │
+   │                   402 + WWW-Authenticate: Payment │
+   │<──────────────────────────────────────────────────┤
+   │                                                   │
+   │  (3) handler.createCredential(response)           │
+   │                                                   │
+   │  (4) GET /resource                                │
+   │      Authorization: Payment <credential>          │
+   ├──────────────────────────────────────────────────>│
+   │                                                   │
+   │               (5) handler.charge(request)         │
+   │                                                   │
+   │               (6) 200 OK                          │
+   │                   Payment-Receipt: <receipt>      │
+   │<──────────────────────────────────────────────────┤
+   │                                                   │
+```
 
 ### Primitives
 
@@ -20,19 +55,50 @@ Low-level data structures that compose into the core abstractions:
 
 - **`Challenge`** — Server-issued payment request (appears in `WWW-Authenticate` header). Contains `id`, `realm`, `method`, `intent`, `request`, and optional `expires`/`digest`.
 - **`Credential`** — Client-submitted payment proof (appears in `Authorization` header). Contains `challenge` echo, `payload` (method-specific proof), and optional `source` (payer identity).
+- **`Intent`** — Method-agnostic action definition (e.g., `charge`, `authorize`, `subscription`). Contains `name` and validated `request` schema.
+- **`MethodIntent`** — Method-specific intent extension. Adds `methodDetails`, `requires` constraints, and `credential.payload` schema to a base `Intent`.
+- **`PaymentHandler`** — Top-level abstraction over a payment method. Groups related `MethodIntent`s and handles the HTTP 402 flow.
 - **`Receipt`** — Server-issued settlement confirmation (appears in `Payment-Receipt` header). Contains `status`, `method`, `timestamp`, and `reference`.
+- **`Request`** — Intent-specific payment parameters (e.g., `amount`, `currency`, `recipient`). Validated by the intent's schema and serialized in the challenge.
 
-### Relationship
+### Intent Architecture
 
-```
-┌───────────────┐         ┌─────────────────┐         ┌────────────────┐
-│     Mpay      │ 1     * │  PaymentMethod  │ *     * │     Intent     │
-│  (protocol)   ├─────────┤    (adapter)    ├─────────┤    (action)    │
-└───────────────┘ has     └─────────────────┘ impl.   └────────────────┘
-                          │ tempo           │         │ charge         │
-                          │ stripe          │         │ authorize      │
-                          │ x402            │         │ subscription   │
-                          └─────────────────┘         └────────────────┘
+Intents follow a two-layer design:
+
+1. **Base Intents** (`Intent.ts`) — Method-agnostic intent definitions. Define the core request schema with optional fields where methods may vary.
+
+2. **Method Intents** (`MethodIntent.ts`) — Method-specific extensions via `MethodIntent.fromIntent()`. Can:
+   - Add `methodDetails` (extra fields like `chainId`, `feePayer`)
+   - Use `requires` to make optional base fields mandatory
+   - Define method-specific `credential.payload` schemas
+
+```ts
+// Base intent with validated fields
+const charge = Intent.from({
+  name: 'charge',
+  schema: {
+    request: z.object({
+      amount,                             // required: numeric string
+      currency: z.string(),               // required
+      description: z.optional(z.string()),
+      expires: z.optional(datetime),      // ISO 8601
+      externalId: z.optional(z.string()),
+      recipient: z.optional(z.string()),
+    }),
+  },
+})
+
+// Tempo requires recipient, adds chainId
+const tempoCharge = MethodIntent.fromIntent(charge, {
+  method: 'tempo',
+  schema: {
+    credential: { payload: z.object({ ... }) },
+    request: {
+      methodDetails: z.object({ chainId: z.optional(z.number()) }),
+      requires: ['recipient'],  // Makes recipient non-optional
+    },
+  },
+})
 ```
 
 ## Spec Reference
@@ -47,9 +113,9 @@ Canonical specs live at [tempoxyz/payment-auth-spec](https://github.com/tempoxyz
 | **Intent** | [draft-payment-intent-charge-00](https://github.com/tempoxyz/payment-auth-spec/blob/main/specs/intents/draft-payment-intent-charge-00.md) | One-time immediate payment |
 | **Intent** | [draft-payment-intent-authorize-00](https://github.com/tempoxyz/payment-auth-spec/blob/main/specs/intents/draft-payment-intent-authorize-00.md) | Pre-authorization for later capture |
 | **Intent** | [draft-payment-intent-subscription-00](https://github.com/tempoxyz/payment-auth-spec/blob/main/specs/intents/draft-payment-intent-subscription-00.md) | Recurring periodic payments |
-| **Method** | [draft-tempo-charge-00](https://github.com/tempoxyz/payment-auth-spec/blob/main/specs/methods/tempo/draft-tempo-charge-00.md) | TIP-20 token transfers on Tempo |
-| **Method** | [draft-tempo-authorize-00](https://github.com/tempoxyz/payment-auth-spec/blob/main/specs/methods/tempo/draft-tempo-authorize-00.md) | Access Key delegation with limits |
-| **Method** | [draft-stripe-charge-00](https://github.com/tempoxyz/payment-auth-spec/blob/main/specs/methods/stripe/draft-stripe-charge-00.md) | Stripe Payment Tokens (SPTs) |
+| **MethodIntent** | [draft-tempo-charge-00](https://github.com/tempoxyz/payment-auth-spec/blob/main/specs/methods/tempo/draft-tempo-charge-00.md) | TIP-20 token transfers on Tempo |
+| **MethodIntent** | [draft-tempo-authorize-00](https://github.com/tempoxyz/payment-auth-spec/blob/main/specs/methods/tempo/draft-tempo-authorize-00.md) | Access Key delegation with limits |
+| **MethodIntent** | [draft-stripe-charge-00](https://github.com/tempoxyz/payment-auth-spec/blob/main/specs/methods/stripe/draft-stripe-charge-00.md) | Stripe Payment Tokens (SPTs) |
 | **Extension** | [draft-payment-discovery-00](https://github.com/tempoxyz/payment-auth-spec/blob/main/specs/extensions/draft-payment-discovery-00.md) | `/.well-known/payment` discovery |
 
 ### Key Protocol Details
