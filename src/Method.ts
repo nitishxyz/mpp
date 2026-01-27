@@ -70,6 +70,10 @@ export type Server<
   >
 }
 
+export type AnyClient = Client<any, any>
+export type AnyMethod = Method<any, any>
+export type AnyServer = Server<any, any, any>
+
 /** Credential creation function that produces a serialized credential from a challenge. */
 export type CreateCredentialFn<intents extends Record<string, MethodIntent.MethodIntent>> = (
   parameters: CreateCredentialFn.Parameters<intents>,
@@ -259,6 +263,3 @@ export declare namespace toClient {
     createCredential: CreateCredentialFn<intents>
   }
 }
-
-type AnyMethod = Method<any, any>
-type AnyServer = Server<any, any, any>
