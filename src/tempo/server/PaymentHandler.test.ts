@@ -338,7 +338,105 @@ describe('tempo', () => {
         })
         expect(response.status).toBe(402)
         const body = (await response.json()) as { detail: string }
-        expect(body.detail).toContain('Payment verification failed: Invalid transaction: missing transfer call.')
+        expect(body.detail).toContain('Payment verification failed: Invalid transaction: transfer recipient mismatch')
+      }
+
+      server.close()
+    })
+
+    test('behavior: rejects transaction with multiple calls', async () => {
+      const request = {
+        amount: '1000000',
+        currency: asset,
+        expires: new Date(Date.now() + 60_000).toISOString(),
+        recipient: accounts[0].address,
+      } as const
+
+      const server = await Http.createServer(async (req, res) => {
+        await handler.charge({ request })(req, res)
+        if (!res.headersSent) res.end('OK')
+      })
+
+      const response = await fetch(server.url)
+      expect(response.status).toBe(402)
+
+      const challenge = Challenge.fromResponse(response, { handler })
+
+      const serializedTransaction = await signTransaction(client, {
+        account: accounts[1],
+        calls: [
+          Actions.token.transfer.call({
+            to: challenge.request.recipient as Hex.Hex,
+            token: challenge.request.currency as Hex.Hex,
+            amount: BigInt(challenge.request.amount),
+          }),
+          Actions.token.transfer.call({
+            to: accounts[2].address,
+            token: challenge.request.currency as Hex.Hex,
+            amount: 1n,
+          }),
+        ],
+      })
+
+      const credential = Credential.from({
+        challenge,
+        payload: { signature: serializedTransaction, type: 'transaction' as const },
+      })
+
+      {
+        const response = await fetch(server.url, {
+          headers: { Authorization: Credential.serialize(credential) },
+        })
+        expect(response.status).toBe(402)
+        const body = (await response.json()) as { detail: string }
+        expect(body.detail).toContain('Payment verification failed: Invalid transaction: unexpected number of calls')
+      }
+
+      server.close()
+    })
+
+    test('behavior: rejects transaction with wrong currency target', async () => {
+      const request = {
+        amount: '1000000',
+        currency: asset,
+        expires: new Date(Date.now() + 60_000).toISOString(),
+        recipient: accounts[0].address,
+      } as const
+
+      const server = await Http.createServer(async (req, res) => {
+        await handler.charge({ request })(req, res)
+        if (!res.headersSent) res.end('OK')
+      })
+
+      const response = await fetch(server.url)
+      expect(response.status).toBe(402)
+
+      const challenge = Challenge.fromResponse(response, { handler })
+
+      const wrongCurrency = '0x0000000000000000000000000000000000000001'
+      const serializedTransaction = await signTransaction(client, {
+        account: accounts[1],
+        calls: [
+          Actions.token.transfer.call({
+            to: challenge.request.recipient as Hex.Hex,
+            token: wrongCurrency,
+            amount: BigInt(challenge.request.amount),
+          }),
+        ],
+      })
+
+      const credential = Credential.from({
+        challenge,
+        payload: { signature: serializedTransaction, type: 'transaction' as const },
+      })
+
+      {
+        const response = await fetch(server.url, {
+          headers: { Authorization: Credential.serialize(credential) },
+        })
+        expect(response.status).toBe(402)
+        const body = (await response.json()) as { detail: string }
+        expect(body.detail).toContain('Payment verification failed: Invalid transaction: call target does not match currency')
       }
 
       server.close()

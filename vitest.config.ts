@@ -10,7 +10,7 @@ export default defineConfig({
     coverage: {
       exclude: ['test/**'],
     },
-    include: ['src/**/*.test.ts', 'src/**/*.test-d.ts'],
+    include: ['src/**/*.test.ts'],
     typecheck: {
       include: ['src/**/*.test-d.ts'],
     },

@@ -13,8 +13,10 @@ import { Abis, Transaction } from 'viem/tempo'
 
 import * as PaymentHandler from '../../server/PaymentHandler.js'
 import * as Intents from '../Intents.js'
+import type { OneOf } from '../../internal/types.js'
 
 const transfer = AbiFunction.from('function transfer(address to, uint256 amount) returns (bool)')
+const transferSelector = AbiFunction.getSelector(transfer)
 
 /**
  * Creates a Tempo server-side payment handler.
@@ -42,7 +44,7 @@ export function tempo(parameters: tempo.Parameters) {
   const { realm, secretKey, feePayer } = parameters
 
   const client = (() => {
-    if ('client' in parameters) return parameters.client
+    if (parameters.client) return parameters.client
     return createClient({
       chain: {
         ...tempo_chain,
@@ -54,9 +56,9 @@ export function tempo(parameters: tempo.Parameters) {
 
   return PaymentHandler.from({
     intents: {
-      authorize: Intents.authorize,
+      // TODO: add support for authorize
+      // authorize: Intents.authorize,
       charge: Intents.charge,
-      subscription: Intents.subscription,
     },
     method: 'tempo',
     realm,
@@ -114,23 +116,51 @@ export function tempo(parameters: tempo.Parameters) {
                 payload.signature as Transaction.TransactionSerializedTempo
               const transaction = Transaction.deserialize(serializedTransaction)
 
-              const transferCall = transaction.calls?.find((call) => {
-                if (!call.to || !Address.isEqual(call.to, currency)) return false
-                if (!call.data) return false
+              const calls = transaction.calls ?? []
 
+              if (calls.length !== 1)
+                throw new MismatchError('Invalid transaction: unexpected number of calls', {
+                  expected: '1',
+                  got: String(calls.length),
+                })
+
+              const call = calls[0]!
+              if (!call.to || !Address.isEqual(call.to, currency))
+                throw new MismatchError(
+                  'Invalid transaction: call target does not match currency',
+                  {
+                    expected: currency,
+                    got: call.to ?? '(empty)',
+                  },
+                )
+
+              if (!call.data)
+                throw new MismatchError('Invalid transaction: call data is missing', {
+                  expected: transferSelector,
+                  got: '(empty)',
+                })
+
+              const [to, amount_] = (() => {
                 try {
-                  const [to, amount_] = AbiFunction.decodeData(transfer, call.data)
-                  return Address.isEqual(to, recipient) && amount_.toString() === amount
+                  return AbiFunction.decodeData(transfer, call.data)
                 } catch {
-                  return false
+                  throw new MismatchError('Invalid transaction: failed to decode transfer call', {
+                    expected: transferSelector,
+                    got: call.data.slice(0, 10),
+                  })
                 }
-              })
+              })()
 
-              if (!transferCall)
-                throw new MismatchError('Invalid transaction: missing transfer call.', {
-                  amount,
-                  currency,
-                  recipient,
+              if (!Address.isEqual(to, recipient))
+                throw new MismatchError('Invalid transaction: transfer recipient mismatch', {
+                  expected: recipient,
+                  got: to,
+                })
+
+              if (amount_.toString() !== amount)
+                throw new MismatchError('Invalid transaction: transfer amount mismatch', {
+                  expected: amount,
+                  got: amount_.toString(),
                 })
 
               const serializedTransaction_final = await (async () => {
@@ -153,15 +183,13 @@ export function tempo(parameters: tempo.Parameters) {
 
             default:
               throw new Error(
-                `Unsupported credential type "${(payload as { type: string }).type}". Expected "hash" or "transaction".`,
+                `Unsupported credential type "${(payload as { type: string }).type}".`,
               )
           }
         }
 
         default:
-          throw new Error(
-            `Unsupported intent "${challenge.intent}". Tempo currently supports "charge".`,
-          )
+          throw new Error(`Unsupported intent "${challenge.intent}".`)
       }
     },
   })
@@ -169,13 +197,13 @@ export function tempo(parameters: tempo.Parameters) {
 
 export declare namespace tempo {
   type Parameters = {
+    /** Optional fee payer account for covering transaction fees. */
+    feePayer?: Account | undefined
     /** Server realm (e.g., hostname). */
     realm: string
     /** Secret key for HMAC-bound challenge IDs. */
     secretKey: string
-    /** Optional fee payer account for co-signing transactions. */
-    feePayer?: Account | undefined
-  } & (
+  } & OneOf<
     | {
         /** Viem Client. */
         client: Client
@@ -186,7 +214,7 @@ export declare namespace tempo {
         /** Tempo RPC URL. */
         rpcUrl: string
       }
-  )
+  >
 }
 
 /** @internal */
