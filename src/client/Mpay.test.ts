@@ -2,39 +2,22 @@ import type { Account } from 'viem'
 import { describe, expect, test } from 'vitest'
 import * as Challenge from '../Challenge.js'
 import * as Credential from '../Credential.js'
-import * as Intent from '../Intent.js'
 import * as Method from '../Method.js'
-import * as MethodIntent from '../MethodIntent.js'
+import { tempo } from '../tempo/Method.js'
+import * as Intents from '../tempo/Intents.js'
 import * as z from '../zod.js'
 import * as Mpay from './Mpay.js'
-
-const fooCharge = MethodIntent.fromIntent(Intent.charge, {
-  method: 'test',
-  schema: {
-    credential: {
-      payload: z.object({ signature: z.string() }),
-    },
-    request: {
-      requires: ['recipient'],
-    },
-  },
-})
-
-const fooMethod = Method.from({
-  name: 'test',
-  intents: { charge: fooCharge },
-})
 
 const realm = 'api.example.com'
 const secretKey = 'test-secret-key'
 
 describe('Mpay.create', () => {
   test('default', () => {
-    const clientMethod = Method.toClient(fooMethod, {
+    const clientMethod = Method.toClient(tempo, {
       async createCredential({ challenge }) {
         return Credential.serialize({
           challenge,
-          payload: { signature: '0xtest' },
+          payload: { signature: '0xtest', type: 'transaction' },
         })
       },
     })
@@ -42,74 +25,63 @@ describe('Mpay.create', () => {
     const mpay = Mpay.create({ methods: [clientMethod] })
 
     expect(mpay.methods).toHaveLength(1)
-    expect(mpay.methods[0]?.name).toBe('test')
+    expect(mpay.methods[0]?.name).toBe('tempo')
     expect(typeof mpay.createCredential).toBe('function')
   })
 
   test('behavior: with multiple methods', () => {
-    const barCharge = MethodIntent.fromIntent(Intent.charge, {
-      method: 'bar',
-      schema: {
-        credential: {
-          payload: z.object({ token: z.string() }),
-        },
-        request: {
-          requires: ['recipient'],
-        },
-      },
-    })
-
-    const barMethod = Method.from({
-      name: 'bar',
-      intents: { charge: barCharge },
-    })
-
-    const test = Method.toClient(fooMethod, {
+    const tempoClient = Method.toClient(tempo, {
       async createCredential({ challenge }) {
         return Credential.serialize({
           challenge,
-          payload: { signature: '0xtest' },
+          payload: { signature: '0xtest', type: 'transaction' },
         })
       },
     })
 
-    const bar = Method.toClient(barMethod, {
+    const stripeMethod = Method.from({
+      name: 'stripe',
+      intents: { charge: Intents.charge },
+    })
+
+    const stripeClient = Method.toClient(stripeMethod, {
       async createCredential({ challenge }) {
         return Credential.serialize({
           challenge,
-          payload: { token: 'bar-token' },
+          payload: { signature: '0xstripe', type: 'transaction' },
         })
       },
     })
 
-    const mpay = Mpay.create({ methods: [test, bar] })
+    const mpay = Mpay.create({ methods: [tempoClient, stripeClient] })
 
     expect(mpay.methods).toHaveLength(2)
-    expect(mpay.methods[0]?.name).toBe('test')
-    expect(mpay.methods[1]?.name).toBe('bar')
+    expect(mpay.methods[0]?.name).toBe('tempo')
+    expect(mpay.methods[1]?.name).toBe('stripe')
   })
 })
 
 describe('createCredential', () => {
   test('behavior: routes to correct method based on challenge', async () => {
-    const foo = Method.toClient(fooMethod, {
+    const tempoClient = Method.toClient(tempo, {
       async createCredential({ challenge }) {
         return Credential.serialize({
           challenge,
-          payload: { signature: '0xtest-signature' },
+          payload: { signature: '0xtest-signature', type: 'transaction' },
         })
       },
     })
 
-    const mpay = Mpay.create({ methods: [foo] })
+    const mpay = Mpay.create({ methods: [tempoClient] })
 
-    const challenge = Challenge.fromIntent(fooCharge, {
+    const challenge = Challenge.fromIntent(Intents.charge, {
       realm,
       secretKey,
       request: {
         amount: '1000',
         currency: '0x1234',
         recipient: '0x5678',
+        expires: new Date(Date.now() + 60_000).toISOString(),
       },
     })
 
@@ -125,21 +97,21 @@ describe('createCredential', () => {
     expect(credential).toMatch(/^Payment /)
 
     const parsed = Credential.deserialize(credential)
-    expect(parsed.payload).toEqual({ signature: '0xtest-signature' })
-    expect(parsed.challenge.method).toBe('test')
+    expect(parsed.payload).toEqual({ signature: '0xtest-signature', type: 'transaction' })
+    expect(parsed.challenge.method).toBe('tempo')
   })
 
   test('behavior: throws when method not found', async () => {
-    const clientMethod = Method.toClient(fooMethod, {
+    const tempoClient = Method.toClient(tempo, {
       async createCredential({ challenge }) {
         return Credential.serialize({
           challenge,
-          payload: { signature: '0xtest' },
+          payload: { signature: '0xtest', type: 'transaction' },
         })
       },
     })
 
-    const mpay = Mpay.create({ methods: [clientMethod] })
+    const mpay = Mpay.create({ methods: [tempoClient] })
 
     const challenge = Challenge.from({
       id: 'test-id',
@@ -157,111 +129,86 @@ describe('createCredential', () => {
     })
 
     await expect(mpay.createCredential(response)).rejects.toThrow(
-      'No method found for "unknown". Available: test',
+      'No method found for "unknown". Available: tempo',
     )
   })
 
   test('behavior: routes to correct method with multiple methods', async () => {
-    const barCharge = MethodIntent.fromIntent(Intent.charge, {
-      method: 'bar',
-      schema: {
-        credential: {
-          payload: z.object({ token: z.string() }),
-        },
-        request: {
-          requires: ['recipient'],
-        },
-      },
-    })
-
-    const barMethod = Method.from({
-      name: 'bar',
-      intents: { charge: barCharge },
-    })
-
-    const test = Method.toClient(fooMethod, {
+    const tempoClient = Method.toClient(tempo, {
       async createCredential({ challenge }) {
         return Credential.serialize({
           challenge,
-          payload: { signature: '0xtest' },
+          payload: { signature: '0xtest', type: 'transaction' },
         })
       },
     })
 
-    const bar = Method.toClient(barMethod, {
+    const stripeMethod = Method.from({
+      name: 'stripe',
+      intents: { charge: Intents.charge },
+    })
+
+    const stripeClient = Method.toClient(stripeMethod, {
       async createCredential({ challenge }) {
         return Credential.serialize({
           challenge,
-          payload: { token: 'bar-token' },
+          payload: { signature: '0xstripe', type: 'transaction' },
         })
       },
     })
 
-    const mpay = Mpay.create({ methods: [test, bar] })
+    const mpay = Mpay.create({ methods: [tempoClient, stripeClient] })
 
-    const barChallenge = Challenge.fromIntent(barCharge, {
+    const stripeChallenge = Challenge.from({
+      id: 'stripe-challenge-id',
       realm,
-      secretKey,
+      method: 'stripe',
+      intent: 'charge',
       request: {
         amount: '2000',
         currency: '0xabcd',
         recipient: '0xefgh',
+        expires: new Date(Date.now() + 60_000).toISOString(),
       },
     })
 
     const response = new Response(null, {
       status: 402,
       headers: {
-        'WWW-Authenticate': Challenge.serialize(barChallenge),
+        'WWW-Authenticate': Challenge.serialize(stripeChallenge),
       },
     })
 
     const credential = await mpay.createCredential(response)
     const parsed = Credential.deserialize(credential)
 
-    expect(parsed.payload).toEqual({ token: 'bar-token' })
-    expect(parsed.challenge.method).toBe('bar')
+    expect(parsed.payload).toEqual({ signature: '0xstripe', type: 'transaction' })
+    expect(parsed.challenge.method).toBe('stripe')
   })
 
   test('behavior: passes context to createCredential', async () => {
-    const contextCharge = MethodIntent.fromIntent(Intent.charge, {
-      method: 'context-test',
-      schema: {
-        credential: {
-          payload: z.object({ signer: z.string() }),
-        },
-        request: {
-          requires: ['recipient'],
-        },
-      },
-    })
-
-    const contextMethod = Method.from({
-      name: 'context-test',
-      intents: { charge: contextCharge },
-    })
-
-    const clientWithContext = Method.toClient(contextMethod, {
+    const tempoClient = Method.toClient(tempo, {
       context: z.object({
         account: z.custom<Account>(),
       }),
       async createCredential({ challenge, context }) {
         return Credential.serialize({
           challenge,
-          payload: { signer: context.account.address },
+          payload: { signature: context.account.address, type: 'transaction' },
         })
       },
     })
 
-    const mpay = Mpay.create({ methods: [clientWithContext] })
+    const mpay = Mpay.create({ methods: [tempoClient] })
 
-    const challenge = Challenge.fromIntent(contextCharge, {
+    const challenge = Challenge.fromIntent(Intents.charge, {
       realm,
       secretKey,
       request: {
         amount: '1000',
         currency: '0x1234',
         recipient: '0x5678',
+        expires: new Date(Date.now() + 60_000).toISOString(),
       },
     })
 
@@ -276,28 +223,29 @@ describe('createCredential', () => {
     const credential = await mpay.createCredential(response, { account: mockAccount })
 
     const parsed = Credential.deserialize(credential)
-    expect(parsed.payload).toEqual({ signer: '0xMockAddress' })
+    expect(parsed.payload).toEqual({ signature: '0xMockAddress', type: 'transaction' })
   })
 
   test('behavior: works without context when method has no context schema', async () => {
-    const noContextMethod = Method.toClient(fooMethod, {
+    const tempoClient = Method.toClient(tempo, {
       async createCredential({ challenge }) {
         return Credential.serialize({
           challenge,
-          payload: { signature: '0xno-context' },
+          payload: { signature: '0xno-context', type: 'transaction' },
         })
       },
     })
 
-    const mpay = Mpay.create({ methods: [noContextMethod] })
+    const mpay = Mpay.create({ methods: [tempoClient] })
 
-    const challenge = Challenge.fromIntent(fooCharge, {
+    const challenge = Challenge.fromIntent(Intents.charge, {
       realm,
       secretKey,
       request: {
         amount: '1000',
         currency: '0x1234',
         recipient: '0x5678',
+        expires: new Date(Date.now() + 60_000).toISOString(),
       },
     })
 
@@ -310,6 +258,6 @@ describe('createCredential', () => {
 
     const credential = await mpay.createCredential(response)
     const parsed = Credential.deserialize(credential)
-    expect(parsed.payload).toEqual({ signature: '0xno-context' })
+    expect(parsed.payload).toEqual({ signature: '0xno-context', type: 'transaction' })
   })
 })
