@@ -104,7 +104,7 @@ Fetch.polyfill({
   methods: [
     tempo({
       account: privateKeyToAccount('0x...'),
-      rpcUrl: 'https://rpc.testnet.tempo.xyz',
+      rpcUrl: 'https://rpc.tempo.xyz',
     }),
   ],
 })
@@ -130,7 +130,7 @@ const fetch = Fetch.from({
   methods: [
     tempo({
       account,
-      rpcUrl: 'https://rpc.testnet.tempo.xyz',
+      rpcUrl: 'https://rpc.tempo.xyz',
     }),
   ],
 })
@@ -152,7 +152,7 @@ const mpay = Mpay.create({
   methods: [
     tempo({
       account: privateKeyToAccount('0x...'),
-      rpcUrl: 'https://rpc.testnet.tempo.xyz',
+      rpcUrl: 'https://rpc.tempo.xyz',
     })
   ]
 })
@@ -480,7 +480,7 @@ const fetch = Fetch.from({
   methods: [
     tempo({ 
       account, 
-      rpcUrl: 'https://rpc.testnet.tempo.xyz' 
+      rpcUrl: 'https://rpc.tempo.xyz' 
     })
   ],
 })
@@ -497,7 +497,7 @@ Fetch.polyfill({
   methods: [
     tempo({
       account,
-      rpcUrl: 'https://rpc.testnet.tempo.xyz',
+      rpcUrl: 'https://rpc.tempo.xyz',
     }),
   ],
 })
