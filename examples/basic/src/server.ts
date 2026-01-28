@@ -1,5 +1,4 @@
-import { Expires } from 'mpay'
-import { Mpay, tempo } from 'mpay/server'
+import { Expires, Mpay, tempo } from 'mpay/server'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount(generatePrivateKey())
