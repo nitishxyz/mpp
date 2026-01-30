@@ -16,6 +16,11 @@
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedSideEffectImports": true
 	},
-	"include": ["src", "vocs.config.ts", "worker/src"],
-	"exclude": ["src/pages.gen.ts"]
+	"include": [
+		"src",
+		"vocs.config.ts",
+		"worker/src",
+		"worker-configuration.d.ts"
+	],
+	"exclude": ["src/pages.gen.ts", "src/snippets"]
 }

@@ -5,13 +5,17 @@
 	"type": "module",
 	"scripts": {
 		"check": "biome check --write",
-		"dev": "vocs dev",
-		"build": "vocs build",
+		"check:types": "tsc --noEmit",
+		"dev": "vite dev",
+		"build": "vite build && node scripts/patch-cf.ts",
 		"deploy": "wrangler deploy",
-		"preview": "vocs preview",
+		"gen:types": "wrangler types",
+		"postinstall": "pnpm gen:types",
+		"preview": "vite preview",
 		"wrangler:dev": "wrangler dev"
 	},
 	"dependencies": {
+		"@hiogawa/node-loader-cloudflare": "^0.0.2",
 		"dayjs": "^1.11.19",
 		"mpay": "https://pkg.pr.new/wevm/mpay@6c4bdf0",
 		"react": "^19",
@@ -22,13 +26,12 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.13",
-		"@cloudflare/workers-types": "^4.20250115.0",
 		"@types/node": "^22",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"@vitejs/plugin-react": "^5",
 		"typescript": "^5",
 		"vite": "^7",
-		"wrangler": "^3.101.0"
+		"wrangler": "^4.61.1"
 	}
 }

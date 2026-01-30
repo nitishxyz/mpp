@@ -1,42 +1,9 @@
 import { defineConfig, McpSource } from "vocs/config";
 
 export default defineConfig({
-	title: "MPP",
-	titleTemplate: "%s | MPP",
+	accentColor: "light-dark(#0066FF, #3B82F6)",
 	description:
 		"Machine Payments Protocol - Internet-native payments for machine-to-machine transactions",
-	renderStrategy: "full-static",
-	ogImageUrl:
-		"https://vocs.dev/api/og?logo=%logo&title=%title&description=%description",
-
-	topNav: [
-		{ text: "Docs", link: "/quickstart", match: "/quickstart" },
-		{ text: "Protocol", link: "/protocol", match: "/protocol" },
-		{ text: "SDKs", link: "/sdk", match: "/sdk" },
-		{ text: "Specs", link: "https://paymentauth.tempo.xyz" },
-		{
-			text: "GitHub",
-			items: [
-				{ text: "mpay (TypeScript)", link: "https://github.com/wevm/mpay" },
-				{ text: "mpay-rs (Rust)", link: "https://github.com/tempoxyz/mpay-rs" },
-				{ text: "pympay (Python)", link: "https://github.com/tempoxyz/pympay" },
-				{
-					text: "Specification",
-					link: "https://github.com/tempoxyz/payment-auth-spec",
-				},
-			],
-		},
-	],
-
-	socials: [{ icon: "github", link: "https://github.com/wevm/mpay" }],
-
-	theme: {
-		accentColor: {
-			light: "#0066FF",
-			dark: "#3B82F6",
-		},
-	},
-
 	mcp: {
 		enabled: true,
 		sources: [
@@ -51,7 +18,6 @@ export default defineConfig({
 			McpSource.github({ name: "tempo", repo: "tempoxyz/tempo" }),
 		],
 	},
-
 	sidebar: {
 		"/": [
 			{
@@ -367,4 +333,25 @@ export default defineConfig({
 			},
 		],
 	},
+	socials: [{ icon: "github", link: "https://github.com/wevm/mpay" }],
+	title: "MPP",
+	titleTemplate: "%s | MPP",
+	topNav: [
+		{ text: "Docs", link: "/quickstart", match: "/quickstart" },
+		{ text: "Protocol", link: "/protocol", match: "/protocol" },
+		{ text: "SDKs", link: "/sdk", match: "/sdk" },
+		{ text: "Specs", link: "https://paymentauth.tempo.xyz" },
+		{
+			text: "GitHub",
+			items: [
+				{ text: "mpay (TypeScript)", link: "https://github.com/wevm/mpay" },
+				{ text: "mpay-rs (Rust)", link: "https://github.com/tempoxyz/mpay-rs" },
+				{ text: "pympay (Python)", link: "https://github.com/tempoxyz/pympay" },
+				{
+					text: "Specification",
+					link: "https://github.com/tempoxyz/payment-auth-spec",
+				},
+			],
+		},
+	],
 });

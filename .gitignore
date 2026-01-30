@@ -2,3 +2,6 @@ dist
 node_modules
 src/pages.gen.ts
 .wrangler
+.dev.vars*
+.env
+worker-configuration.d.ts
