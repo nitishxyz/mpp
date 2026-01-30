@@ -7,6 +7,12 @@
 	"observability": { "enabled": true },
 	"workers_dev": true,
 	"preview_urls": true,
+	"routes": [
+		{
+			"pattern": "mpp-docs.tempo.xyz",
+			"custom_domain": true
+		}
+	],
 	"assets": {
 		"directory": "./dist/public",
 		"binding": "ASSETS",
