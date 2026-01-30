@@ -1,7 +1,9 @@
 import { env } from "cloudflare:workers";
 import type { MiddlewareHandler } from "vocs/server";
 
-const [AUTH_USER, AUTH_PASS] = env.AUTH_CREDENTIALS!.split(":");
+const [AUTH_USER, AUTH_PASS] = (env.AUTH_CREDENTIALS ?? "user:pass")!.split(
+	":",
+);
 
 export function middleware(): MiddlewareHandler {
 	return async (context, next) => {

@@ -22,5 +22,5 @@ export const mpay = Mpay.create({
 		client,
 	}),
 	realm: "mpp.dev",
-	secretKey: env.SECRET_KEY!,
+	secretKey: env.SECRET_KEY! ?? "top-secret",
 });
