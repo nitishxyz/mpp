@@ -1,11 +1,11 @@
 # pget [wget for paid APIs]
 
-`pget` is a non-interactive commandline tool for making HTTP requests with automatic payment support. Handles `402 Payment Required` responses with built-in payment methods and permissions. Designed for easy use from scripts, cron jobs, and AI agents.
+`pget` is a non-interactive commandline tool for making HTTP requests with automatic payment support. Handles `402 Payment Required` responses with built-in payment methods and permissions. Works from scripts, cron jobs, and AI agents.
 
 ## Install
 
 ```bash [Terminal]
-curl -fsSL https://pget.tempo.xyz/install.sh | bash
+$ curl -fsSL https://pget.tempo.xyz/install.sh | bash
 ```
 
 ## Initialize
@@ -13,7 +13,7 @@ curl -fsSL https://pget.tempo.xyz/install.sh | bash
 Run the init wizard to set up your wallet:
 
 ```bash [Terminal]
-pget init
+$ pget init
 ```
 
 This creates a new encrypted keystore and saves your configuration to `~/.pget/config.toml`.
@@ -22,7 +22,7 @@ This creates a new encrypted keystore and saves your configuration to `~/.pget/c
 For quick testing without a keystore, set your private key directly:
 
 ```bash [Terminal]
-export PGET_PRIVATE_KEY="0x..."
+$ export PGET_PRIVATE_KEY="0x..."
 ```
 
 :::
@@ -30,7 +30,7 @@ export PGET_PRIVATE_KEY="0x..."
 ## Make your first paid request
 
 ```bash [Terminal]
-pget -vv https://mpp.dev/ping/paid
+$ pget -vv https://mpp.dev/ping/paid
 ```
 
 `pget` automatically:
@@ -47,13 +47,13 @@ pget -vv https://mpp.dev/ping/paid
 Use dry-run mode to see what would happen without actually paying:
 
 ```bash [Terminal]
-pget -D https://mpp.dev/ping/paid
+$ pget -D https://mpp.dev/ping/paid
 ```
 
 Or inspect the payment requirements before paying:
 
 ```bash [Terminal]
-pget inspect https://mpp.dev/ping/paid
+$ pget inspect https://mpp.dev/ping/paid
 ```
 
 ## Set spending limits
@@ -61,8 +61,8 @@ pget inspect https://mpp.dev/ping/paid
 Protect yourself with a maximum payment amount:
 
 ```bash [Terminal]
-# Reject payments over $1
-pget -M 1000000 https://mpp.dev/ping/paid
+# Reject payments over 1 USD
+$ pget -M 1000000 https://mpp.dev/ping/paid
 ```
 
 ## Common flags
@@ -79,7 +79,7 @@ pget -M 1000000 https://mpp.dev/ping/paid
 
 ---
 
-# Built-in Skills
+# Built-in skills
 
 pget ships with built-in support for common AI agents. When used as a skill by AI assistants like Claude, pget enables agents to interact with paid APIs autonomously.
 
@@ -91,14 +91,14 @@ AI agents can use pget to:
 - **Query premium data** — Fetch information from paid data providers
 - **Use commercial tools** — Interact with paid developer services
 
-The agent simply calls pget like any other commandline tool when it detects a `402` Payment Required response. Payment is handled transparently.
+The agent calls pget like any other commandline tool when it detects a `402` Payment Required response. Payment is handled transparently.
 
 ## Example: Agent making a paid request
 
 When an AI agent needs to access a paid resource, it runs:
 
 ```bash [Terminal]
-pget https://api.example.com/premium-data
+$ pget https://api.example.com/premium-data
 ```
 
 The agent receives the response data directly—no manual payment handling required.
@@ -113,7 +113,7 @@ Set a maximum amount the agent can spend per request:
 
 ```bash [Terminal]
 # Limit to 0.50 USDC per request
-pget -M 500000 https://api.example.com/data
+$ pget -M 500000 https://api.example.com/data
 ```
 
 ### Dry run mode
@@ -121,7 +121,7 @@ pget -M 500000 https://api.example.com/data
 Agents can preview costs before committing:
 
 ```bash [Terminal]
-pget -D https://api.example.com/expensive-endpoint
+$ pget -D https://api.example.com/expensive-endpoint
 ```
 
 ### Network filtering

@@ -21,7 +21,7 @@ sequenceDiagram
     Server-->>Client: (6) 200 OK<br/>Payment-Receipt: <receipt>
 ```
 
-1. **Client requests a resource** – Standard HTTP request (GET, POST, etc.)
+1. **Client requests a resource** – Standard HTTP request (GET, POST, and others)
 2. **Server responds with `402`** – Includes a **challenge** in `WWW-Authenticate` describing the payment required
 3. **Client fulfills the challenge** – Signs a transaction, pays an invoice, or performs method-specific payment
 4. **Client retries with credential** – Includes an **Authorization** header with payment proof
@@ -172,7 +172,7 @@ Common error codes:
 | `payment_method_unsupported` | Method not accepted |
 | `malformed_proof` | Invalid proof format |
 
-Servers should use the `Retry-After` header to indicate when clients may retry failed payments.
+Use the `Retry-After` header to indicate when clients can retry failed payments.
 
 ## Security considerations
 
@@ -233,7 +233,7 @@ Implementations may define additional parameters in challenges:
 - All string values use UTF-8 encoding
 - Payment method identifiers are restricted to ASCII lowercase
 - The `realm` parameter should use ASCII-only values
-- The `description` parameter may contain localized text; servers should use `Accept-Language` to determine appropriate language
+- The `description` parameter can contain localized text; use `Accept-Language` to determine appropriate language
 
 ## Full specification
 

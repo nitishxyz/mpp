@@ -4,7 +4,7 @@ import { Badge } from '../../components/Badge'
 
 ## Overview
 
-Services can charge for resources using the `mpay` server SDK.
+Charge for resources using the `mpay` server SDK.
 
 The server SDK provides two approaches:
 
@@ -31,14 +31,14 @@ const payment = Mpay.create({ // [!code hl]
 ```
 
 :::tip[Common configuration options]
-- `method` — Payment method (e.g., `tempo({ ... })`)
-- `realm` — Server realm, typically your hostname
-- `secretKey` — Secret for HMAC-bound challenge IDs (enables stateless verification)
+- `method`: Payment method (for example, `tempo({ ... })`)
+- `realm`: Server realm, typically your hostname
+- `secretKey`: Secret for HMAC-bound challenge IDs (enables stateless verification)
 :::
 
 ## Protecting a resource
 
-Use intent methods to protect resources. When a request lacks valid payment credentials, the server returns a `402` challenge. Once payment is verified, the protected content is returned with a receipt.
+Use intent methods to protect resources. When a request lacks valid payment credentials, the server returns a `402` challenge. Once payment is verified, the server returns the protected content with a receipt.
 
 ```ts [charge.ts]
 // Define what to charge

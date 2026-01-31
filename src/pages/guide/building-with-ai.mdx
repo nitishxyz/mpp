@@ -16,11 +16,11 @@ The docs automatically generate [`llms.txt`](https://llmstxt.org/) files for LLM
 
 These files are generated at build time and served at the root of the site.
 
-## Markdown Rendering for AI Agents
+## Markdown rendering for AI agents
 
 AI user agents are automatically detected and served raw Markdown instead of rendered HTML. This provides better token efficiency and easier parsing for LLMs.
 
-### Supported AI Agents
+### Supported AI agents
 
 Popular user agents that are automatically detected:
 
@@ -30,7 +30,7 @@ Popular user agents that are automatically detected:
 
 See the [full list of supported agents](https://github.com/wevm/vocs/blob/next/src/waku/internal/middleware/md-router.ts) for the most up-to-date list.
 
-### Manual Markdown Access
+### Manual markdown access
 
 Any page can be accessed as Markdown by appending `.md` to the URL:
 
@@ -40,7 +40,7 @@ https://mpp.tempo.xyz/quickstart/client.md
 
 This is useful for copying documentation into AI conversations or for custom integrations.
 
-## Ask AI Menu
+## Ask AI menu
 
 The docs include a built-in "Ask AI" menu (`⌘I` / `Ctrl+I`) that provides:
 
@@ -49,7 +49,7 @@ The docs include a built-in "Ask AI" menu (`⌘I` / `Ctrl+I`) that provides:
 - **View as Markdown**: Opens the raw Markdown version of the current page
 - **Copy MCP URL**: Copies the MCP server URL for AI assistant configuration
 
-## MCP Server
+## MCP server
 
 The docs include a built-in [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server that allows AI assistants to navigate documentation and source code programmatically.
 
@@ -65,7 +65,7 @@ amp mcp add --transport http mpp https://mpp.tempo.xyz/api/mcp
 
 ::::
 
-### Connecting AI Assistants
+### Connecting AI assistants
 
 Configure your AI assistant to connect to the MCP server:
 
@@ -79,7 +79,7 @@ Configure your AI assistant to connect to the MCP server:
 }
 ```
 
-### Available Tools
+### Available tools
 
 The MCP server exposes these tools to AI assistants:
 
@@ -89,7 +89,7 @@ The MCP server exposes these tools to AI assistants:
 | `read_page` | Read the content of a specific documentation page |
 | `search_docs` | Search documentation for a query string |
 
-### Source Code Navigation
+### Source code navigation
 
 The MCP server also provides access to source code repositories:
 

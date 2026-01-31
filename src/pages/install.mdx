@@ -30,7 +30,7 @@ bun add mpay viem
 
 ## CDN
 
-If you're not using a package manager, you can also use mpay via an ESM-compatible CDN such as esm.sh. Simply add a `<script type="module">` tag to the bottom of your HTML file with the following content.
+If you're not using a package manager, you can also use mpay using an ESM-compatible CDN such as esm.sh. Add a `<script type="module">` tag to the bottom of your HTML file with the following content.
 
 ```html
 <script type="module">
@@ -65,18 +65,18 @@ bun add mpay@canary
 Or clone the mpay repo to your local machine, build, and link it yourself.
 
 ```bash [Terminal]
-gh repo clone wevm/mpay
-cd mpay
-pnpm install
-pnpm build
-pnpm link --global
+$ gh repo clone wevm/mpay
+$ cd mpay
+$ pnpm install
+$ pnpm build
+$ pnpm link --global
 ```
 
 Then go to the project where you are using mpay and run `pnpm link --global mpay` (or the package manager that you used to link mpay globally).
 
 ## Security
 
-Payment-related projects are often targeted in attacks to steal users' assets. Make sure you follow security best-practices for your project. Some quick things to get started.
+Payment-related projects are often targeted in attacks to steal users' assets. Make sure you follow security best practices for your project. Some things to get started:
 
 - Pin package versions, upgrade mindfully, and inspect lockfile changes to minimize the risk of supply-chain attacks.
 - Add a [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) to defend against external scripts running in your app.

@@ -9,32 +9,32 @@ When you request a resource that requires payment, pget automatically detects th
 **Quick install:**
 
 ```bash [Terminal]
-curl -fsSL https://pget.tempo.xyz/install.sh | bash
+$ curl -fsSL https://pget.tempo.xyz/install.sh | bash
 ```
 
 **From source:**
 
 ```bash [Terminal]
-git clone https://github.com/tempoxyz/pget.git
-cd pget
-cargo install --path .
+$ git clone https://github.com/tempoxyz/pget.git
+$ cd pget
+$ cargo install --path .
 ```
 
 ## Quick start
 
 ```bash [Terminal]
 # Initialize (first time only)
-pget init
+$ pget init
 
 # Make a paid request
-pget https://mpp.dev/ping/paid
+$ pget https://mpp.dev/ping/paid
 ```
 
 ## Configuration
 
 pget uses encrypted keystores for secure wallet management.
 
-### Example Config
+### Example config
 
 ```toml
 [evm]
@@ -49,16 +49,16 @@ tempo = "https://my-private-rpc.com"
 
 ```bash [Terminal]
 # List all payment methods
-pget method list
+$ pget method list
 
 # Create a new wallet
-pget method new my-wallet --generate
+$ pget method new my-wallet --generate
 
 # Import an existing private key
-pget method import my-wallet
+$ pget method import my-wallet
 
 # Check balance on specific network
-pget balance -n tempo
+$ pget balance -n tempo
 ```
 
 ## Command reference
