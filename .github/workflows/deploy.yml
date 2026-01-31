@@ -56,6 +56,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: .
+          wranglerVersion: "4.61.1"
           command: deploy
 
   build-preview:
@@ -100,6 +101,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: .
+          wranglerVersion: "4.61.1"
           command: versions upload
 
       - name: Post Preview Comment
