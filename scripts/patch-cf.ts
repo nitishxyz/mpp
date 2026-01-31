@@ -1,15 +1,38 @@
 // Patches the build output for Cloudflare Workers compatibility.
 // TODO: upstream compat patches to vocs
 
+import { execSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
 const ssrAssetsDir = path.resolve(process.cwd(), "dist/server/ssr/assets");
 const serverAssetsDir = path.resolve(process.cwd(), "dist/server/assets");
+const serverDir = path.resolve(process.cwd(), "dist/server");
 
 if (!fs.existsSync(ssrAssetsDir)) {
 	console.log("⚠ SSR assets directory not found, skipping patches");
 	process.exit(0);
+}
+
+// Create a minimal vocs.config.js that just exports the config object directly
+// (vocs/config exports defineConfig which is just an identity function)
+const vocsConfigSrc = path.resolve(process.cwd(), "vocs.config.ts");
+const vocsConfigDest = path.join(serverDir, "vocs.config.js");
+if (fs.existsSync(vocsConfigSrc)) {
+	const configContent = fs.readFileSync(vocsConfigSrc, "utf-8");
+	// Extract just the config object by replacing imports and defineConfig call
+	// McpSource.github({ name, repo }) → { type: "github", name, repo }
+	const strippedConfig = configContent
+		.replace(/import\s*\{[^}]+\}\s*from\s*["']vocs\/config["'];?/g, "")
+		.replace(
+			/McpSource\.github\(\s*\{[\s\S]*?name:\s*["']([^"']+)["'][\s\S]*?repo:\s*["']([^"']+)["'][\s\S]*?\}\s*\)/g,
+			'{ type: "github", name: "$1", repo: "$2" }',
+		)
+		.replace(/defineConfig\(/g, "(")
+		.replace(/export\s+default/, "export default");
+
+	fs.writeFileSync(vocsConfigDest, strippedConfig);
+	console.log("✓ Created minimal vocs.config.js for CF Workers");
 }
 
 // Patch SSR assets
