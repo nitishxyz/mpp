@@ -25,7 +25,6 @@ type Page =
 | { path: '/sdk/typescript/Credential.serialize'; render: 'static' }
 | { path: '/sdk/typescript/Expires'; render: 'static' }
 | { path: '/sdk/typescript/Intent.authorize'; render: 'static' }
-| { path: '/sdk/typescript/Intent.charge'; render: 'static' }
 | { path: '/sdk/typescript/Intent.from'; render: 'static' }
 | { path: '/sdk/typescript/Intent.subscription'; render: 'static' }
 | { path: '/sdk/typescript/Method.from'; render: 'static' }
@@ -62,6 +61,7 @@ type Page =
 | { path: '/sdk/typescript/core/Credential.fromRequest'; render: 'static' }
 | { path: '/sdk/typescript/core/Credential.serialize'; render: 'static' }
 | { path: '/sdk/typescript/core/Expires'; render: 'static' }
+| { path: '/sdk/typescript/core/Intent.charge'; render: 'static' }
 | { path: '/sdk/typescript/core/PaymentRequest.deserialize'; render: 'static' }
 | { path: '/sdk/typescript/core/PaymentRequest.from'; render: 'static' }
 | { path: '/sdk/typescript/core/PaymentRequest.serialize'; render: 'static' }
@@ -97,7 +97,9 @@ type Page =
 | { path: '/protocol/transports/mcp'; render: 'static' }
 | { path: '/payment-methods/custom'; render: 'static' }
 | { path: '/payment-methods'; render: 'static' }
-| { path: '/payment-methods/tempo'; render: 'static' };
+| { path: '/payment-methods/tempo'; render: 'static' }
+| { path: '/guide/building-with-ai'; render: 'static' }
+| { path: '/_api/api/og'; render: 'static' };
 
 // prettier-ignore
 declare module 'waku/router' {

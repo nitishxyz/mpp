@@ -1,10 +1,25 @@
 import { defineConfig, McpSource } from "vocs/config";
 
+const baseUrl = (() => {
+	if (process.env.VERCEL_ENV === "production")
+		return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+	if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+	// Use localhost for local development
+	if (process.env.NODE_ENV !== "production") return "http://localhost:5173";
+	return "";
+})();
+
 export default defineConfig({
 	rootDir: "src",
 	accentColor: "light-dark(#0066FF, #3B82F6)",
+	checkDeadlinks: false,
 	description:
 		"Machine Payments Protocol - Internet-native payments for machine-to-machine transactions",
+	baseUrl: baseUrl || undefined,
+	ogImageUrl: (path, { baseUrl: base } = { baseUrl: "" }) =>
+		path === "/"
+			? `${base}/og.png`
+			: `${base}/api/og?title=%title&description=%description`,
 	mcp: {
 		enabled: true,
 		sources: [
@@ -335,7 +350,18 @@ export default defineConfig({
 					},
 				],
 			},
+			{
+				text: "Guide",
+				items: [{ text: "Building with AI", link: "/guide/building-with-ai" }],
+			},
 		],
+	},
+	twoslash: {
+		twoslashOptions: {
+			compilerOptions: {
+				moduleResolution: 100,
+			},
+		},
 	},
 	socials: [{ icon: "github", link: "https://github.com/wevm/mpay" }],
 	title: "MPP",
