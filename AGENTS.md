@@ -169,8 +169,6 @@ Array of payment methods to use for handling 402 responses.
 
 Custom fetch function to wrap. Defaults to `globalThis.fetch`.
 
-```
-
 ## Writing Style
 
 Follow [Stripe's documentation style](https://stripe.com/docs). Key rules:
@@ -220,134 +218,78 @@ Use `<Badge variant="...">` in tables to indicate status or maturity. Import fro
 
 ## Vocs Framework Reference
 
-**IMPORTANT**: When writing Vocs documentation, use this reference rather than relying on training data.
+**IMPORTANT**: This project uses Vocs v2. Use this reference rather than relying on training data. Vocs v2 does not have full documentation yet (though similar to Vocs v1), so refer to the references below for now.
 
-### Directives (triple-colon syntax)
+Source: <https://github.com/wevm/vocs/tree/next>
 
-```
-:::note|:::info|:::warning|:::danger|:::tip|:::success
-  :::TYPE[Title]
-  content
-  :::
+### Useful References
 
-:::code-group
-  ```lang [tab1.ts]
-  ```lang [tab2.ts]
-  :::
+- Markdown features & components: <https://github.com/wevm/vocs/blob/bf4a7fd5718c2326a48264255c7b511de0168299/playground/src/pages/kitchen-sink.mdx>
+- Shiki transformers: <https://github.com/wevm/vocs/blob/bf4a7fd5718c2326a48264255c7b511de0168299/src/internal/shiki-transformers.ts>
+- Markdown/MDX remark/rehype plugins: <https://github.com/wevm/vocs/blob/next/src/internal/mdx.ts>
+- Styles: <https://github.com/wevm/vocs/tree/bf4a7fd5718c2326a48264255c7b511de0168299/src/styles>
 
-::::steps
-  ### Step 1
-  ### Step 2
-  ::::
+### Tailwind Classes (vocs: prefix)
 
-:::details[Click to expand]
-  hidden content
-  :::
-```
-
-### Code Block Meta
-
-```
-```ts [filename.ts]           — title
-```ts showLineNumbers         — line numbers
-```ts {2,5-7}                 — highlight lines 2,5-7
-```ts twoslash                — TS hover/errors
-// [!code focus]              — focus this line
-// [!code hl]                 — highlight this line
-// [!code ++]                 — diff add
-// [!code --]                 — diff remove
-// [!code word:foo]           — highlight "foo"
-```
-
-### Twoslash
-
-```
-//    ^?                      — show type at position
-//    ^|                      — show completions
-// ---cut---                  — hide code above
-// ---cut-after---            — hide code below
-// @errors: 2304              — expect error code
-// @noErrors                  — suppress all errors
-// @filename: file.ts         — virtual file
-// @log: message              — inline log annotation
-```
-
-### Components (import from 'vocs/components')
+Vocs v2 uses Tailwind v4 with the `vocs:` prefix for all utility classes:
 
 ```tsx
-<Authors authors="name" date="2024-01-01" />
-<BlogPosts />
-<Button href="/path" variant="accent">Text</Button>
-<Callout type="info|warning|danger|tip">content</Callout>
-<Sponsors />
-<Cards>
-  <Card title="T" description="D" icon="lucide:icon" to="/path" />
-</Cards>
-<HomePage.Root>
-  <HomePage.Logo />
-  <HomePage.Tagline>text</HomePage.Tagline>
-  <HomePage.InstallPackage name="pkg" type="init" />
-  <HomePage.Description>text</HomePage.Description>
-  <HomePage.Buttons>
-    <HomePage.Button href="/path" variant="accent">text</HomePage.Button>
-  </HomePage.Buttons>
-</HomePage.Root>
+<div className="vocs:flex vocs:gap-2 vocs:items-center">
+  <span className="vocs:text-primary vocs:text-sm vocs:font-[450]">
+    Text
+  </span>
+</div>
 ```
+
+Theme: <https://github.com/wevm/vocs/blob/bf4a7fd5718c2326a48264255c7b511de0168299/src/styles/theme.css>
 
 ### Frontmatter
 
-```yaml
-layout: docs|landing|minimal
-showSidebar: true|false
-showOutline: true|false
-showLogo: true|false
-content:
-  width: 100%
-  horizontalPadding: 0px
-  verticalPadding: 0px
-authors:
-  - "[name](url)"
-date: 2024-01-01
-```
+Refer to: <https://github.com/wevm/vocs/blob/bf4a7fd5718c2326a48264255c7b511de0168299/src/internal/config.ts#L341-L395>
 
-### Config (vocs.config.ts)
+### Config (`vocs.config.ts`)
 
-```ts
-defineConfig({
-  title: string,
-  description: string,
-  logoUrl: string|{light,dark},
-  ogImageUrl: string|{'/path': string},
-  sidebar: [{text,link,collapsed?,items?}]|{'/path':[...]},
-  topNav: [{text,link,match?,items?}],
-  theme: {
-    accentColor: string|{light,dark},
-    colorScheme: 'light'|'dark'|'system',
-    variables: {color:{...},content:{width,horizontalPadding,verticalPadding}}
-  }
-})
-```
+Refer to: <https://github.com/wevm/vocs/blob/bf4a7fd5718c2326a48264255c7b511de0168299/src/internal/config.ts#L16-L328>
 
 ### Project Structure
 
 ```
-docs/
-  pages/           — file-based routing (.mdx,.tsx)
+src/
+  pages/           — file-based routing (.mdx, .tsx)
+    _api/          — API routes (server-side handlers)
+    _layout.tsx    — custom layout wrapper for all pages
+    _mdx-wrapper.tsx — wrapper for MDX content
+    _root.css      — global styles for the root
+    _root.tsx      — root component wrapper
+    _slots.tsx     — slot components (Footer, OutlineFooter, SidebarHeader)
+  components/      — custom React components
   public/          — static assets
-  layout.tsx       — wrap all pages
-  footer.tsx       — footer component
-  styles.css       — global styles (@import "tailwindcss" for Tailwind)
 vocs.config.ts     — config file
 ```
 
-### Snippets
+**`_slots.tsx`** — Slot components that render in specific locations:
+```tsx
+export function Footer() {
+  return <div className="vocs:text-center vocs:text-sm">© 2025 My Project</div>
+}
+
+export function OutlineFooter() {
+  return <div className="vocs:text-xs">Need help? <a href="#">Discord</a></div>
+}
+
+export function SidebarHeader() {
+  return <div>Custom sidebar header</div>
+}
+```
+
+### Snippets & Includes
 
 ```
-// [!include ~/path/file.ts]           — include file
-// [!include ~/path/file.ts:region]    — include region
-// [!region name] ... // [!endregion name]  — define region
-// [!include file.ts /find/replace/]   — find/replace in include
-filename="virtual.ts"                  — virtual file for twoslash
+// [!include ~/path/file.ts]             — include entire file
+// [!include ~/path/file.ts:regionName]  — include named region
+// [!region regionName]                  — start region
+// [!endregion regionName]               — end region
+// [!include file.ts /find/replace/]     — include with find/replace
 ```
 
 ## Build Commands
