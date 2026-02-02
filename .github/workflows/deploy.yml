@@ -34,7 +34,7 @@ jobs:
         run: pnpm install
 
       - name: Biome lint/format
-        run: pnpm check --check
+        run: pnpm biome check
 
       - name: TypeScript
         run: pnpm check:types
