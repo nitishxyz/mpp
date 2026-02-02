@@ -1,19 +1,19 @@
-# Tempo [Instant stablecoin payments on the Tempo blockchain]
+# Tempo [Stablecoin payments on the Tempo blockchain]
 
-The [Tempo](https://docs.tempo.xyz) payment method enables instant payments using TIP-20 stablecoins on the Tempo blockchain.
+The [Tempo](https://docs.tempo.xyz) payment method enables payments using TIP-20 stablecoins on the Tempo blockchain.
 
 ## Overview
 
 [Tempo](https://docs.tempo.xyz) is purpose-built for machine-to-machine payments. It provides:
 
-- **Instant finality:** Transactions settle in ~500ms with deterministic confirmation
-- **Low fees:** Sub-cent transaction costs suitable for micropayments
-- **Fee sponsorship:** Servers can optionally cover gas fees for clients
+- **Finality**—Transactions typically settle in about 500 ms with deterministic confirmation
+- **Low fees**—Sub-cent transaction costs suitable for micropayments
+- **Fee sponsorship**—Servers can optionally cover gas fees for clients
 
 ## Intents
 
 :::info[Advanced intents]
-Future versions will support additional intents like streaming payments for metered usage.
+Later versions may support additional intents like streaming payments for metered usage.
 :::
 
 ### Charge
@@ -22,7 +22,7 @@ The `tempo` method supports the `charge` intent for immediate one-time payments.
 
 ### Client
 
-Use the `tempo` method from `mpay/client` to automatically sign payment transactions when encountering 402 responses.
+Use the `tempo` method from `mpay/client` to automatically sign payment transactions when you get `402` responses.
 
 ```ts twoslash
 import { Fetch, tempo } from 'mpay/client'
