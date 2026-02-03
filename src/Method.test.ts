@@ -39,23 +39,6 @@ describe('toServer', () => {
     expect(typeof method.verify).toBe('function')
   })
 
-  test('behavior: with context schema', () => {
-    const method = Method.toServer(fooMethod, {
-      context: z.object({ apiKey: z.string() }),
-      async verify() {
-        return {
-          method: 'test',
-          reference: 'ref-123',
-          status: 'success' as const,
-          timestamp: new Date().toISOString(),
-        }
-      },
-    })
-
-    expect(method.name).toBe('test')
-    expect(method.context).toBeDefined()
-  })
-
   test('behavior: with multiple intents', () => {
     const baseMethod = Method.from({
       name: 'test',

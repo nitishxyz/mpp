@@ -1,3 +1,4 @@
+import type { Account } from 'viem'
 import * as Intent from '../Intent.js'
 import * as MethodIntent from '../MethodIntent.js'
 import * as z from '../zod.js'
@@ -19,7 +20,7 @@ export const charge = MethodIntent.fromIntent(Intent.charge, {
     request: {
       methodDetails: z.object({
         chainId: z.optional(z.number()),
-        feePayer: z.optional(z.boolean()),
+        feePayer: z.optional(z.union([z.boolean(), z.custom<Account>()])),
         memo: z.optional(z.hash()),
       }),
       requires: ['recipient'],

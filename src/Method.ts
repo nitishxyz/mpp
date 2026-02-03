@@ -1,6 +1,6 @@
 import type * as Challenge from './Challenge.js'
 import type * as Credential from './Credential.js'
-import type { UnionMerge } from './internal/types.js'
+import type { ExactPartial, LooseOmit } from './internal/types.js'
 import type * as MethodIntent from './MethodIntent.js'
 import type * as Receipt from './Receipt.js'
 import type * as z from './zod.js'
@@ -55,7 +55,7 @@ export type AnyClient = Client<any, any, any>
  * A server-side payment method with verification logic.
  *
  * Extends the base Method with:
- * - Optional per-request context schema
+ * - Optional default values for request fields
  * - Verification logic
  */
 export type Server<
@@ -64,20 +64,14 @@ export type Server<
     string,
     MethodIntent.MethodIntent
   >,
-  context extends z.ZodMiniType | undefined = z.ZodMiniType | undefined,
+  defaults extends ExactPartial<RequestUnion<intents>> = {},
 > = Method<name, intents> & {
-  /** Schema for per-request context passed to `verify`. */
-  context?: context
+  /** Default values for request fields. */
+  defaults?: defaults
   /** Transform request before challenge creation. */
-  request?: RequestFn<
-    intents,
-    context extends z.ZodMiniType ? z.output<context> : Record<never, never>
-  >
+  request?: RequestFn<intents>
   /** Verify a credential and return a receipt. */
-  verify: VerifyFn<
-    intents,
-    context extends z.ZodMiniType ? z.output<context> : Record<never, never>
-  >
+  verify: VerifyFn<intents>
 }
 export type AnyServer = Server<any, any, any>
 
@@ -98,35 +92,41 @@ export declare namespace CreateCredentialFn {
   }[keyof intents]
 }
 
-/** Function that transforms request based on context. */
-export type RequestFn<
-  intents extends Record<string, MethodIntent.MethodIntent>,
-  context = unknown,
-> = (parameters: RequestFn.Parameters<intents, context>) => RequestFn.ReturnType<intents>
+/** Function that transforms request before challenge creation. */
+export type RequestFn<intents extends Record<string, MethodIntent.MethodIntent>> = (
+  parameters: RequestFn.Parameters<intents>,
+) => RequestFn.ReturnType<intents>
 
 export declare namespace RequestFn {
-  type Parameters<intents extends Record<string, MethodIntent.MethodIntent>, context = unknown> = {
+  type Parameters<
+    intents extends Record<string, MethodIntent.MethodIntent>,
+    defaults extends Partial<RequestUnion<intents>> = {},
+  > = {
     [key in keyof intents]: {
       description?: string | undefined
       expires?: string | undefined
-    } & UnionMerge<z.input<intents[key]['schema']['request']>, context>
+    } & WithDefaults<z.input<intents[key]['schema']['request']>, defaults>
   }[keyof intents]
 
   type ReturnType<intents extends Record<string, MethodIntent.MethodIntent>> = {
     [key in keyof intents]: z.input<intents[key]['schema']['request']>
   }[keyof intents]
+
+  /** Makes fields optional if they exist in defaults. */
+  type WithDefaults<request, defaults> = [keyof defaults] extends [never]
+    ? request
+    : LooseOmit<request, keyof defaults & string> &
+        ExactPartial<Pick<request, keyof defaults & keyof request>>
 }
 
 /** Verification function that validates a credential and returns a receipt. */
-export type VerifyFn<
-  intents extends Record<string, MethodIntent.MethodIntent>,
-  context = unknown,
-> = (parameters: VerifyFn.Parameters<intents, context>) => Promise<Receipt.Receipt>
+export type VerifyFn<intents extends Record<string, MethodIntent.MethodIntent>> = (
+  parameters: VerifyFn.Parameters<intents>,
+) => Promise<Receipt.Receipt>
 
 export declare namespace VerifyFn {
-  type Parameters<intents extends Record<string, MethodIntent.MethodIntent>, context = unknown> = {
+  type Parameters<intents extends Record<string, MethodIntent.MethodIntent>> = {
     [key in keyof intents]: {
-      context: context
       credential: Credential.Credential<
         z.output<intents[key]['schema']['credential']['payload']>,
         Challenge.Challenge<z.output<intents[key]['schema']['request']>, intents[key]['name']>
@@ -142,17 +142,23 @@ export type ClientContextOf<method extends AnyClient> =
     ? Record<never, never>
     : NonNullable<z.input<NonNullable<method['context']>>>
 
-/** Extract context input type from a Server Method (for IntentFn options). */
-export type ContextOf<method extends AnyServer> =
-  NonNullable<method['context']> extends never
-    ? Record<never, never>
-    : NonNullable<z.input<NonNullable<method['context']>>>
+/** Extract defaults from a Server Method. */
+export type DefaultsOf<method extends AnyServer> = NonNullable<method['defaults']>
 
 /** Extract name from a Method */
 export type NameOf<method extends AnyMethod> = method['name']
 
 /** Extract intents from a Method */
 export type IntentsOf<method extends AnyMethod> = method['intents']
+
+/** Union of all request input types from intents. */
+export type RequestUnion<intents extends Record<string, MethodIntent.MethodIntent>> = {
+  [key in keyof intents]: z.input<intents[key]['schema']['request']>
+}[keyof intents]
+
+/** Partial that allows undefined for exactOptionalPropertyTypes compatibility. */
+export type RequestDefaults<intents extends Record<string, MethodIntent.MethodIntent>> =
+  ExactPartial<RequestUnion<intents>>
 
 /**
  * Creates a payment method from parameters.
@@ -197,6 +203,7 @@ export declare namespace from {
  * import { Method, tempo } from 'mpay'
  *
  * const method = Method.toServer(tempo, {
+ *   defaults: { currency: '0x...' },
  *   async verify({ credential }) {
  *     // verification logic
  *     return { status: 'success', ... }
@@ -206,39 +213,33 @@ export declare namespace from {
  */
 export function toServer<
   const method extends Method,
-  const context extends z.ZodMiniType | undefined = undefined,
+  const defaults extends RequestDefaults<method['intents']> = {},
 >(
   method: method,
-  options: toServer.Options<method['intents'], context>,
-): Server<method['name'], method['intents'], context> {
-  const { context, request, verify } = options
+  options: toServer.Options<method['intents'], defaults>,
+): Server<method['name'], method['intents'], defaults> {
+  const { defaults, request, verify } = options
   const { intents, name } = method
   return {
-    context,
+    defaults,
     intents,
     name,
     request,
     verify,
-  } as Server<method['name'], method['intents'], context>
+  } as Server<method['name'], method['intents'], defaults>
 }
 
 export declare namespace toServer {
   type Options<
     intents extends Record<string, MethodIntent.MethodIntent>,
-    context extends z.ZodMiniType | undefined = undefined,
+    defaults extends RequestDefaults<intents> = {},
   > = {
-    /** Schema for per-request context passed to `verify`. */
-    context?: context
+    /** Default values for request fields. */
+    defaults?: defaults
     /** Transform request before challenge creation. */
-    request?: RequestFn<
-      intents,
-      context extends z.ZodMiniType ? z.output<context> : Record<never, never>
-    >
+    request?: RequestFn<intents>
     /** Verify a credential and return a receipt. */
-    verify: VerifyFn<
-      intents,
-      context extends z.ZodMiniType ? z.output<context> : Record<never, never>
-    >
+    verify: VerifyFn<intents>
   }
 }
 

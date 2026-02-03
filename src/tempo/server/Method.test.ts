@@ -19,6 +19,8 @@ const secretKey = 'test-secret-key'
 const server = Mpay_server.create({
   method: Methods_server.tempo({
     chainId: chain.id,
+    currency: asset,
+    recipient: accounts[0].address,
     rpcUrl,
   }),
   realm,
@@ -28,16 +30,8 @@ const server = Mpay_server.create({
 describe('tempo', () => {
   describe('intent: charge; type: hash', () => {
     test('default', async () => {
-      const request = {
-        amount: '1000000',
-        currency: asset,
-        expires: new Date(Date.now() + 60_000).toISOString(),
-        recipient: accounts[0].address,
-        feePayer: true,
-      } as const
-
       const httpServer = await Http.createServer(async (req, res) => {
-        const result = await toNodeListener(server.charge(request))(req, res)
+        const result = await toNodeListener(server.charge({ amount: '1000000' }))(req, res)
         if (result.status === 402) return
         res.end('OK')
       })
@@ -84,18 +78,63 @@ describe('tempo', () => {
       httpServer.close()
     })
 
+    test('behavior: overrides', async () => {
+      const overrideRecipient = accounts[2].address
+      const overrideCurrency = asset
+      const overrideExpires = new Date(Date.now() + 60_000).toISOString()
+
+      const httpServer = await Http.createServer(async (req, res) => {
+        const result = await toNodeListener(
+          server.charge({
+            amount: '1000000',
+            currency: overrideCurrency,
+            expires: overrideExpires,
+            recipient: overrideRecipient,
+          }),
+        )(req, res)
+        if (result.status === 402) return
+        res.end('OK')
+      })
+
+      const response = await fetch(httpServer.url)
+      expect(response.status).toBe(402)
+
+      const challenge = Challenge.fromResponse(response, { method: server.method })
+      expect(challenge.request.recipient).toBe(overrideRecipient)
+      expect(challenge.request.currency).toBe(overrideCurrency)
+      expect(challenge.request.expires).toBe(overrideExpires)
+
+      const { receipt } = await Actions.token.transferSync(client, {
+        account: accounts[1],
+        amount: BigInt(challenge.request.amount),
+        to: challenge.request.recipient as Hex.Hex,
+        token: challenge.request.currency as Hex.Hex,
+      })
+      const hash = receipt.transactionHash
+
+      const credential = Credential.from({
+        challenge,
+        payload: { hash, type: 'hash' as const },
+      })
+
+      {
+        const response = await fetch(httpServer.url, {
+          headers: { Authorization: Credential.serialize(credential) },
+        })
+        expect(response.status).toBe(200)
+
+        const receipt = Receipt.fromResponse(response)
+        expect(receipt.status).toBe('success')
+      }
+
+      httpServer.close()
+    })
+
     test('behavior: rejects hash with non-matching Transfer log', async () => {
       const wrongRecipient = accounts[2].address
 
-      const request = {
-        amount: '1000000',
-        currency: asset,
-        expires: new Date(Date.now() + 60_000).toISOString(),
-        recipient: accounts[0].address,
-      } as const
-
       const httpServer = await Http.createServer(async (req, res) => {
-        const result = await toNodeListener(server.charge(request))(req, res)
+        const result = await toNodeListener(server.charge({ amount: '1000000' }))(req, res)
         if (result.status === 402) return
         res.end('OK')
       })
@@ -130,15 +169,13 @@ describe('tempo', () => {
     })
 
     test('behavior: rejects expired request', async () => {
-      const request = {
-        amount: '1000000',
-        currency: asset,
-        expires: new Date(Date.now() - 1000).toISOString(),
-        recipient: accounts[0].address,
-      } as const
-
       const httpServer = await Http.createServer(async (req, res) => {
-        const result = await toNodeListener(server.charge(request))(req, res)
+        const result = await toNodeListener(
+          server.charge({
+            amount: '1000000',
+            expires: new Date(Date.now() - 1000).toISOString(),
+          }),
+        )(req, res)
         if (result.status === 402) return
         res.end('OK')
       })
@@ -190,7 +227,6 @@ describe('tempo', () => {
           server.charge({
             amount: '1000000',
             currency: asset,
-            expires: new Date(Date.now() + 60_000).toISOString(),
             recipient: accounts[0].address,
           }),
         )(req, res)
@@ -227,6 +263,52 @@ describe('tempo', () => {
       httpServer.close()
     })
 
+    test('behavior: overrides', async () => {
+      const overrideRecipient = accounts[2].address
+      const overrideCurrency = asset
+      const overrideExpires = new Date(Date.now() + 60_000).toISOString()
+
+      const mpay = Mpay_client.create({
+        methods: [
+          Methods_client.tempo({
+            account: accounts[1],
+            chainId: chain.id,
+            rpcUrl,
+          }),
+        ],
+      })
+
+      const httpServer = await Http.createServer(async (req, res) => {
+        const result = await toNodeListener(
+          server.charge({
+            amount: '1000000',
+            currency: overrideCurrency,
+            expires: overrideExpires,
+            recipient: overrideRecipient,
+          }),
+        )(req, res)
+        if (result.status === 402) return
+        res.end('OK')
+      })
+
+      const response = await fetch(httpServer.url)
+      expect(response.status).toBe(402)
+
+      const credential = await mpay.createCredential(response)
+
+      {
+        const response = await fetch(httpServer.url, {
+          headers: { Authorization: credential },
+        })
+        expect(response.status).toBe(200)
+
+        const receipt = Receipt.fromResponse(response)
+        expect(receipt.status).toBe('success')
+      }
+
+      httpServer.close()
+    })
+
     test('behavior: fee payer', async () => {
       const mpay = Mpay_client.create({
         methods: [
@@ -244,7 +326,6 @@ describe('tempo', () => {
             feePayer: accounts[0],
             amount: '1000000',
             currency: asset,
-            expires: new Date(Date.now() + 60_000).toISOString(),
             recipient: accounts[0].address,
           }),
         )(req, res)
@@ -284,15 +365,13 @@ describe('tempo', () => {
 
   describe('intent: unknown', () => {
     test('behavior: returns 402 for invalid payload schema', async () => {
-      const request = {
-        amount: '1000000',
-        currency: asset,
-        expires: new Date(Date.now() + 60_000).toISOString(),
-        recipient: accounts[0].address,
-      } as const
-
       const httpServer = await Http.createServer(async (req, res) => {
-        const result = await toNodeListener(server.charge(request))(req, res)
+        const result = await toNodeListener(
+          server.charge({
+            amount: '1000000',
+            expires: new Date(Date.now() + 60_000).toISOString(),
+          }),
+        )(req, res)
         if (result.status === 402) return
         res.end('OK')
       })

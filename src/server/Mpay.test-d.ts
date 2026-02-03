@@ -2,6 +2,7 @@ import { describe, expectTypeOf, test } from 'vitest'
 import * as Intent from '../Intent.js'
 import * as Method from '../Method.js'
 import * as MethodIntent from '../MethodIntent.js'
+import { tempo } from '../tempo/server/Method.js'
 import * as z from '../zod.js'
 import * as Mpay from './Mpay.js'
 
@@ -99,34 +100,6 @@ describe('Mpay', () => {
     })
   })
 
-  test('intent function options include context when method has context', () => {
-    const method = Method.toServer(fooMethod, {
-      context: z.object({ rpcUrl: z.string() }),
-      async verify() {
-        return {
-          method: 'test',
-          reference: '0x123',
-          status: 'success' as const,
-          timestamp: new Date().toISOString(),
-        }
-      },
-    })
-
-    const handler = Mpay.create({
-      method,
-      realm: 'api.example.com',
-      secretKey: 'secret',
-    })
-
-    handler.charge({
-      amount: '1000',
-      currency: '0x1234',
-      expires: '2025-01-01T00:00:00Z',
-      recipient: '0xabc',
-      rpcUrl: 'https://rpc.example.com',
-    })
-  })
-
   test('intent function returns handler that accepts Request', async () => {
     const method = Method.toServer(fooMethod, {
       async verify() {
@@ -159,6 +132,74 @@ describe('Mpay', () => {
     } else {
       expectTypeOf(result.withReceipt).toBeFunction()
     }
+  })
+
+  describe('defaults', () => {
+    test('defaulted fields are optional in intent options', () => {
+      const handler = Mpay.create({
+        method: tempo({ currency: '0x1234', recipient: '0xabc' }),
+        realm: 'api.example.com',
+        secretKey: 'secret',
+      })
+
+      // currency and recipient should be optional since they're in defaults
+      handler.charge({
+        amount: '1000',
+      })
+
+      // But can still be overridden
+      handler.charge({
+        amount: '1000',
+        currency: '0x5678',
+        recipient: '0xdef',
+      })
+    })
+
+    test('non-defaulted fields remain required', () => {
+      const handler = Mpay.create({
+        method: tempo({ currency: '0x1234' }),
+        realm: 'api.example.com',
+        secretKey: 'secret',
+      })
+
+      // recipient is still required since it's not in defaults
+      handler.charge({
+        amount: '1000',
+        recipient: '0xabc',
+      })
+    })
+
+    test('no defaults means all fields required', () => {
+      const handler = Mpay.create({
+        method: tempo(),
+        realm: 'api.example.com',
+        secretKey: 'secret',
+      })
+
+      // All required fields must be provided
+      handler.charge({
+        amount: '1000',
+        currency: '0x1234',
+        recipient: '0xabc',
+      })
+    })
+
+    test('type: defaulted fields are optional in options type', () => {
+      const handler = Mpay.create({
+        method: tempo({ currency: '0x1234', recipient: '0xabc' }),
+        realm: 'api.example.com',
+        secretKey: 'secret',
+      })
+
+      type ChargeOptions = Parameters<typeof handler.charge>[0]
+
+      // currency and recipient should be optional (include undefined)
+      expectTypeOf<ChargeOptions['currency']>().toEqualTypeOf<string | undefined>()
+      expectTypeOf<ChargeOptions['recipient']>().toEqualTypeOf<string | undefined>()
+
+      // amount should still be required (no undefined)
+      expectTypeOf<ChargeOptions['amount']>().toEqualTypeOf<string>()
+    })
   })
 })
 

@@ -2,7 +2,6 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import * as Challenge from '../Challenge.js'
 import type * as Credential from '../Credential.js'
 import * as Errors from '../Errors.js'
-import type { UnionMerge } from '../internal/types.js'
 import type * as Method from '../Method.js'
 import type * as MethodIntent from '../MethodIntent.js'
 import type * as Receipt from '../Receipt.js'
@@ -27,7 +26,7 @@ export type Mpay<
   [intent in keyof Method.IntentsOf<method>]: IntentFn<
     Method.IntentsOf<method>[intent],
     transport,
-    Method.ContextOf<method>
+    Method.DefaultsOf<method>
   >
 }
 
@@ -55,7 +54,7 @@ export function create<
     secretKey,
     transport = Transport.http() as transport,
   } = config
-  const { intents, request, verify } = method
+  const { defaults, intents, request, verify } = method
 
   const intentFns: Record<
     string,
@@ -63,6 +62,7 @@ export function create<
   > = {}
   for (const [name, intent] of Object.entries(intents as Record<string, MethodIntent.MethodIntent>))
     intentFns[name] = createIntentFn({
+      defaults,
       intent,
       realm,
       request: request as never,
@@ -93,22 +93,24 @@ export declare namespace create {
 function createIntentFn<
   intent extends MethodIntent.MethodIntent,
   transport extends Transport.AnyTransport,
-  context,
+  defaults extends Record<string, unknown>,
 >(
-  parameters: createIntentFn.Parameters<intent, transport, context>,
-): createIntentFn.ReturnType<intent, transport, context>
+  parameters: createIntentFn.Parameters<intent, transport, defaults>,
+): createIntentFn.ReturnType<intent, transport, defaults>
 // biome-ignore lint/correctness/noUnusedVariables: _
 function createIntentFn(parameters: createIntentFn.Parameters): createIntentFn.ReturnType {
-  const { intent, realm, secretKey, transport, verify } = parameters
+  const { defaults, intent, realm, secretKey, transport, verify } = parameters
 
   return (options) =>
     async (input): Promise<IntentFn.Response> => {
       const { description, ...rest } = options
       const expires = 'expires' in options ? (options.expires as string | undefined) : undefined
 
+      // Merge defaults with per-request options
+      const merged = { ...defaults, ...rest }
+
       // Transform request if method provides a `request` function
-      const request = (parameters.request ? parameters.request(options as never) : rest) as never
-      const context = rest
+      const request = (parameters.request ? parameters.request(merged as never) : merged) as never
 
       // Recompute challenge from options. The HMAC-bound ID means we don't need to
       // store challenges server-side—if the client echoes back a credential with
@@ -180,7 +182,7 @@ function createIntentFn(parameters: createIntentFn.Parameters): createIntentFn.R
       // User-provided verification (e.g., check signature, submit tx, verify payment)
       let receiptData: Receipt.Receipt
       try {
-        receiptData = await verify({ context, credential, request } as never)
+        receiptData = await verify({ credential, request } as never)
       } catch (e) {
         return {
           challenge: await transport.respondChallenge({
@@ -224,40 +226,44 @@ declare namespace createIntentFn {
   type Parameters<
     intent extends MethodIntent.MethodIntent = MethodIntent.MethodIntent,
     transport extends Transport.AnyTransport = Transport.Http,
-    context = unknown,
+    defaults extends Record<string, unknown> = Record<string, unknown>,
   > = {
+    defaults?: defaults
     intent: intent
     realm: string
-    request?: Method.RequestFn<Record<string, intent>, context>
+    request?: Method.RequestFn<Record<string, intent>>
     secretKey: string
     transport: transport
-    verify: Method.VerifyFn<Record<string, intent>, context>
+    verify: Method.VerifyFn<Record<string, intent>>
   }
 
   type ReturnType<
     intent extends MethodIntent.MethodIntent = MethodIntent.MethodIntent,
     transport extends Transport.AnyTransport = Transport.Http,
-    context = unknown,
-  > = IntentFn<intent, transport, context>
+    defaults extends Record<string, unknown> = Record<string, unknown>,
+  > = IntentFn<intent, transport, defaults>
 }
 
 /** @internal */
 type IntentFn<
   intent extends MethodIntent.MethodIntent,
   transport extends Transport.AnyTransport,
-  context,
+  defaults extends Record<string, unknown>,
 > = (
-  options: IntentFn.Options<intent, context>,
+  options: IntentFn.Options<intent, defaults>,
 ) => (input: Transport.InputOf<transport>) => Promise<IntentFn.Response<transport>>
 
 /** @internal */
 declare namespace IntentFn {
-  export type Options<intent extends MethodIntent.MethodIntent, context> = {
+  export type Options<
+    intent extends MethodIntent.MethodIntent,
+    defaults extends Record<string, unknown> = Record<string, unknown>,
+  > = {
     /** Optional human-readable description of the payment. */
     description?: string | undefined
     /** Optional challenge expiration timestamp (ISO 8601). */
     expires?: string | undefined
-  } & UnionMerge<z.input<intent['schema']['request']>, context>
+  } & Method.RequestFn.WithDefaults<z.input<intent['schema']['request']>, defaults>
 
   export type Response<transport extends Transport.AnyTransport = Transport.Http> =
     | { challenge: Transport.ChallengeOutputOf<transport>; status: 402 }

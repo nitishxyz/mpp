@@ -19,6 +19,11 @@ export function datetime() {
     )
 }
 
+/** Hex-encoded address string (0x-prefixed, 40 hex chars). */
+export function address() {
+  return z.string().check(z.regex(/^0x[0-9a-fA-F]{40}$/, 'Invalid address'))
+}
+
 /** Hex-encoded hash string (0x-prefixed, 64 hex chars). */
 export function hash() {
   return z.string().check(z.regex(/^0x[0-9a-fA-F]{64}$/, 'Invalid hash'))

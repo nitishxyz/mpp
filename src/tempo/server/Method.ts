@@ -10,9 +10,8 @@ import {
 import { getTransactionReceipt, sendRawTransactionSync, signTransaction } from 'viem/actions'
 import { tempo as tempo_chain } from 'viem/chains'
 import { Abis, Transaction } from 'viem/tempo'
-import type { OneOf } from '../../internal/types.js'
+import type { LooseOmit, OneOf } from '../../internal/types.js'
 import * as Method from '../../Method.js'
-import * as z from '../../zod.js'
 import * as defaults from '../internal/defaults.js'
 import * as Methods from './../Method.js'
 
@@ -36,8 +35,20 @@ const transferWithMemoSelector = /*#__PURE__*/ AbiFunction.getSelector(transferW
  * const method = tempo()
  * ```
  */
-export function tempo(parameters: tempo.Parameters = {}) {
-  const { chainId = defaults.chainId, feePayer, rpcUrl = defaults.rpcUrl } = parameters
+export function tempo<const defaults extends tempo.Defaults>(
+  parameters: tempo.Parameters<defaults> = {} as tempo.Parameters<defaults>,
+) {
+  const {
+    amount,
+    chainId = defaults.chainId,
+    currency,
+    description,
+    externalId,
+    feePayer,
+    memo,
+    recipient,
+    rpcUrl = defaults.rpcUrl,
+  } = parameters
 
   const client = (() => {
     if (parameters.client) return parameters.client
@@ -51,21 +62,22 @@ export function tempo(parameters: tempo.Parameters = {}) {
     })
   })()
 
-  return Method.toServer(Methods.tempo, {
-    context: z._default(
-      z.object({
-        feePayer: z.optional(z.custom<Account>()),
-      }),
-      { feePayer },
-    ),
+  return Method.toServer<typeof Methods.tempo, defaults>(Methods.tempo, {
+    defaults: {
+      amount,
+      currency,
+      description,
+      externalId,
+      memo,
+      recipient,
+    } as defaults,
 
-    request({ feePayer, ...request }) {
-      if (feePayer) return { feePayer: true, ...request }
+    request({ feePayer: feePayerRequested, ...request }) {
+      if (feePayerRequested && feePayer) return { feePayer: true, ...request }
       return request
     },
 
-    async verify({ context, credential }) {
-      const { feePayer } = context
+    async verify({ credential }) {
       const { challenge } = credential
 
       switch (challenge.intent) {
@@ -220,21 +232,25 @@ export function tempo(parameters: tempo.Parameters = {}) {
 }
 
 export declare namespace tempo {
-  type Parameters = {
+  /** Request fields that can be hoisted to `tempo()` parameters (excluding feePayer which has different types). */
+  type Defaults = LooseOmit<Method.RequestDefaults<(typeof Methods.tempo)['intents']>, 'feePayer'>
+
+  type Parameters<defaults extends Defaults = {}> = {
     /** Optional fee payer account for covering transaction fees. */
     feePayer?: Account | undefined
-  } & OneOf<
-    | {
-        /** Viem Client. */
-        client?: Client | undefined
-      }
-    | {
-        /** Tempo chain ID. */
-        chainId?: number | undefined
-        /** Tempo RPC URL. */
-        rpcUrl?: string | undefined
-      }
-  >
+  } & defaults &
+    OneOf<
+      | {
+          /** Viem Client. */
+          client?: Client | undefined
+        }
+      | {
+          /** Tempo chain ID. */
+          chainId?: number | undefined
+          /** Tempo RPC URL. */
+          rpcUrl?: string | undefined
+        }
+    >
 }
 
 /** @internal */
