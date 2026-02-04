@@ -149,12 +149,8 @@ function PaymentDemoInner() {
 				throw new Error("Missing WWW-Authenticate header");
 			}
 
-			// Pass account explicitly and wrap walletClient in a function
-			// mpay expects client as (chainId) => Client, not a client object directly
 			const method = tempo({
 				account: walletClient.account,
-				// biome-ignore lint/suspicious/noExplicitAny: wagmi client types differ from viem client types
-				client: (_chainId: number) => walletClient as any,
 			});
 			const challenge = Challenge.fromResponse(res1, { method });
 			const credential = await method.createCredential({
