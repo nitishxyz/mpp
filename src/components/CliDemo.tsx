@@ -805,15 +805,10 @@ export function CliDemo() {
 					background: "rgba(255,255,255,0.02)",
 				}}
 			>
-				<div className="vocs:flex vocs:items-center vocs:gap-2">
-					<div className="vocs:flex vocs:gap-1.5">
-						<span className="vocs:w-3 vocs:h-3 vocs:rounded-full vocs:bg-[#ff5f56]" />
-						<span className="vocs:w-3 vocs:h-3 vocs:rounded-full vocs:bg-[#ffbd2e]" />
-						<span className="vocs:w-3 vocs:h-3 vocs:rounded-full vocs:bg-[#27c93f]" />
-					</div>
-					<span className="vocs:text-[var(--vocs-color-text-3)] vocs:text-xs vocs:ml-2">
-						agent-demo
-					</span>
+				<div className="vocs:flex vocs:items-center vocs:gap-1.5">
+					<span className="vocs:w-3 vocs:h-3 vocs:rounded-full vocs:bg-[#ff5f56]" />
+					<span className="vocs:w-3 vocs:h-3 vocs:rounded-full vocs:bg-[#ffbd2e]" />
+					<span className="vocs:w-3 vocs:h-3 vocs:rounded-full vocs:bg-[#27c93f]" />
 				</div>
 				<div className="vocs:flex vocs:items-center vocs:gap-3 vocs:text-xs">
 					{balance !== null && (
