@@ -226,21 +226,21 @@ function PaymentDemoInner() {
 	}, [isConnected, address, balance, balanceValue, faucet]);
 
 	return (
-		<div className="vocs:mt-6 vocs:mx-auto vocs:max-w-[90%] vocs:border vocs:border-[var(--vocs-color-border)] vocs:rounded vocs:overflow-hidden vocs:not-prose vocs:divide-y vocs:divide-[var(--vocs-color-border)]">
+		<div className="mt-6 mx-auto max-w-[90%] border border-[var(--vocs-color-border)] rounded overflow-hidden not-prose divide-y divide-[var(--vocs-color-border)]">
 			{/* Header */}
-			<div className="vocs:flex vocs:h-11 vocs:items-center vocs:justify-between vocs:px-4">
-				<h4 className="vocs:-tracking-[1%] vocs:font-normal vocs:text-[14px] vocs:text-[var(--vocs-color-text)] vocs:leading-none">
+			<div className="flex h-11 items-center justify-between px-4">
+				<h4 className="-tracking-[1%] font-normal text-[14px] text-[var(--vocs-color-text)] leading-none">
 					Make a request with payment
 				</h4>
-				<span className="vocs:flex vocs:h-[19px] vocs:items-center vocs:justify-center vocs:rounded-[30px] vocs:bg-[var(--vocs-color-accent-tint)] vocs:px-1.5 vocs:text-center vocs:font-medium vocs:text-[9px] vocs:text-[var(--vocs-color-accent)] vocs:uppercase vocs:leading-none vocs:tracking-[2%]">
+				<span className="flex h-[19px] items-center justify-center rounded-[30px] bg-[var(--vocs-color-accent-tint)] px-1.5 text-center font-medium text-[9px] text-[var(--vocs-color-accent)] uppercase leading-none tracking-[2%]">
 					demo
 				</span>
 			</div>
 
 			{/* Steps */}
-			<div className="vocs:p-4 vocs:space-y-4">
+			<div className="p-4 space-y-4">
 				{error && (
-					<div className="vocs:px-3 vocs:py-2 vocs:rounded vocs:bg-[var(--vocs-color-destructive-tint)] vocs:text-[var(--vocs-color-destructive)] vocs:text-[14px]">
+					<div className="px-3 py-2 rounded bg-[var(--vocs-color-destructive-tint)] text-[var(--vocs-color-destructive)] text-[14px]">
 						{error}
 					</div>
 				)}
@@ -252,14 +252,14 @@ function PaymentDemoInner() {
 					number={1}
 					title={
 						isConnected ? (
-							<div className="vocs:flex vocs:flex-col vocs:gap-1">
-								<div className="vocs:flex vocs:items-center">
+							<div className="flex flex-col gap-1">
+								<div className="flex items-center">
 									Connected as{" "}
 									<a
 										href={`https://explore.tempo.xyz/address/${address}`}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="vocs:-tracking-[1%] vocs:flex vocs:items-center vocs:gap-1 vocs:ml-1 vocs:text-[13px] vocs:text-[var(--vocs-color-accent)] hover:vocs:underline"
+										className="-tracking-[1%] flex items-center gap-1 ml-1 text-[13px] text-[var(--vocs-color-accent)] hover:underline"
 									>
 										{address?.slice(0, 6)}⋅⋅⋅{address?.slice(-4)}
 										<ExternalLinkIcon />
@@ -269,7 +269,7 @@ function PaymentDemoInner() {
 									{hasFunds ? (
 										<>
 											Balance:{" "}
-											<code className="vocs:text-xs vocs:bg-[var(--vocs-color-background-2)] vocs:px-1.5 vocs:py-0.5 vocs:rounded">
+											<code className="text-xs bg-[var(--vocs-color-background-2)] px-1.5 py-0.5 rounded">
 												{formattedBalance}
 											</code>
 										</>
@@ -290,7 +290,7 @@ function PaymentDemoInner() {
 								Sign out
 							</Button>
 						) : (
-							<div className="vocs:flex vocs:gap-1">
+							<div className="flex gap-1">
 								<Button
 									variant="primary"
 									onClick={() => handleConnect("signin")}
@@ -318,7 +318,7 @@ function PaymentDemoInner() {
 					title={
 						<>
 							Make request to{" "}
-							<code className="vocs:text-xs vocs:bg-[var(--vocs-color-background-2)] vocs:px-1.5 vocs:py-0.5 vocs:rounded">
+							<code className="text-xs bg-[var(--vocs-color-background-2)] px-1.5 py-0.5 rounded">
 								/ping/paid
 							</code>
 						</>
@@ -337,13 +337,13 @@ function PaymentDemoInner() {
 
 			{/* Response Details */}
 			{(protocolData.challengeHeader || protocolData.receiptHeader) && (
-				<div className="vocs:bg-[var(--vocs-color-background-2)] vocs:divide-y vocs:divide-[var(--vocs-color-border)]">
-					<div className="vocs:px-4 vocs:py-3 vocs:text-[13px] vocs:font-medium vocs:text-[var(--vocs-color-text-2)]">
+				<div className="bg-[var(--vocs-color-background-2)] divide-y divide-[var(--vocs-color-border)]">
+					<div className="px-4 py-3 text-[13px] font-medium text-[var(--vocs-color-text-2)]">
 						Response Details
 					</div>
 
 					{protocolData.challengeHeader && (
-						<div className="vocs:p-4 vocs:font-mono vocs:text-xs vocs:leading-relaxed vocs:overflow-x-auto">
+						<div className="p-4 font-mono text-xs leading-relaxed overflow-x-auto">
 							<ResponseSection title="Challenge" statusCode="402">
 								<HeaderLine
 									name="WWW-Authenticate"
@@ -357,7 +357,7 @@ function PaymentDemoInner() {
 					)}
 
 					{protocolData.credential && (
-						<div className="vocs:p-4 vocs:font-mono vocs:text-xs vocs:leading-relaxed vocs:overflow-x-auto">
+						<div className="p-4 font-mono text-xs leading-relaxed overflow-x-auto">
 							<ResponseSection title="Credential">
 								<HeaderLine
 									name="Authorization"
@@ -369,7 +369,7 @@ function PaymentDemoInner() {
 					)}
 
 					{(protocolData.receiptHeader || protocolData.responseBody) && (
-						<div className="vocs:p-4 vocs:font-mono vocs:text-xs vocs:leading-relaxed vocs:overflow-x-auto vocs:space-y-4">
+						<div className="p-4 font-mono text-xs leading-relaxed overflow-x-auto space-y-4">
 							{protocolData.receiptHeader && (
 								<ResponseSection title="Receipt" statusCode="200">
 									<HeaderLine
@@ -404,13 +404,13 @@ function StepNumber({
 }) {
 	if (complete) {
 		return (
-			<div className="vocs:w-7 vocs:h-7 vocs:rounded-full vocs:flex vocs:items-center vocs:justify-center vocs:text-[13px] vocs:shrink-0 vocs:bg-[#d3f9d8] dark:vocs:bg-[#1a4d2e] vocs:tabular-nums">
+			<div className="w-7 h-7 rounded-full flex items-center justify-center text-[13px] shrink-0 bg-[#d3f9d8] dark:bg-[#1a4d2e] tabular-nums">
 				<CheckIcon />
 			</div>
 		);
 	}
 	return (
-		<div className="vocs:w-7 vocs:h-7 vocs:rounded-full vocs:flex vocs:items-center vocs:justify-center vocs:text-[13px] vocs:shrink-0 vocs:border vocs:border-dashed vocs:border-[var(--vocs-color-border)] vocs:text-[var(--vocs-color-text-4)] vocs:tabular-nums">
+		<div className="w-7 h-7 rounded-full flex items-center justify-center text-[13px] shrink-0 border border-dashed border-[var(--vocs-color-border)] text-[var(--vocs-color-text-4)] tabular-nums">
 			{number}
 		</div>
 	);
@@ -428,7 +428,7 @@ function CheckIcon() {
 			strokeWidth="2"
 			strokeLinecap="round"
 			strokeLinejoin="round"
-			className="vocs:text-[#2f9e44] dark:vocs:text-[#69db7c]"
+			className="text-[#2f9e44] dark:text-[#69db7c]"
 			aria-hidden="true"
 		>
 			<path d="M20 6 9 17l-5-5" />
@@ -448,7 +448,7 @@ function ExternalLinkIcon() {
 			strokeWidth="2"
 			strokeLinecap="round"
 			strokeLinejoin="round"
-			className="vocs:size-3"
+			className="size-3"
 			aria-hidden="true"
 		>
 			<path d="M15 3h6v6" />
@@ -474,11 +474,11 @@ function Step({
 	children?: React.ReactNode;
 }) {
 	return (
-		<div data-active={active} data-completed={completed} className="vocs:group">
-			<header className="vocs:flex vocs:items-center vocs:justify-between vocs:gap-4 max-sm:vocs:flex-col max-sm:vocs:items-start max-sm:vocs:justify-start">
-				<div className="vocs:flex vocs:items-center vocs:gap-3.5">
+		<div data-active={active} data-completed={completed} className="group">
+			<header className="flex items-center justify-between gap-4 max-sm:flex-col max-sm:items-start max-sm:justify-start">
+				<div className="flex items-center gap-3.5">
 					<StepNumber number={number} complete={completed} />
-					<div className="vocs:-tracking-[1%] vocs:text-[14px] vocs:text-[var(--vocs-color-text)] group-data-[active=false]:vocs:opacity-40">
+					<div className="-tracking-[1%] text-[14px] text-[var(--vocs-color-text)] group-data-[active=false]:opacity-40">
 						{title}
 					</div>
 				</div>
@@ -501,20 +501,18 @@ function Button({
 	children: React.ReactNode;
 }) {
 	const baseClasses =
-		"vocs:relative vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:whitespace-nowrap vocs:rounded-md vocs:font-normal vocs:transition-colors vocs:h-8 vocs:px-3.5 vocs:text-[14px] vocs:-tracking-[2%] vocs:min-w-[110px]";
+		"relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-normal transition-colors h-8 px-3.5 text-[14px] -tracking-[2%] min-w-[110px]";
 
 	const variantClasses = {
 		primary:
-			"vocs:bg-[var(--vocs-color-accent)] vocs:text-white vocs:border vocs:border-[var(--vocs-color-accent)]",
+			"bg-[var(--vocs-color-accent)] text-white border border-[var(--vocs-color-accent)]",
 		secondary:
-			"vocs:border vocs:border-dashed vocs:border-[var(--vocs-color-border)] vocs:text-[var(--vocs-color-text)]",
+			"border border-dashed border-[var(--vocs-color-border)] text-[var(--vocs-color-text)]",
 		dashed:
-			"vocs:border vocs:border-dashed vocs:border-[var(--vocs-color-border)] vocs:text-[var(--vocs-color-text-4)]",
+			"border border-dashed border-[var(--vocs-color-border)] text-[var(--vocs-color-text-4)]",
 	}[variant];
 
-	const disabledClasses = disabled
-		? "vocs:pointer-events-none vocs:opacity-50"
-		: "";
+	const disabledClasses = disabled ? "pointer-events-none opacity-50" : "";
 
 	return (
 		<button
@@ -538,13 +536,13 @@ function ResponseSection({
 	children: React.ReactNode;
 }) {
 	const statusColors = {
-		"402": "vocs:text-[var(--vocs-color-destructive)]",
-		"200": "vocs:text-[#16a34a] vocs:dark:text-[#4ade80]",
+		"402": "text-[var(--vocs-color-destructive)]",
+		"200": "text-[#16a34a] dark:text-[#4ade80]",
 	};
 
 	return (
 		<div>
-			<div className="vocs:text-[11px] vocs:font-semibold vocs:uppercase vocs:tracking-wider vocs:text-[var(--vocs-color-text-3)] vocs:mb-2 vocs:font-sans">
+			<div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--vocs-color-text-3)] mb-2 font-sans">
 				{title}
 				{statusCode && (
 					<span className={statusColors[statusCode]}> ({statusCode})</span>
@@ -567,13 +565,11 @@ function HeaderLine({
 	const displayValue =
 		truncate && value.length > 60 ? `${value.slice(0, 60)}...` : value;
 	return (
-		<div className="vocs:py-3 vocs:pr-4 vocs:bg-[var(--vocs-color-background)] vocs:rounded-lg vocs:mb-3 vocs:break-all vocs:text-[13px] vocs:leading-[1.7] vocs:text-left">
-			<span className="vocs:text-[var(--vocs-color-accent)] vocs:font-medium">
+		<div className="py-3 pr-4 bg-[var(--vocs-color-background)] rounded-lg mb-3 break-all text-[13px] leading-[1.7] text-left">
+			<span className="text-[var(--vocs-color-accent)] font-medium">
 				{name}:
 			</span>{" "}
-			<span className="vocs:text-[var(--vocs-color-text-2)]">
-				{displayValue}
-			</span>
+			<span className="text-[var(--vocs-color-text-2)]">{displayValue}</span>
 		</div>
 	);
 }
@@ -584,7 +580,7 @@ function ResponseBody({ value }: { value: string }) {
 		return <JsonBlock value={parsed} />;
 	} catch {
 		return (
-			<div className="vocs:py-3 vocs:pr-4 vocs:bg-[var(--vocs-color-background)] vocs:rounded-lg vocs:text-[13px] vocs:text-[var(--vocs-color-text-2)] vocs:text-left">
+			<div className="py-3 pr-4 bg-[var(--vocs-color-background)] rounded-lg text-[13px] text-[var(--vocs-color-text-2)] text-left">
 				{value}
 			</div>
 		);
@@ -593,7 +589,7 @@ function ResponseBody({ value }: { value: string }) {
 
 function JsonBlock({ value }: { value: unknown }) {
 	return (
-		<pre className="vocs:py-3 vocs:pr-4 vocs:bg-[var(--vocs-color-background)] vocs:rounded-lg vocs:m-0 vocs:overflow-auto vocs:text-[13px] vocs:leading-[1.7] vocs:text-left">
+		<pre className="py-3 pr-4 bg-[var(--vocs-color-background)] rounded-lg m-0 overflow-auto text-[13px] leading-[1.7] text-left">
 			<JsonSyntaxHighlight value={value} />
 		</pre>
 	);
@@ -606,25 +602,25 @@ function JsonSyntaxHighlight({ value }: { value: unknown }) {
 
 		if (obj === null) {
 			nodes.push(
-				<span key="null" className="vocs:text-[var(--vocs-color-text-2)]">
+				<span key="null" className="text-[var(--vocs-color-text-2)]">
 					null
 				</span>,
 			);
 		} else if (typeof obj === "boolean") {
 			nodes.push(
-				<span key="bool" className="vocs:text-[var(--vocs-color-text-2)]">
+				<span key="bool" className="text-[var(--vocs-color-text-2)]">
 					{obj.toString()}
 				</span>,
 			);
 		} else if (typeof obj === "number") {
 			nodes.push(
-				<span key="num" className="vocs:text-[var(--vocs-color-text-2)]">
+				<span key="num" className="text-[var(--vocs-color-text-2)]">
 					{obj}
 				</span>,
 			);
 		} else if (typeof obj === "string") {
 			nodes.push(
-				<span key="str" className="vocs:text-[var(--vocs-color-text-2)]">
+				<span key="str" className="text-[var(--vocs-color-text-2)]">
 					"{obj}"
 				</span>,
 			);
@@ -663,10 +659,8 @@ function JsonSyntaxHighlight({ value }: { value: unknown }) {
 						<span key={`obj-${key}`}>
 							{spaces}
 							{"  "}
-							<span className="vocs:text-[var(--vocs-color-accent)]">
-								"{key}"
-							</span>
-							<span className="vocs:text-[var(--vocs-color-text-3)]">: </span>
+							<span className="text-[var(--vocs-color-accent)]">"{key}"</span>
+							<span className="text-[var(--vocs-color-text-3)]">: </span>
 							{highlightJson(val, indent + 1)}
 							{i < entries.length - 1 ? "," : ""}
 							{"\n"}

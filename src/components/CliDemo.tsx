@@ -728,19 +728,19 @@ export function CliDemo() {
 	// Render terminal line with appropriate styling
 	const renderLine = (line: TerminalLine, index: number) => {
 		if (line.type === "blank") {
-			return <div key={index} className="vocs:h-4" />;
+			return <div key={index} className="h-4" />;
 		}
 
 		const typeStyles: Record<string, string> = {
-			header: "vocs:text-[var(--vocs-color-text)] vocs:font-medium",
-			input: "vocs:text-[#61afef]",
-			output: "vocs:text-[var(--vocs-color-text-2)]",
-			info: "vocs:text-[var(--vocs-color-text-3)]",
-			success: "vocs:text-[#98c379]",
-			error: "vocs:text-[var(--vocs-color-destructive)]",
-			payment: "vocs:text-[#e5c07b]",
-			link: "vocs:text-[var(--vocs-color-accent)]",
-			menu: "vocs:text-[var(--vocs-color-text-2)]",
+			header: "text-[var(--vocs-color-text)] font-medium",
+			input: "text-[#61afef]",
+			output: "text-[var(--vocs-color-text-2)]",
+			info: "text-[var(--vocs-color-text-3)]",
+			success: "text-[#98c379]",
+			error: "text-[var(--vocs-color-destructive)]",
+			payment: "text-[#e5c07b]",
+			link: "text-[var(--vocs-color-accent)]",
+			menu: "text-[var(--vocs-color-text-2)]",
 		};
 
 		if (line.type === "link" && line.href) {
@@ -750,7 +750,7 @@ export function CliDemo() {
 					href={line.href}
 					target="_blank"
 					rel="noopener noreferrer"
-					className={`${typeStyles.link} vocs:no-underline hover:vocs:underline vocs:block vocs:leading-relaxed`}
+					className={`${typeStyles.link} no-underline hover:underline block leading-relaxed`}
 				>
 					{line.content}
 				</a>
@@ -769,10 +769,10 @@ export function CliDemo() {
 						setHighlightedIndex(line.menuIndex!);
 						runQuery(line.menuIndex!);
 					}}
-					className={`vocs:block vocs:w-full vocs:text-left vocs:leading-relaxed vocs:whitespace-pre vocs:transition-colors ${
+					className={`block w-full text-left leading-relaxed whitespace-pre transition-colors ${
 						isHighlighted
-							? "vocs:bg-[var(--vocs-color-accent)]/20 vocs:text-[var(--vocs-color-accent)]"
-							: "vocs:text-[var(--vocs-color-text-2)] hover:vocs:bg-[rgba(255,255,255,0.05)]"
+							? "bg-[var(--vocs-color-accent)]/20 text-[var(--vocs-color-accent)]"
+							: "text-[var(--vocs-color-text-2)] hover:bg-[rgba(255,255,255,0.05)]"
 					}`}
 					disabled={status !== "selecting"}
 				>
@@ -785,7 +785,7 @@ export function CliDemo() {
 		return (
 			<div
 				key={index}
-				className={`${typeStyles[line.type] || ""} vocs:leading-relaxed vocs:whitespace-pre`}
+				className={`${typeStyles[line.type] || ""} leading-relaxed whitespace-pre`}
 			>
 				{line.content}
 			</div>
@@ -794,53 +794,49 @@ export function CliDemo() {
 
 	return (
 		<div
-			className="vocs:bg-[#1e1e1e] vocs:rounded-xl vocs:overflow-hidden vocs:font-mono vocs:text-sm"
+			className="bg-[#1e1e1e] rounded-xl overflow-hidden font-mono text-sm"
 			style={{ border: "1px solid rgba(255,255,255,0.08)" }}
 		>
 			{/* Terminal header */}
 			<div
-				className="vocs:flex vocs:items-center vocs:justify-between vocs:px-4 vocs:py-2.5"
+				className="flex items-center justify-between px-4 py-2.5"
 				style={{
 					borderBottom: "1px solid rgba(255,255,255,0.08)",
 					background: "rgba(255,255,255,0.02)",
 				}}
 			>
-				<div className="vocs:flex vocs:items-center vocs:gap-2">
-					<div className="vocs:flex vocs:gap-1.5">
-						<span className="vocs:w-3 vocs:h-3 vocs:rounded-full vocs:bg-[#ff5f56]" />
-						<span className="vocs:w-3 vocs:h-3 vocs:rounded-full vocs:bg-[#ffbd2e]" />
-						<span className="vocs:w-3 vocs:h-3 vocs:rounded-full vocs:bg-[#27c93f]" />
+				<div className="flex items-center gap-2">
+					<div className="flex gap-1.5">
+						<span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+						<span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+						<span className="w-3 h-3 rounded-full bg-[#27c93f]" />
 					</div>
-					<span className="vocs:text-[var(--vocs-color-text-3)] vocs:text-xs vocs:ml-2">
+					<span className="text-[var(--vocs-color-text-3)] text-xs ml-2">
 						agent-demo
 					</span>
 				</div>
-				<div className="vocs:flex vocs:items-center vocs:gap-3 vocs:text-xs">
+				<div className="flex items-center gap-3 text-xs">
 					{balance !== null && (
-						<span className="vocs:text-[var(--vocs-color-text-2)]">
+						<span className="text-[var(--vocs-color-text-2)]">
 							Balance:{" "}
-							<span className="vocs:text-[#98c379]">
-								${formatBalance(balance)}
-							</span>
+							<span className="text-[#98c379]">${formatBalance(balance)}</span>
 						</span>
 					)}
 					{totalSpent > 0 && (
-						<span className="vocs:text-[var(--vocs-color-text-3)]">
+						<span className="text-[var(--vocs-color-text-3)]">
 							Spent:{" "}
-							<span className="vocs:text-[#e5c07b]">
-								${totalSpent.toFixed(3)}
-							</span>
+							<span className="text-[#e5c07b]">${totalSpent.toFixed(3)}</span>
 						</span>
 					)}
 					<span
-						className={`vocs:px-2 vocs:py-0.5 vocs:rounded vocs:text-[10px] vocs:uppercase vocs:tracking-wider ${
+						className={`px-2 py-0.5 rounded text-[10px] uppercase tracking-wider ${
 							status === "running"
-								? "vocs:bg-[#e5c07b]/20 vocs:text-[#e5c07b]"
+								? "bg-[#e5c07b]/20 text-[#e5c07b]"
 								: status === "complete"
-									? "vocs:bg-[#98c379]/20 vocs:text-[#98c379]"
+									? "bg-[#98c379]/20 text-[#98c379]"
 									: status === "error"
-										? "vocs:bg-[var(--vocs-color-destructive)]/20 vocs:text-[var(--vocs-color-destructive)]"
-										: "vocs:bg-[var(--vocs-color-text-3)]/20 vocs:text-[var(--vocs-color-text-3)]"
+										? "bg-[var(--vocs-color-destructive)]/20 text-[var(--vocs-color-destructive)]"
+										: "bg-[var(--vocs-color-text-3)]/20 text-[var(--vocs-color-text-3)]"
 						}`}
 					>
 						{status === "funding"
@@ -858,14 +854,12 @@ export function CliDemo() {
 			<div
 				ref={terminalRef}
 				onClick={handleTerminalClick}
-				className="vocs:p-4 vocs:h-[400px] vocs:overflow-y-auto vocs:cursor-text"
+				className="p-4 h-[400px] overflow-y-auto cursor-text"
 				style={{ background: "#1e1e1e" }}
 			>
 				{lines.map(renderLine)}
 				{status === "running" && currentCall >= 0 && (
-					<div className="vocs:text-[var(--vocs-color-text-3)] vocs:animate-pulse">
-						▊
-					</div>
+					<div className="text-[var(--vocs-color-text-3)] animate-pulse">▊</div>
 				)}
 			</div>
 
@@ -874,8 +868,8 @@ export function CliDemo() {
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: click to focus input */}
 			<div
 				onClick={() => inputRef.current?.focus()}
-				className={`vocs:flex vocs:items-center vocs:px-4 vocs:py-2.5 vocs:gap-2 vocs:cursor-text ${
-					status === "selecting" ? "vocs:bg-[rgba(152,195,121,0.05)]" : ""
+				className={`flex items-center px-4 py-2.5 gap-2 cursor-text ${
+					status === "selecting" ? "bg-[rgba(152,195,121,0.05)]" : ""
 				}`}
 				style={{
 					borderTop: "1px solid rgba(255,255,255,0.08)",
@@ -884,8 +878,8 @@ export function CliDemo() {
 				<span
 					className={
 						status === "selecting"
-							? "vocs:text-[#98c379]"
-							: "vocs:text-[var(--vocs-color-text-4)]"
+							? "text-[#98c379]"
+							: "text-[var(--vocs-color-text-4)]"
 					}
 				>
 					❯
@@ -906,7 +900,7 @@ export function CliDemo() {
 									? "Running query..."
 									: ""
 					}
-					className="vocs:flex-1 vocs:bg-transparent vocs:border-none vocs:outline-none vocs:text-[var(--vocs-color-text)] vocs:text-sm vocs:font-mono placeholder:vocs:text-[var(--vocs-color-text-4)] disabled:vocs:cursor-not-allowed"
+					className="flex-1 bg-transparent border-none outline-none text-[var(--vocs-color-text)] text-sm font-mono placeholder:text-[var(--vocs-color-text-4)] disabled:cursor-not-allowed"
 					style={{ caretColor: "#98c379" }}
 				/>
 				{account && (
@@ -914,7 +908,7 @@ export function CliDemo() {
 						href={`${EXPLORER_URL}/address/${account.address}`}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="vocs:text-[11px] vocs:text-[var(--vocs-color-text-3)] hover:vocs:text-[var(--vocs-color-accent)] vocs:no-underline"
+						className="text-[11px] text-[var(--vocs-color-text-3)] hover:text-[var(--vocs-color-accent)] no-underline"
 					>
 						Tempo Moderato ↗
 					</a>

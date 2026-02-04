@@ -40,7 +40,7 @@ importers:
       viem:
         specifier: latest
         version: 2.45.1(typescript@5.9.3)(zod@4.3.6)
-      vocs:
+      
         specifier: https://pkg.pr.new/wevm/vocs@051f2f3
         version: https://pkg.pr.new/wevm/vocs@051f2f3(patch_hash=63ee48dd94bdea42788f70c3b78065e8d7aad149b685f999fc18687d3d39018d)(@types/react@19.2.11)(mermaid@11.12.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.0))(react@19.2.4)(rollup@4.57.1)(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.3(@types/node@22.19.8)(jiti@2.6.1)(lightningcss@1.30.2)(react-dom@19.2.4(react@19.2.4))(react-server-dom-webpack@19.2.4(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(webpack@5.105.0))(react@19.2.4)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       wagmi:

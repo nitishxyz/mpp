@@ -6,7 +6,7 @@ The `charge` intent requests an immediate one-time payment from the client.
 
 <Tabs stateKey="platform">
   <Tab title="Server">
-  <div className="vocs:space-y-4">
+  <div className="space-y-4">
 Use the [`.charge` method](/sdk/typescript/server/Method.tempo.charge) on your [`Mpay` instance](/sdk/typescript/server/Mpay.create) to verify and settle payments when a user accesses your endpoint.
 
 ```ts twoslash
@@ -37,7 +37,7 @@ See [`tempo.charge` server reference](/sdk/typescript/server/Method.tempo.charge
   </div>
   </Tab>
   <Tab title="Client">
-  <div className="vocs:space-y-4">
+  <div className="space-y-4">
 Use the [`tempo` method](/sdk/typescript/client/Method.tempo) on a [`Fetch` instance](/sdk/typescript/client/Fetch.from) to automatically sign payment transactions when encountering 402 responses.
 
 ```ts twoslash

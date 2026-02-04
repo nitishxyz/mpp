@@ -16,14 +16,14 @@ The HTTP transport is the primary binding for MPP, using standard HTTP headers f
 
 :::steps
 
-### <div className="vocs:mr-2"><Badge variant="info">Client</Badge></div> Request a resource
+### <div className="mr-2"><Badge variant="info">Client</Badge></div> Request a resource
 
 ```http
 GET /api/data HTTP/1.1
 Host: api.example.com
 ```
 
-### <div className="vocs:mr-2"><Badge variant="warning">Server</Badge></div> Send a payment challenge
+### <div className="mr-2"><Badge variant="warning">Server</Badge></div> Send a payment challenge
 
 Return the `WWW-Authenticate` header with a `Payment` challenge.
 
@@ -32,7 +32,7 @@ HTTP/1.1 402 Payment Required
 WWW-Authenticate: Payment id="abc123", method="tempo", intent="charge", request="..."
 ```
 
-### <div className="vocs:mr-2"><Badge variant="info">Client</Badge></div> Retry with a credential
+### <div className="mr-2"><Badge variant="info">Client</Badge></div> Retry with a credential
 
 Send the `Authorization` header.
 
@@ -42,7 +42,7 @@ Host: api.example.com
 Authorization: Payment eyJjaGFsbGVuZ2UiOnsiaWQiOiJhYmMxMjMi...
 ```
 
-### <div className="vocs:mr-2"><Badge variant="warning">Server</Badge></div> Return a receipt
+### <div className="mr-2"><Badge variant="warning">Server</Badge></div> Return a receipt
 
 Return the `Payment-Receipt` header with a success receipt.
 

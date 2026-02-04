@@ -218,7 +218,7 @@ export function AsciiLogo() {
 				onMouseEnter={() => startMorph(1)}
 				onMouseLeave={() => startMorph(0)}
 				onContextMenu={handleContextMenu}
-				className="vocs:overflow-x-auto vocs:max-w-full vocs:-mx-4 vocs:px-4 sm:vocs:mx-0 sm:vocs:px-0"
+				className="overflow-x-auto max-w-full -mx-4 px-4 sm:mx-0 sm:px-0"
 				style={{
 					fontFamily: "monospace",
 					lineHeight: 1.15,
@@ -231,7 +231,7 @@ export function AsciiLogo() {
 				}}
 			>
 				<div
-					className="vocs:text-[4px] sm:vocs:text-[5px] md:vocs:text-[6px]"
+					className="text-[4px] sm:text-[5px] md:text-[6px]"
 					style={{ minWidth: "fit-content" }}
 				>
 					{mppLines.map((mppLine, lineIdx) => {
@@ -264,7 +264,7 @@ export function AsciiLogo() {
 			{contextMenu && (
 				<div
 					ref={menuRef}
-					className="vocs:fixed vocs:rounded-lg vocs:p-1 vocs:shadow-lg vocs:z-[9999] vocs:min-w-[180px]"
+					className="fixed rounded-lg p-1 shadow-lg z-[9999] min-w-[180px]"
 					style={{
 						top: contextMenu.y,
 						left: contextMenu.x,
@@ -276,7 +276,7 @@ export function AsciiLogo() {
 						href="/mpp-brand-assets.zip"
 						download
 						onClick={closeMenu}
-						className="vocs:block vocs:px-3 vocs:py-2 vocs:no-underline vocs:text-[13px] vocs:rounded hover:vocs:bg-[var(--vocs-color-background-2)] vocs:cursor-pointer"
+						className="block px-3 py-2 no-underline text-[13px] rounded hover:bg-[var(--vocs-color-background-2)] cursor-pointer"
 						style={{ color: "var(--vocs-color-text, #fff)" }}
 					>
 						Download assets (.zip)
@@ -284,7 +284,7 @@ export function AsciiLogo() {
 					<a
 						href="/brand"
 						onClick={closeMenu}
-						className="vocs:block vocs:px-3 vocs:py-2 vocs:no-underline vocs:text-[13px] vocs:rounded hover:vocs:bg-[var(--vocs-color-background-2)] vocs:cursor-pointer"
+						className="block px-3 py-2 no-underline text-[13px] rounded hover:bg-[var(--vocs-color-background-2)] cursor-pointer"
 						style={{ color: "var(--vocs-color-text, #fff)" }}
 					>
 						Go to brand page

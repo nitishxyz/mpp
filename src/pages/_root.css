@@ -168,3 +168,7 @@
 		);
 	}
 }
+
+[data-layout="minimal"] main > article {
+	max-width: 1400px;
+}

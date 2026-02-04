@@ -226,7 +226,7 @@ function StatusBadge({
 
 	return (
 		<span
-			className="vocs:text-[10px] vocs:font-medium vocs:uppercase vocs:tracking-wider vocs:px-2.5 vocs:py-1 vocs:rounded-full"
+			className="text-[10px] font-medium uppercase tracking-wider px-2.5 py-1 rounded-full"
 			style={{
 				backgroundColor: bg,
 				border: `1px solid ${border}`,
@@ -243,15 +243,15 @@ function CodeTabs() {
 	const [activeTab, setActiveTab] = useState<"client" | "server">("client");
 
 	return (
-		<div className="vocs:w-full vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:overflow-hidden vocs:border vocs:border-white/20">
-			<div className="vocs:flex vocs:items-center vocs:gap-0 vocs:border-b vocs:border-white/20">
+		<div className="w-full bg-[var(--vocs-color-background-2)] rounded-xl overflow-hidden border border-white/20">
+			<div className="flex items-center gap-0 border-b border-white/20">
 				<button
 					type="button"
 					onClick={() => setActiveTab("client")}
-					className={`vocs:text-[13px] vocs:font-medium vocs:px-4 vocs:py-3 vocs:transition-colors vocs:border-b-2 ${
+					className={`text-[13px] font-medium px-4 py-3 transition-colors border-b-2 ${
 						activeTab === "client"
-							? "vocs:text-[var(--vocs-color-text)] vocs:border-[#0166FF]"
-							: "vocs:text-[var(--vocs-color-text-3)] vocs:border-transparent hover:vocs:text-[var(--vocs-color-text-2)]"
+							? "text-[var(--vocs-color-text)] border-[#0166FF]"
+							: "text-[var(--vocs-color-text-3)] border-transparent hover:text-[var(--vocs-color-text-2)]"
 					}`}
 					style={{
 						background: "none",
@@ -264,10 +264,10 @@ function CodeTabs() {
 				<button
 					type="button"
 					onClick={() => setActiveTab("server")}
-					className={`vocs:text-[13px] vocs:font-medium vocs:px-4 vocs:py-3 vocs:transition-colors vocs:border-b-2 ${
+					className={`text-[13px] font-medium px-4 py-3 transition-colors border-b-2 ${
 						activeTab === "server"
-							? "vocs:text-[var(--vocs-color-text)] vocs:border-[#0166FF]"
-							: "vocs:text-[var(--vocs-color-text-3)] vocs:border-transparent hover:vocs:text-[var(--vocs-color-text-2)]"
+							? "text-[var(--vocs-color-text)] border-[#0166FF]"
+							: "text-[var(--vocs-color-text-3)] border-transparent hover:text-[var(--vocs-color-text-2)]"
 					}`}
 					style={{
 						background: "none",
@@ -278,113 +278,103 @@ function CodeTabs() {
 					Server
 				</button>
 			</div>
-			<div className="vocs:p-3 md:vocs:p-4 vocs:font-mono vocs:text-xs md:vocs:text-sm vocs:overflow-x-auto">
+			<div className="p-3 md:p-4 font-mono text-xs md:text-sm overflow-x-auto">
 				{activeTab === "client" ? (
-					<pre className="vocs:m-0 vocs:leading-relaxed">
+					<pre className="m-0 leading-relaxed">
 						<code>
-							<span className="vocs:text-[var(--vocs-color-text-3)]">
+							<span className="text-[var(--vocs-color-text-3)]">
 								{"// Polyfill fetch once at startup"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[#c678dd]">import</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span className="text-[#c678dd]">import</span>
+							<span className="text-[var(--vocs-color-text)]">
 								{" "}
 								{"{"} Fetch, tempo {"}"}{" "}
 							</span>
-							<span className="vocs:text-[#c678dd]">from</span>
-							<span className="vocs:text-[#98c379]"> 'mpay/client'</span>
+							<span className="text-[#c678dd]">from</span>
+							<span className="text-[#98c379]"> 'mpay/client'</span>
 							{"\n\n"}
-							<span className="vocs:text-[#e5c07b]">Fetch</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span className="text-[#e5c07b]">Fetch</span>
+							<span className="text-[var(--vocs-color-text)]">
 								.polyfill({"{"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-color-text)]">
 								{"  "}methods: [
 							</span>
-							<span className="vocs:text-[#e5c07b]">tempo</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span className="text-[#e5c07b]">tempo</span>
+							<span className="text-[var(--vocs-color-text)]">
 								({"{"} account {"}"})]
 							</span>
 							{"\n"}
-							<span className="vocs:text-[var(--vocs-color-text)]">{"}"})</span>
+							<span className="text-[var(--vocs-color-text)]">{"}"})</span>
 							{"\n\n"}
-							<span className="vocs:text-[var(--vocs-color-text-3)]">
+							<span className="text-[var(--vocs-color-text-3)]">
 								{"// Now all fetch calls handle 402 automatically"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[#c678dd]">const</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span className="text-[#c678dd]">const</span>
+							<span className="text-[var(--vocs-color-text)]">
 								{" "}
 								response ={" "}
 							</span>
-							<span className="vocs:text-[#c678dd]">await</span>
-							<span className="vocs:text-[var(--vocs-color-text)]"> </span>
-							<span className="vocs:text-[#61afef]">fetch</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">(</span>
-							<span className="vocs:text-[#98c379]">
+							<span className="text-[#c678dd]">await</span>
+							<span className="text-[var(--vocs-color-text)]"> </span>
+							<span className="text-[#61afef]">fetch</span>
+							<span className="text-[var(--vocs-color-text)]">(</span>
+							<span className="text-[#98c379]">
 								'https://api.example.com/resource'
 							</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">)</span>
+							<span className="text-[var(--vocs-color-text)]">)</span>
 						</code>
 					</pre>
 				) : (
-					<pre className="vocs:m-0 vocs:leading-relaxed">
+					<pre className="m-0 leading-relaxed">
 						<code>
-							<span className="vocs:text-[var(--vocs-color-text-3)]">
+							<span className="text-[var(--vocs-color-text-3)]">
 								{"// Add payment middleware to your server"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[#c678dd]">import</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span className="text-[#c678dd]">import</span>
+							<span className="text-[var(--vocs-color-text)]">
 								{" "}
 								{"{"} Mpay, tempo {"}"}{" "}
 							</span>
-							<span className="vocs:text-[#c678dd]">from</span>
-							<span className="vocs:text-[#98c379]"> 'mpay/server'</span>
+							<span className="text-[#c678dd]">from</span>
+							<span className="text-[#98c379]"> 'mpay/server'</span>
 							{"\n\n"}
-							<span className="vocs:text-[#c678dd]">const</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
-								{" "}
-								mpay ={" "}
-							</span>
-							<span className="vocs:text-[#e5c07b]">Mpay</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span className="text-[#c678dd]">const</span>
+							<span className="text-[var(--vocs-color-text)]"> mpay = </span>
+							<span className="text-[#e5c07b]">Mpay</span>
+							<span className="text-[var(--vocs-color-text)]">
 								.create({"{"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-color-text)]">
 								{"  "}methods: [
 							</span>
-							<span className="vocs:text-[#e5c07b]">tempo</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span className="text-[#e5c07b]">tempo</span>
+							<span className="text-[var(--vocs-color-text)]">
 								({"{"} recipient {"}"})]
 							</span>
 							{"\n"}
-							<span className="vocs:text-[var(--vocs-color-text)]">{"}"})</span>
+							<span className="text-[var(--vocs-color-text)]">{"}"})</span>
 							{"\n\n"}
-							<span className="vocs:text-[var(--vocs-color-text-3)]">
+							<span className="text-[var(--vocs-color-text-3)]">
 								{"// Return 402 with payment challenge"}
 							</span>
 							{"\n"}
-							<span className="vocs:text-[#c678dd]">return</span>
-							<span className="vocs:text-[var(--vocs-color-text)]"> mpay.</span>
-							<span className="vocs:text-[#61afef]">challenge</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
-								({"{"}{" "}
-							</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
-								amount:{" "}
-							</span>
-							<span className="vocs:text-[#d19a66]">0.01</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
+							<span className="text-[#c678dd]">return</span>
+							<span className="text-[var(--vocs-color-text)]"> mpay.</span>
+							<span className="text-[#61afef]">challenge</span>
+							<span className="text-[var(--vocs-color-text)]">({"{"} </span>
+							<span className="text-[var(--vocs-color-text)]">amount: </span>
+							<span className="text-[#d19a66]">0.01</span>
+							<span className="text-[var(--vocs-color-text)]">
 								, currency:{" "}
 							</span>
-							<span className="vocs:text-[#98c379]">'USD'</span>
-							<span className="vocs:text-[var(--vocs-color-text)]">
-								{" "}
-								{"}"})
-							</span>
+							<span className="text-[#98c379]">'USD'</span>
+							<span className="text-[var(--vocs-color-text)]"> {"}"})</span>
 						</code>
 					</pre>
 				)}
@@ -395,60 +385,57 @@ function CodeTabs() {
 
 export function LandingPage() {
 	return (
-		<div className="vocs:not-prose">
+		<div className="not-prose">
 			{/* Hero Section */}
-			<section
-				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-24 vocs:border-b vocs:border-white/[0.06]"
-				style={{ marginLeft: "calc(-50vw + 50%)" }}
-			>
-				<div className="vocs:max-w-[1600px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20">
-					<div className="vocs:flex vocs:flex-col lg:vocs:flex-row vocs:gap-8 lg:vocs:gap-20 vocs:items-center">
+			<section className="relative py-12 md:py-24 border-b border-white/[0.06]">
+				<div className="mx-auto px-4 sm:px-6 lg:px-20">
+					<div className="flex flex-col lg:flex-row gap-8 lg:gap-20 items-center">
 						{/* Left side - Copy */}
-						<div className="vocs:flex-1 vocs:space-y-6 md:vocs:space-y-8">
+						<div className="flex-1 space-y-6 md:space-y-8">
 							{/* ASCII Logo as title */}
 							<AsciiLogo />
 
 							{/* Subtitle */}
-							<p className="vocs:text-base sm:vocs:text-lg md:vocs:text-xl vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed vocs:max-w-xl">
+							<p className="text-base sm:text-lg md:text-xl text-[var(--vocs-color-text-2)] leading-relaxed max-w-xl">
 								The machine-native payments protocol. Accept payments from
 								humans, software, or AI agents using standard HTTP—no billing
 								accounts or manual signup required.
 							</p>
 
 							{/* CTAs */}
-							<div className="vocs:flex vocs:flex-col sm:vocs:flex-row vocs:flex-wrap vocs:gap-3 sm:vocs:gap-4">
+							<div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
 								<a
 									href="/quickstart/server"
-									className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:bg-[#0166FF] vocs:text-white vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[#0052CC] vocs:no-underline"
+									className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0166FF] text-white font-medium rounded-lg transition-all hover:bg-[#0052CC] no-underline"
 								>
 									Get started
-									<ArrowRightIcon className="vocs:w-4 vocs:h-4" />
+									<ArrowRightIcon className="w-4 h-4" />
 								</a>
 								<a
 									href="https://github.com/tempoxyz/payment-auth-spec"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:border vocs:border-[var(--vocs-color-border)] vocs:text-[var(--vocs-color-text)] vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[var(--vocs-color-background-2)] vocs:no-underline"
+									className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-[var(--vocs-color-border)] text-[var(--vocs-color-text)] font-medium rounded-lg transition-all hover:bg-[var(--vocs-color-background-2)] no-underline"
 								>
-									<GitHubIcon className="vocs:w-5 vocs:h-5" />
+									<GitHubIcon className="w-5 h-5" />
 									View on GitHub
 								</a>
 							</div>
 
 							{/* Co-authors badge */}
-							<div className="vocs:flex vocs:flex-col sm:vocs:flex-row vocs:items-start sm:vocs:items-center vocs:gap-3 sm:vocs:gap-4">
-								<span className="vocs:text-[13px] vocs:text-[var(--vocs-color-text-3)] vocs:uppercase vocs:tracking-wider vocs:font-medium vocs:opacity-50">
+							<div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+								<span className="text-[13px] text-[var(--vocs-color-text-3)] uppercase tracking-wider font-medium opacity-50">
 									Co-authored by
 								</span>
-								<div className="vocs:flex vocs:items-center vocs:gap-4 sm:vocs:gap-6">
+								<div className="flex items-center gap-4 sm:gap-6">
 									<a
 										href="https://tempo.xyz"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="vocs:no-underline hover:vocs:opacity-80 vocs:transition-opacity"
+										className="no-underline hover:opacity-80 transition-opacity"
 									>
 										<TempoLogo
-											className="vocs:text-[var(--vocs-color-text-2)]"
+											className="text-[var(--vocs-color-text-2)]"
 											style={{ width: "70px" }}
 										/>
 									</a>
@@ -456,10 +443,10 @@ export function LandingPage() {
 										href="https://viem.sh"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="vocs:no-underline hover:vocs:opacity-80 vocs:transition-opacity"
+										className="no-underline hover:opacity-80 transition-opacity"
 									>
 										<ViemLogo
-											className="vocs:text-[var(--vocs-color-text-2)]"
+											className="text-[var(--vocs-color-text-2)]"
 											style={{
 												width: "60px",
 												position: "relative",
@@ -471,10 +458,10 @@ export function LandingPage() {
 										href="https://stripe.com"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="vocs:no-underline hover:vocs:opacity-80 vocs:transition-opacity"
+										className="no-underline hover:opacity-80 transition-opacity"
 									>
 										<StripeLogo
-											className="vocs:text-[var(--vocs-color-text-2)]"
+											className="text-[var(--vocs-color-text-2)]"
 											style={{ width: "60px" }}
 										/>
 									</a>
@@ -483,9 +470,9 @@ export function LandingPage() {
 						</div>
 
 						{/* Right side - Demo (hidden on mobile) */}
-						<div className="vocs:hidden lg:vocs:block vocs:flex-1 vocs:min-w-0 vocs:relative">
-							<div className="vocs:absolute vocs:-inset-4 vocs:bg-gradient-to-r vocs:from-[#0166FF]/10 vocs:to-[#0166FF]/5 vocs:rounded-2xl vocs:blur-xl" />
-							<div className="vocs:relative">
+						<div className="hidden lg:block flex-1 min-w-0 relative">
+							<div className="absolute -inset-4 bg-gradient-to-r from-[#0166FF]/10 to-[#0166FF]/5 rounded-2xl blur-xl" />
+							<div className="relative">
 								<CliDemo />
 							</div>
 						</div>
@@ -494,26 +481,23 @@ export function LandingPage() {
 			</section>
 
 			{/* Feature 1: Open Standard */}
-			<section
-				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-20 vocs:border-b vocs:border-white/[0.06]"
-				style={{ marginLeft: "calc(-50vw + 50%)" }}
-			>
-				<div className="vocs:max-w-[1600px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20">
-					<div className="vocs:flex vocs:flex-col lg:vocs:flex-row vocs:gap-8 lg:vocs:gap-20 vocs:items-center">
+			<section className="relative py-12 md:py-20 border-b border-white/[0.06]">
+				<div className="mx-auto px-4 sm:px-6 lg:px-20">
+					<div className="flex flex-col lg:flex-row gap-8 lg:gap-20 items-center">
 						{/* Left - Copy */}
-						<div className="vocs:flex-1 vocs:space-y-4 md:vocs:space-y-6">
-							<div className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:w-12 vocs:h-12 vocs:rounded-xl vocs:bg-[#0166FF]/10">
-								<GlobeIcon className="vocs:w-6 vocs:h-6 vocs:text-[#0166FF]" />
+						<div className="flex-1 space-y-4 md:space-y-6">
+							<div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#0166FF]/10">
+								<GlobeIcon className="w-6 h-6 text-[#0166FF]" />
 							</div>
-							<h2 className="vocs:text-2xl sm:vocs:text-3xl md:vocs:text-4xl vocs:font-semibold vocs:tracking-tight vocs:text-[var(--vocs-color-text)]">
+							<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-color-text)]">
 								Open standard built for the internet
 							</h2>
-							<p className="vocs:text-base md:vocs:text-lg vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+							<p className="text-base md:text-lg text-[var(--vocs-color-text-2)] leading-relaxed">
 								MPP standardizes HTTP 402 "Payment Required" with an IETF-track
 								specification. No proprietary APIs or vendor lock-in—just HTTP
 								headers and standard authentication flows.
 							</p>
-							<ul className="vocs:space-y-3">
+							<ul className="space-y-3">
 								{[
 									"Challenge → Credential → Receipt flow",
 									"Works with any HTTP client or server",
@@ -521,9 +505,9 @@ export function LandingPage() {
 								].map((item) => (
 									<li
 										key={item}
-										className="vocs:flex vocs:items-center vocs:gap-3 vocs:text-sm md:vocs:text-base vocs:text-[var(--vocs-color-text-2)]"
+										className="flex items-center gap-3 text-sm md:text-base text-[var(--vocs-color-text-2)]"
 									>
-										<span className="vocs:w-1.5 vocs:h-1.5 vocs:rounded-full vocs:bg-[#0166FF] vocs:flex-shrink-0" />
+										<span className="w-1.5 h-1.5 rounded-full bg-[#0166FF] flex-shrink-0" />
 										{item}
 									</li>
 								))}
@@ -531,17 +515,17 @@ export function LandingPage() {
 						</div>
 
 						{/* Right - Protocol Flow Diagram */}
-						<div className="vocs:flex-1 vocs:w-full vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:overflow-hidden vocs:border vocs:border-white/20">
+						<div className="flex-1 w-full bg-[var(--vocs-color-background-2)] rounded-xl overflow-hidden border border-white/20">
 							{/* Step 1: Initial Request */}
-							<div className="vocs:px-4 vocs:py-3 vocs:border-b vocs:border-white/20">
-								<div className="vocs:flex vocs:items-center vocs:gap-2 vocs:mb-1">
-									<span className="vocs:text-[10px] vocs:font-medium vocs:uppercase vocs:tracking-wider vocs:text-[var(--vocs-color-text-3)]">
+							<div className="px-4 py-3 border-b border-white/20">
+								<div className="flex items-center gap-2 mb-1">
+									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-color-text-3)]">
 										1. Request
 									</span>
 								</div>
-								<code className="vocs:font-mono vocs:text-xs sm:vocs:text-sm">
-									<span className="vocs:text-[#0166FF]">GET</span>
-									<span className="vocs:text-[var(--vocs-color-text)]">
+								<code className="font-mono text-xs sm:text-sm">
+									<span className="text-[#0166FF]">GET</span>
+									<span className="text-[var(--vocs-color-text)]">
 										{" "}
 										/resource
 									</span>
@@ -549,65 +533,62 @@ export function LandingPage() {
 							</div>
 
 							{/* Step 2: 402 Challenge */}
-							<div className="vocs:px-4 vocs:py-3 vocs:border-b vocs:border-white/20">
-								<div className="vocs:flex vocs:items-center vocs:gap-2 vocs:mb-1">
-									<span className="vocs:text-[10px] vocs:font-medium vocs:uppercase vocs:tracking-wider vocs:text-[var(--vocs-color-text-3)]">
+							<div className="px-4 py-3 border-b border-white/20">
+								<div className="flex items-center gap-2 mb-1">
+									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-color-text-3)]">
 										2. Challenge
 									</span>
 								</div>
-								<div className="vocs:font-mono vocs:text-xs sm:vocs:text-sm vocs:space-y-0.5">
+								<div className="font-mono text-xs sm:text-sm space-y-0.5">
 									<div>
-										<span className="vocs:text-[var(--vocs-color-destructive)]">
+										<span className="text-[var(--vocs-color-destructive)]">
 											402
 										</span>
-										<span className="vocs:text-[var(--vocs-color-text-2)]">
+										<span className="text-[var(--vocs-color-text-2)]">
 											{" "}
 											Payment Required
 										</span>
 									</div>
-									<div className="vocs:text-[var(--vocs-color-text-3)] vocs:break-all">
+									<div className="text-[var(--vocs-color-text-3)] break-all">
 										WWW-Authenticate: Payment method="tempo" ...
 									</div>
 								</div>
 							</div>
 
 							{/* Step 3: Retry with Credential */}
-							<div className="vocs:px-4 vocs:py-3 vocs:border-b vocs:border-white/20">
-								<div className="vocs:flex vocs:items-center vocs:gap-2 vocs:mb-1">
-									<span className="vocs:text-[10px] vocs:font-medium vocs:uppercase vocs:tracking-wider vocs:text-[var(--vocs-color-text-3)]">
+							<div className="px-4 py-3 border-b border-white/20">
+								<div className="flex items-center gap-2 mb-1">
+									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-color-text-3)]">
 										3. Retry with credential
 									</span>
 								</div>
-								<div className="vocs:font-mono vocs:text-xs sm:vocs:text-sm vocs:space-y-0.5">
+								<div className="font-mono text-xs sm:text-sm space-y-0.5">
 									<div>
-										<span className="vocs:text-[#0166FF]">GET</span>
-										<span className="vocs:text-[var(--vocs-color-text)]">
+										<span className="text-[#0166FF]">GET</span>
+										<span className="text-[var(--vocs-color-text)]">
 											{" "}
 											/resource
 										</span>
 									</div>
-									<div className="vocs:text-[var(--vocs-color-text-3)] vocs:break-all">
+									<div className="text-[var(--vocs-color-text-3)] break-all">
 										Authorization: Payment {"<credential>"}
 									</div>
 								</div>
 							</div>
 
 							{/* Step 4: Success with Receipt */}
-							<div className="vocs:px-4 vocs:py-3">
-								<div className="vocs:flex vocs:items-center vocs:gap-2 vocs:mb-1">
-									<span className="vocs:text-[10px] vocs:font-medium vocs:uppercase vocs:tracking-wider vocs:text-[var(--vocs-color-text-3)]">
+							<div className="px-4 py-3">
+								<div className="flex items-center gap-2 mb-1">
+									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-color-text-3)]">
 										4. Success
 									</span>
 								</div>
-								<div className="vocs:font-mono vocs:text-xs sm:vocs:text-sm vocs:space-y-0.5">
+								<div className="font-mono text-xs sm:text-sm space-y-0.5">
 									<div>
-										<span className="vocs:text-[#16a34a]">200</span>
-										<span className="vocs:text-[var(--vocs-color-text-2)]">
-											{" "}
-											OK
-										</span>
+										<span className="text-[#16a34a]">200</span>
+										<span className="text-[var(--vocs-color-text-2)]"> OK</span>
 									</div>
-									<div className="vocs:text-[var(--vocs-color-text-3)] vocs:break-all">
+									<div className="text-[var(--vocs-color-text-3)] break-all">
 										Payment-Receipt: {"<receipt>"}
 									</div>
 								</div>
@@ -618,25 +599,22 @@ export function LandingPage() {
 			</section>
 
 			{/* Feature 2: Multi-Rail (reversed layout) */}
-			<section
-				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-20 vocs:border-b vocs:border-white/[0.06]"
-				style={{ marginLeft: "calc(-50vw + 50%)" }}
-			>
-				<div className="vocs:max-w-[1600px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20">
-					<div className="vocs:flex vocs:flex-col-reverse lg:vocs:flex-row vocs:gap-8 lg:vocs:gap-20 vocs:items-center">
+			<section className="relative py-12 md:py-20 border-b border-white/[0.06]">
+				<div className="mx-auto px-4 sm:px-6 lg:px-20">
+					<div className="flex flex-col-reverse lg:flex-row gap-8 lg:gap-20 items-center">
 						{/* Left - Payment Methods Grid */}
-						<div className="vocs:flex-1 vocs:w-full">
-							<div className="vocs:grid vocs:grid-cols-1 sm:vocs:grid-cols-2 vocs:gap-3 md:vocs:gap-4">
+						<div className="flex-1 w-full">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
 								{/* Tempo Card */}
-								<div className="vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:p-4 md:vocs:p-5 vocs:space-y-3 vocs:border vocs:border-white/20">
-									<div className="vocs:flex vocs:items-center vocs:justify-between vocs:gap-2">
+								<div className="bg-[var(--vocs-color-background-2)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+									<div className="flex items-center justify-between gap-2">
 										<TempoLogo
-											className="vocs:text-[var(--vocs-color-text)]"
+											className="text-[var(--vocs-color-text)]"
 											style={{ width: "60px", height: "auto" }}
 										/>
 										<StatusBadge status="production" />
 									</div>
-									<p className="vocs:text-xs md:vocs:text-sm vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+									<p className="text-xs md:text-sm text-[var(--vocs-color-text-2)] leading-relaxed">
 										Instant stablecoin settlement on Tempo. Sub-second finality
 										with USDC payments directly to your wallet—no invoices or
 										delayed payouts.
@@ -644,15 +622,15 @@ export function LandingPage() {
 								</div>
 
 								{/* Stripe Card */}
-								<div className="vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:p-4 md:vocs:p-5 vocs:space-y-3 vocs:border vocs:border-white/20">
-									<div className="vocs:flex vocs:items-center vocs:justify-between vocs:gap-2">
+								<div className="bg-[var(--vocs-color-background-2)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+									<div className="flex items-center justify-between gap-2">
 										<StripeLogo
-											className="vocs:text-[var(--vocs-color-text)]"
+											className="text-[var(--vocs-color-text)]"
 											style={{ width: "48px", height: "auto" }}
 										/>
 										<StatusBadge status="beta" />
 									</div>
-									<p className="vocs:text-xs md:vocs:text-sm vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+									<p className="text-xs md:text-sm text-[var(--vocs-color-text-2)] leading-relaxed">
 										Accept cards, bank transfers, and invoices through Stripe.
 										Leverage existing Stripe infrastructure with MPP's
 										standardized protocol layer.
@@ -660,14 +638,14 @@ export function LandingPage() {
 								</div>
 
 								{/* Custom Card */}
-								<div className="vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:p-4 md:vocs:p-5 vocs:space-y-3 vocs:border vocs:border-white/20">
-									<div className="vocs:flex vocs:items-center vocs:justify-between vocs:gap-2">
-										<span className="vocs:font-semibold vocs:text-[var(--vocs-color-text)]">
+								<div className="bg-[var(--vocs-color-background-2)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+									<div className="flex items-center justify-between gap-2">
+										<span className="font-semibold text-[var(--vocs-color-text)]">
 											Custom
 										</span>
 										<StatusBadge status="available" />
 									</div>
-									<p className="vocs:text-xs md:vocs:text-sm vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+									<p className="text-xs md:text-sm text-[var(--vocs-color-text-2)] leading-relaxed">
 										Build your own payment method. MPP's extensible architecture
 										lets you integrate any payment rail—internal credits,
 										loyalty points, or custom currencies.
@@ -675,14 +653,14 @@ export function LandingPage() {
 								</div>
 
 								{/* More Coming Card */}
-								<div className="vocs:bg-[var(--vocs-color-background-2)] vocs:rounded-xl vocs:p-4 md:vocs:p-5 vocs:space-y-3 vocs:border vocs:border-white/20">
-									<div className="vocs:flex vocs:items-center vocs:justify-between vocs:gap-2">
-										<span className="vocs:font-semibold vocs:text-[var(--vocs-color-text)]">
+								<div className="bg-[var(--vocs-color-background-2)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+									<div className="flex items-center justify-between gap-2">
+										<span className="font-semibold text-[var(--vocs-color-text)]">
 											More coming
 										</span>
 										<StatusBadge status="planned" />
 									</div>
-									<p className="vocs:text-xs md:vocs:text-sm vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+									<p className="text-xs md:text-sm text-[var(--vocs-color-text-2)] leading-relaxed">
 										Lightning Network for instant Bitcoin micropayments, ACH for
 										low-cost bank transfers, and more payment rails on the
 										roadmap.
@@ -692,19 +670,19 @@ export function LandingPage() {
 						</div>
 
 						{/* Right - Copy */}
-						<div className="vocs:flex-1 vocs:space-y-4 md:vocs:space-y-6">
-							<div className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:w-12 vocs:h-12 vocs:rounded-xl vocs:bg-[#0166FF]/10">
-								<LayersIcon className="vocs:w-6 vocs:h-6 vocs:text-[#0166FF]" />
+						<div className="flex-1 space-y-4 md:space-y-6">
+							<div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#0166FF]/10">
+								<LayersIcon className="w-6 h-6 text-[#0166FF]" />
 							</div>
-							<h2 className="vocs:text-2xl sm:vocs:text-3xl md:vocs:text-4xl vocs:font-semibold vocs:tracking-tight vocs:text-[var(--vocs-color-text)]">
+							<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-color-text)]">
 								Multi-rail, multi-currency
 							</h2>
-							<p className="vocs:text-base md:vocs:text-lg vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+							<p className="text-base md:text-lg text-[var(--vocs-color-text-2)] leading-relaxed">
 								MPP is payment method agnostic. Crypto, cards, bank transfers,
 								invoices—all payment methods work through one protocol. Support
 								USD, EUR, BTC, USDC, or any currency.
 							</p>
-							<ul className="vocs:space-y-3">
+							<ul className="space-y-3">
 								{[
 									"Single integration, multiple payment rails",
 									"Currency agnostic—from fiat to crypto",
@@ -712,9 +690,9 @@ export function LandingPage() {
 								].map((item) => (
 									<li
 										key={item}
-										className="vocs:flex vocs:items-center vocs:gap-3 vocs:text-sm md:vocs:text-base vocs:text-[var(--vocs-color-text-2)]"
+										className="flex items-center gap-3 text-sm md:text-base text-[var(--vocs-color-text-2)]"
 									>
-										<span className="vocs:w-1.5 vocs:h-1.5 vocs:rounded-full vocs:bg-[#0166FF] vocs:flex-shrink-0" />
+										<span className="w-1.5 h-1.5 rounded-full bg-[#0166FF] flex-shrink-0" />
 										{item}
 									</li>
 								))}
@@ -725,26 +703,23 @@ export function LandingPage() {
 			</section>
 
 			{/* Feature 3: Developer Experience */}
-			<section
-				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-20 vocs:border-b vocs:border-white/[0.06]"
-				style={{ marginLeft: "calc(-50vw + 50%)" }}
-			>
-				<div className="vocs:max-w-[1600px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20">
-					<div className="vocs:flex vocs:flex-col lg:vocs:flex-row vocs:gap-8 lg:vocs:gap-20 vocs:items-center">
+			<section className="relative py-12 md:py-20 border-b border-white/[0.06]">
+				<div className="mx-auto px-4 sm:px-6 lg:px-20">
+					<div className="flex flex-col lg:flex-row gap-8 lg:gap-20 items-center">
 						{/* Left - Copy */}
-						<div className="vocs:flex-1 vocs:space-y-4 md:vocs:space-y-6">
-							<div className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:w-12 vocs:h-12 vocs:rounded-xl vocs:bg-[#0166FF]/10">
-								<ZapIcon className="vocs:w-6 vocs:h-6 vocs:text-[#0166FF]" />
+						<div className="flex-1 space-y-4 md:space-y-6">
+							<div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#0166FF]/10">
+								<ZapIcon className="w-6 h-6 text-[#0166FF]" />
 							</div>
-							<h2 className="vocs:text-2xl sm:vocs:text-3xl md:vocs:text-4xl vocs:font-semibold vocs:tracking-tight vocs:text-[var(--vocs-color-text)]">
+							<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-color-text)]">
 								Developer-first experience
 							</h2>
-							<p className="vocs:text-base md:vocs:text-lg vocs:text-[var(--vocs-color-text-2)] vocs:leading-relaxed">
+							<p className="text-base md:text-lg text-[var(--vocs-color-text-2)] leading-relaxed">
 								Official SDKs for TypeScript, Python, and Rust. Polyfill fetch
 								or go low-level—MPP works the way you work. Add payments with
 								minimal code changes.
 							</p>
-							<ul className="vocs:space-y-3">
+							<ul className="space-y-3">
 								{[
 									"Client: Polyfill fetch for automatic 402 handling",
 									"Server: Works with Hono, Express, Next.js, and more",
@@ -752,9 +727,9 @@ export function LandingPage() {
 								].map((item) => (
 									<li
 										key={item}
-										className="vocs:flex vocs:items-center vocs:gap-3 vocs:text-sm md:vocs:text-base vocs:text-[var(--vocs-color-text-2)]"
+										className="flex items-center gap-3 text-sm md:text-base text-[var(--vocs-color-text-2)]"
 									>
-										<span className="vocs:w-1.5 vocs:h-1.5 vocs:rounded-full vocs:bg-[#0166FF] vocs:flex-shrink-0" />
+										<span className="w-1.5 h-1.5 rounded-full bg-[#0166FF] flex-shrink-0" />
 										{item}
 									</li>
 								))}
@@ -762,7 +737,7 @@ export function LandingPage() {
 						</div>
 
 						{/* Right - Code Snippet with Tabs */}
-						<div className="vocs:flex-1 vocs:w-full">
+						<div className="flex-1 w-full">
 							<CodeTabs />
 						</div>
 					</div>
@@ -770,29 +745,26 @@ export function LandingPage() {
 			</section>
 
 			{/* CTA Section */}
-			<section
-				className="vocs:w-screen vocs:relative vocs:py-12 md:vocs:py-20"
-				style={{ marginLeft: "calc(-50vw + 50%)" }}
-			>
-				<div className="vocs:max-w-[900px] vocs:mx-auto vocs:px-4 sm:vocs:px-6 lg:vocs:px-20 vocs:text-center">
-					<h2 className="vocs:text-2xl sm:vocs:text-3xl md:vocs:text-4xl vocs:font-semibold vocs:tracking-tight vocs:text-[var(--vocs-color-text)] vocs:mb-4">
+			<section className="relative py-12 md:py-20">
+				<div className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-20 text-center">
+					<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-color-text)] mb-4">
 						Start accepting payments today
 					</h2>
-					<p className="vocs:text-base md:vocs:text-lg vocs:text-[var(--vocs-color-text-2)] vocs:mb-6 md:vocs:mb-8 vocs:max-w-2xl vocs:mx-auto">
+					<p className="text-base md:text-lg text-[var(--vocs-color-text-2)] mb-6 md:mb-8 max-w-2xl mx-auto">
 						Add payments to your API in minutes. No signup required—just install
 						the SDK and start charging for your resources.
 					</p>
-					<div className="vocs:flex vocs:flex-col sm:vocs:flex-row vocs:flex-wrap vocs:justify-center vocs:gap-3 sm:vocs:gap-4">
+					<div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
 						<a
 							href="/quickstart/server"
-							className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:bg-[#0166FF] vocs:text-white vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[#0052CC] vocs:no-underline"
+							className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0166FF] text-white font-medium rounded-lg transition-all hover:bg-[#0052CC] no-underline"
 						>
 							Server quickstart
-							<ArrowRightIcon className="vocs:w-4 vocs:h-4" />
+							<ArrowRightIcon className="w-4 h-4" />
 						</a>
 						<a
 							href="/quickstart/client"
-							className="vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:px-6 vocs:py-3 vocs:border vocs:border-[var(--vocs-color-border)] vocs:text-[var(--vocs-color-text)] vocs:font-medium vocs:rounded-lg vocs:transition-all hover:vocs:bg-[var(--vocs-color-background-2)] vocs:no-underline"
+							className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-[var(--vocs-color-border)] text-[var(--vocs-color-text)] font-medium rounded-lg transition-all hover:bg-[var(--vocs-color-background-2)] no-underline"
 						>
 							Client quickstart
 						</a>

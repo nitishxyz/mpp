@@ -258,20 +258,6 @@ Source: <https://github.com/wevm/vocs/tree/next>
 - Markdown/MDX remark/rehype plugins: <https://github.com/wevm/vocs/blob/next/src/internal/mdx.ts>
 - Styles: <https://github.com/wevm/vocs/tree/bf4a7fd5718c2326a48264255c7b511de0168299/src/styles>
 
-### Tailwind Classes (vocs: prefix)
-
-Vocs v2 uses Tailwind v4 with the `vocs:` prefix for all utility classes:
-
-```tsx
-<div className="vocs:flex vocs:gap-2 vocs:items-center">
-  <span className="vocs:text-primary vocs:text-sm vocs:font-[450]">
-    Text
-  </span>
-</div>
-```
-
-Theme: <https://github.com/wevm/vocs/blob/bf4a7fd5718c2326a48264255c7b511de0168299/src/styles/theme.css>
-
 ### Frontmatter
 
 Refer to: <https://github.com/wevm/vocs/blob/bf4a7fd5718c2326a48264255c7b511de0168299/src/internal/config.ts#L341-L395>
@@ -299,11 +285,11 @@ vocs.config.ts     — config file
 **`_slots.tsx`** — Slot components that render in specific locations:
 ```tsx
 export function Footer() {
-  return <div className="vocs:text-center vocs:text-sm">© 2025 My Project</div>
+  return <div className="text-center text-sm">© 2025 My Project</div>
 }
 
 export function OutlineFooter() {
-  return <div className="vocs:text-xs">Need help? <a href="#">Discord</a></div>
+  return <div className="text-xs">Need help? <a href="#">Discord</a></div>
 }
 
 export function SidebarHeader() {

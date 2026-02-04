@@ -6,10 +6,10 @@ export function GitHub({ repo }: { repo: string }) {
 			href={`https://github.com/${repo}`}
 			target="_blank"
 			rel="noopener noreferrer"
-			className="vocs:bg-surfaceTint vocs:px-2 vocs:py-1 vocs:rounded-lg vocs:border vocs:border-primary vocs:no-underline vocs:flex vocs:items-center vocs:gap-2"
+			className="bg-surfaceTint px-2 py-1 rounded-lg border border-primary no-underline flex items-center gap-2"
 		>
-			<span className="vocs:flex vocs:items-center vocs:gap-2 vocs:text-sm vocs:text-primary vocs:font-[450]">
-				<IconGitHub className="vocs:size-3" />
+			<span className="flex items-center gap-2 text-sm text-primary font-[450]">
+				<IconGitHub className="size-3" />
 				GitHub
 			</span>
 		</a>
@@ -22,14 +22,12 @@ export function Maintainer({ name, href }: { name: string; href: string }) {
 			href={href}
 			target="_blank"
 			rel="noopener noreferrer"
-			className="vocs:bg-surfaceTint vocs:rounded-lg vocs:border vocs:border-primary vocs:flex vocs:items-stretch vocs:text-sm vocs:text-primary vocs:no-underline vocs:overflow-hidden"
+			className="bg-surfaceTint rounded-lg border border-primary flex items-stretch text-sm text-primary no-underline overflow-hidden"
 		>
-			<span className="vocs:px-2 vocs:py-1 vocs:flex vocs:items-center vocs:bg-surface vocs:text-secondary">
+			<span className="px-2 py-1 flex items-center bg-surface text-secondary">
 				Maintainer
 			</span>
-			<span className="vocs:px-2 vocs:py-1 vocs:font-[450] vocs:flex vocs:items-center">
-				{name}
-			</span>
+			<span className="px-2 py-1 font-[450] flex items-center">{name}</span>
 		</a>
 	);
 }
