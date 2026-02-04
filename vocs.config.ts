@@ -396,7 +396,7 @@ export default defineConfig({
 		},
 	},
 	topNav: [
-		{ text: "Docs", link: "/", match: "/" },
+		{ text: "Docs", link: "/overview", match: (path) => path !== "/" },
 		{ text: "SDKs & Tools", link: "/sdk" },
 		{ text: "Specifications", link: "https://paymentauth.tempo.xyz" },
 		{
