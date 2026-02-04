@@ -5,7 +5,6 @@ Creates a client-side payment handler from an array of methods.
 ## Usage
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -50,7 +49,6 @@ type Mpay = {
 Array of payment methods to use.
 
 ```ts twoslash
-// @noErrors
 import { Mpay, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -71,7 +69,6 @@ const mpay = Mpay.create({
 Transport to use for extracting challenges and attaching credentials.
 
 ```ts twoslash
-// @noErrors
 import { Mpay, Transport, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 

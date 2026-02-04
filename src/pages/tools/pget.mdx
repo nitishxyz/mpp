@@ -8,13 +8,13 @@ When you request a resource that requires payment, `pget` automatically detects 
 
 **Quick install:**
 
-```bash [test.sh]
+```bash [install.sh]
 $ curl -fsSL https://pget.tempo.xyz/install.sh | bash
 ```
 
 **From source:**
 
-```bash [test.sh]
+```bash [build-from-source.sh]
 $ git clone https://github.com/tempoxyz/pget.git
 $ cd pget
 $ cargo install --path .
@@ -22,7 +22,7 @@ $ cargo install --path .
 
 ## Quick start
 
-```bash [test.sh]
+```bash [quickstart.sh]
 # Initialize (first time only)
 $ pget init
 
@@ -51,7 +51,7 @@ tempo = "https://my-private-rpc.com"
 
 ## Payment method management
 
-```bash [test.sh]
+```bash [manage-methods.sh]
 # List all payment methods
 $ pget method list
 

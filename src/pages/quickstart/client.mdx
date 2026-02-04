@@ -24,7 +24,7 @@ bun add mpay viem
 
 ### Define an account
 
-```ts twoslash [example.ts]
+```ts twoslash [define-account.ts]
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0xabc…123')
@@ -38,7 +38,7 @@ With Tempo, you can also use [Passkey or WebCrypto accounts](https://viem.sh/tem
 
 Call `Fetch.polyfill` at startup. All `fetch` calls then handle payment challenges.
 
-```ts twoslash [example.ts]
+```ts twoslash [polyfill-fetch.ts]
 import { privateKeyToAccount } from 'viem/accounts'
 import { Fetch, tempo } from 'mpay/client'
 
@@ -53,7 +53,7 @@ Fetch.polyfill({
 
 Use `fetch`. Payment happens when a server returns `402`.
 
-```ts [example.ts]
+```ts [fetch-resource.ts]
 const response = await fetch('https://mpp.dev/ping/paid')
 ```
 
@@ -67,7 +67,7 @@ const response = await fetch('https://mpp.dev/ping/paid')
 
 Use `Fetch.from` to create a separate payment-enabled fetch without modifying the global:
 
-```ts twoslash [example.ts]
+```ts twoslash [wrapped-fetch.ts]
 import { privateKeyToAccount } from 'viem/accounts'
 import { Fetch, tempo } from 'mpay/client'
 
@@ -85,7 +85,7 @@ const response = await paidFetch('https://mpp.dev/ping/paid')
 
 Pass accounts on individual requests instead of at setup:
 
-```ts twoslash [example.ts]
+```ts twoslash [per-request-account.ts]
 import { privateKeyToAccount } from 'viem/accounts'
 import { Fetch, tempo } from 'mpay/client'
 

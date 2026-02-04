@@ -33,10 +33,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Biome lint/format
-        run: pnpm biome check
+      - name: Check code
+        run: pnpm check
 
-      - name: TypeScript
+      - name: Check types
         run: pnpm check:types
 
       - name: Tests

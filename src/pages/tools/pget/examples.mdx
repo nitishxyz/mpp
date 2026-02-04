@@ -4,7 +4,7 @@
 
 We host a live demo server at `mpp-docs.tempo.xyz` running on **Tempo testnet** that you can test against:
 
-```bash [test.sh]
+```bash [try-demo.sh]
 # Free endpoint - no payment required
 $ pget https://mpp-docs.tempo.xyz/ping
 
@@ -25,7 +25,7 @@ $ pget -vi https://mpp-docs.tempo.xyz/ping/paid
 
 For testing, you can use a private key directly using an environment variable:
 
-```bash [test.sh]
+```bash [set-key.sh]
 # Set your private key (funded on Tempo testnet)
 $ export PGET_PRIVATE_KEY="0x..."
 
@@ -39,7 +39,7 @@ The demo server runs on Tempo testnet. Fund your wallet at [faucet.tempo.xyz](ht
 
 ## Basic requests
 
-```bash [test.sh]
+```bash [basic-requests.sh]
 # Make a payment request
 $ pget https://mpp-docs.tempo.xyz/ping/paid
 
@@ -55,7 +55,7 @@ $ pget --json-output https://mpp-docs.tempo.xyz/ping/paid
 
 ## Payment controls
 
-```bash [test.sh]
+```bash [payment-controls.sh]
 # Preview payment without executing (dry run)
 $ pget -D https://mpp-docs.tempo.xyz/ping/paid
 
@@ -71,7 +71,7 @@ $ pget -n tempo-moderato https://mpp-docs.tempo.xyz/ping/paid
 
 ## Wallet management
 
-```bash [test.sh]
+```bash [wallet-management.sh]
 # Check wallet balance
 $ pget balance
 
@@ -87,7 +87,7 @@ $ pget --from 0x1234... https://mpp-docs.tempo.xyz/ping/paid
 
 ## Inspecting payments
 
-```bash [test.sh]
+```bash [inspect-payments.sh]
 # Inspect payment requirements without paying
 $ pget inspect https://mpp-docs.tempo.xyz/ping/paid
 
@@ -100,7 +100,7 @@ $ pget config --output-format json
 
 ## HTTP options
 
-```bash [test.sh]
+```bash [http-options.sh]
 # Custom headers
 $ pget -H "X-Custom: value" https://mpp-docs.tempo.xyz/ping/paid
 
@@ -119,7 +119,7 @@ $ pget -m 30 https://mpp-docs.tempo.xyz/ping/paid
 
 ## Output control
 
-```bash [test.sh]
+```bash [output-control.sh]
 # Quiet mode (suppress non-essential output)
 $ pget -q https://mpp-docs.tempo.xyz/ping/paid
 
