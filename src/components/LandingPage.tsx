@@ -469,8 +469,8 @@ export function LandingPage() {
 							</div>
 						</div>
 
-						{/* Right side - Demo (hidden on mobile) */}
-						<div className="hidden lg:block flex-1 min-w-0 relative">
+						{/* Right side - Demo */}
+						<div className="flex-1 min-w-0 relative w-full mt-8 lg:mt-0">
 							<div className="absolute -inset-4 bg-gradient-to-r from-[#0166FF]/10 to-[#0166FF]/5 rounded-2xl blur-xl" />
 							<div className="relative">
 								<CliDemo />

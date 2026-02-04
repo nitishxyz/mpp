@@ -160,6 +160,26 @@ export function AsciiLogo() {
 		morphStartTime.current = Date.now();
 	};
 
+	// Auto-oscillate on mobile (no hover available)
+	useEffect(() => {
+		const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+		if (!isMobile) return;
+
+		let isShowingAlt = false;
+		const interval = setInterval(() => {
+			isShowingAlt = !isShowingAlt;
+			// Directly manipulate refs to avoid stale closure
+			const target = isShowingAlt ? 1 : 0;
+			if (morphTarget.current !== target) {
+				morphTarget.current = target;
+				morphStartProgress.current = morphProgress;
+				morphStartTime.current = Date.now();
+			}
+		}, 3500);
+
+		return () => clearInterval(interval);
+	}, [morphProgress]);
+
 	useEffect(() => {
 		let animationId: number;
 		const MORPH_DURATION = 600; // ms

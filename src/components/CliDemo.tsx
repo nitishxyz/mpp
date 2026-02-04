@@ -863,12 +863,52 @@ export function CliDemo() {
 				)}
 			</div>
 
-			{/* Interactive prompt */}
+			{/* Mobile query buttons */}
+			{status === "selecting" && (
+				<div
+					className="grid grid-cols-2 gap-2 p-3 lg:hidden"
+					style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
+				>
+					{QUERY_PRESETS.map((query, index) => (
+						<button
+							key={query.id}
+							type="button"
+							onClick={() => runQuery(index)}
+							className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-left transition-colors"
+							style={{
+								backgroundColor:
+									highlightedIndex === index
+										? "rgba(1, 102, 255, 0.15)"
+										: "rgba(255,255,255,0.05)",
+								border:
+									highlightedIndex === index
+										? "1px solid rgba(1, 102, 255, 0.3)"
+										: "1px solid rgba(255,255,255,0.1)",
+							}}
+						>
+							<span
+								className="flex items-center justify-center w-6 h-6 rounded text-xs font-medium"
+								style={{
+									backgroundColor: "rgba(1, 102, 255, 0.2)",
+									color: "#0166FF",
+								}}
+							>
+								{index + 1}
+							</span>
+							<span className="text-xs text-[var(--vocs-color-text-2)] truncate">
+								{query.label}
+							</span>
+						</button>
+					))}
+				</div>
+			)}
+
+			{/* Interactive prompt - hidden on mobile */}
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: click to focus input */}
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: click to focus input */}
 			<div
 				onClick={() => inputRef.current?.focus()}
-				className={`flex items-center px-4 py-2.5 gap-2 cursor-text ${
+				className={`hidden lg:flex items-center px-4 py-2.5 gap-2 cursor-text ${
 					status === "selecting" ? "bg-[rgba(152,195,121,0.05)]" : ""
 				}`}
 				style={{
