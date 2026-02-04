@@ -73,33 +73,6 @@ function StripeLogo({
 	);
 }
 
-// Viem logo SVG
-function ViemLogo({
-	className,
-	style,
-}: {
-	className?: string;
-	style?: React.CSSProperties;
-}) {
-	return (
-		<svg
-			className={className}
-			style={style}
-			viewBox="0 0 615 224"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-			role="img"
-			aria-label="Viem"
-		>
-			<title>Viem</title>
-			<path
-				d="M83.3 220.4L135.66 96.98C142.8 79.64 145.52 77.94 160.14 77.94V70.8H107.1V77.94C120.7 77.94 127.16 78.62 127.16 85.76C127.16 88.48 126.48 91.88 124.44 96.98L94.18 172.46L61.54 95.96C59.84 91.2 58.82 87.8 58.82 85.42C58.82 78.62 65.28 77.94 76.84 77.94V70.8H1.02V77.94C14.96 77.94 17 80.66 23.8 95.62L81.26 220.4H83.3ZM171.915 22.52C171.915 34.08 181.775 43.26 193.335 43.26C204.895 43.26 214.415 34.08 214.415 22.52C214.415 10.62 204.895 1.77999 193.335 1.77999C181.775 1.77999 171.915 10.62 171.915 22.52ZM175.995 96.3V191.5C175.995 208.16 172.595 209.86 157.295 209.86V217H231.075V209.86C215.775 209.86 212.375 208.16 212.375 191.5V70.8H157.295V77.94C172.595 77.94 175.995 79.64 175.995 96.3ZM298.103 76.58C316.123 76.58 324.623 93.92 325.643 118.06H264.783C267.503 90.86 280.423 76.58 298.103 76.58ZM359.303 187.76L354.883 183.68C345.703 195.92 334.483 201.36 320.203 201.36C287.223 201.36 264.103 171.44 264.103 130.3C264.103 128.94 264.103 127.58 264.103 126.56H356.923C356.923 98.34 338.223 67.4 299.123 67.4C263.763 67.4 229.763 101.06 229.763 145.94C229.763 189.8 262.743 220.4 302.863 220.4C324.623 220.4 346.043 209.18 359.303 187.76ZM434.132 209.86C418.832 209.86 415.432 208.16 415.432 191.5V104.8C421.212 93.92 430.732 86.78 442.292 86.78C459.972 86.78 468.812 98.34 468.812 122.82V191.5C468.812 208.16 465.412 209.86 450.112 209.86V217H523.892V209.86C508.252 209.86 504.852 208.16 504.852 191.5V117.04C504.852 113.64 504.512 109.9 504.172 106.84C508.932 95.96 519.132 86.78 531.712 86.78C549.732 86.78 558.572 98.34 558.572 122.82V191.5C558.572 208.16 555.172 209.86 539.872 209.86V217H613.652V209.86C598.012 209.86 594.612 208.16 594.612 191.5V117.04C594.612 89.84 581.692 67.4 550.752 67.4C525.932 67.4 509.272 86.44 503.152 100.38C498.392 81.34 485.472 67.4 460.992 67.4C438.212 67.4 422.232 83.72 415.432 97.32V70.8H360.352V77.94C375.652 77.94 379.052 79.64 379.052 96.3V191.5C379.052 208.16 375.652 209.86 360.352 209.86V217H434.132V209.86Z"
-				fill="currentColor"
-			/>
-		</svg>
-	);
-}
-
 // GitHub icon
 function GitHubIcon({ className }: { className?: string }) {
 	return (
@@ -211,13 +184,13 @@ function StatusBadge({
 		available: {
 			bg: "rgba(255, 255, 255, 0.05)",
 			border: "rgba(255, 255, 255, 0.1)",
-			text: "var(--vocs-color-text-2)",
+			text: "var(--vocs-text-color-secondary)",
 			label: "Available",
 		},
 		planned: {
 			bg: "rgba(255, 255, 255, 0.05)",
 			border: "rgba(255, 255, 255, 0.1)",
-			text: "var(--vocs-color-text-3)",
+			text: "var(--vocs-text-color-muted)",
 			label: "Planned",
 		},
 	};
@@ -243,15 +216,15 @@ function CodeTabs() {
 	const [activeTab, setActiveTab] = useState<"client" | "server">("client");
 
 	return (
-		<div className="w-full bg-[var(--vocs-color-background-2)] rounded-xl overflow-hidden border border-white/20">
+		<div className="w-full bg-[var(--vocs-background-color-surface)] rounded-xl overflow-hidden border border-white/20">
 			<div className="flex items-center gap-0 border-b border-white/20">
 				<button
 					type="button"
 					onClick={() => setActiveTab("client")}
 					className={`text-[13px] font-medium px-4 py-3 transition-colors border-b-2 ${
 						activeTab === "client"
-							? "text-[var(--vocs-color-text)] border-[#0166FF]"
-							: "text-[var(--vocs-color-text-3)] border-transparent hover:text-[var(--vocs-color-text-2)]"
+							? "text-[var(--vocs-text-color-primary)] border-[#0166FF]"
+							: "text-[var(--vocs-text-color-muted)] border-transparent hover:text-[var(--vocs-text-color-secondary)]"
 					}`}
 					style={{
 						background: "none",
@@ -266,8 +239,8 @@ function CodeTabs() {
 					onClick={() => setActiveTab("server")}
 					className={`text-[13px] font-medium px-4 py-3 transition-colors border-b-2 ${
 						activeTab === "server"
-							? "text-[var(--vocs-color-text)] border-[#0166FF]"
-							: "text-[var(--vocs-color-text-3)] border-transparent hover:text-[var(--vocs-color-text-2)]"
+							? "text-[var(--vocs-text-color-primary)] border-[#0166FF]"
+							: "text-[var(--vocs-text-color-muted)] border-transparent hover:text-[var(--vocs-text-color-secondary)]"
 					}`}
 					style={{
 						background: "none",
@@ -282,12 +255,12 @@ function CodeTabs() {
 				{activeTab === "client" ? (
 					<pre className="m-0 leading-relaxed">
 						<code>
-							<span className="text-[var(--vocs-color-text-3)]">
+							<span className="text-[var(--vocs-text-color-muted)]">
 								{"// Polyfill fetch once at startup"}
 							</span>
 							{"\n"}
 							<span className="text-[#c678dd]">import</span>
-							<span className="text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-text-color-primary)]">
 								{" "}
 								{"{"} Fetch, tempo {"}"}{" "}
 							</span>
@@ -295,48 +268,50 @@ function CodeTabs() {
 							<span className="text-[#98c379]"> 'mpay/client'</span>
 							{"\n\n"}
 							<span className="text-[#e5c07b]">Fetch</span>
-							<span className="text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-text-color-primary)]">
 								.polyfill({"{"}
 							</span>
 							{"\n"}
-							<span className="text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-text-color-primary)]">
 								{"  "}methods: [
 							</span>
 							<span className="text-[#e5c07b]">tempo</span>
-							<span className="text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-text-color-primary)]">
 								({"{"} account {"}"})]
 							</span>
 							{"\n"}
-							<span className="text-[var(--vocs-color-text)]">{"}"})</span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								{"}"})
+							</span>
 							{"\n\n"}
-							<span className="text-[var(--vocs-color-text-3)]">
+							<span className="text-[var(--vocs-text-color-muted)]">
 								{"// Now all fetch calls handle 402 automatically"}
 							</span>
 							{"\n"}
 							<span className="text-[#c678dd]">const</span>
-							<span className="text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-text-color-primary)]">
 								{" "}
 								response ={" "}
 							</span>
 							<span className="text-[#c678dd]">await</span>
-							<span className="text-[var(--vocs-color-text)]"> </span>
+							<span className="text-[var(--vocs-text-color-primary)]"> </span>
 							<span className="text-[#61afef]">fetch</span>
-							<span className="text-[var(--vocs-color-text)]">(</span>
+							<span className="text-[var(--vocs-text-color-primary)]">(</span>
 							<span className="text-[#98c379]">
 								'https://api.example.com/resource'
 							</span>
-							<span className="text-[var(--vocs-color-text)]">)</span>
+							<span className="text-[var(--vocs-text-color-primary)]">)</span>
 						</code>
 					</pre>
 				) : (
 					<pre className="m-0 leading-relaxed">
 						<code>
-							<span className="text-[var(--vocs-color-text-3)]">
+							<span className="text-[var(--vocs-text-color-muted)]">
 								{"// Add payment middleware to your server"}
 							</span>
 							{"\n"}
 							<span className="text-[#c678dd]">import</span>
-							<span className="text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-text-color-primary)]">
 								{" "}
 								{"{"} Mpay, tempo {"}"}{" "}
 							</span>
@@ -344,37 +319,52 @@ function CodeTabs() {
 							<span className="text-[#98c379]"> 'mpay/server'</span>
 							{"\n\n"}
 							<span className="text-[#c678dd]">const</span>
-							<span className="text-[var(--vocs-color-text)]"> mpay = </span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								{" "}
+								mpay ={" "}
+							</span>
 							<span className="text-[#e5c07b]">Mpay</span>
-							<span className="text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-text-color-primary)]">
 								.create({"{"}
 							</span>
 							{"\n"}
-							<span className="text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-text-color-primary)]">
 								{"  "}methods: [
 							</span>
 							<span className="text-[#e5c07b]">tempo</span>
-							<span className="text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-text-color-primary)]">
 								({"{"} recipient {"}"})]
 							</span>
 							{"\n"}
-							<span className="text-[var(--vocs-color-text)]">{"}"})</span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								{"}"})
+							</span>
 							{"\n\n"}
-							<span className="text-[var(--vocs-color-text-3)]">
+							<span className="text-[var(--vocs-text-color-muted)]">
 								{"// Return 402 with payment challenge"}
 							</span>
 							{"\n"}
 							<span className="text-[#c678dd]">return</span>
-							<span className="text-[var(--vocs-color-text)]"> mpay.</span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								{" "}
+								mpay.
+							</span>
 							<span className="text-[#61afef]">challenge</span>
-							<span className="text-[var(--vocs-color-text)]">({"{"} </span>
-							<span className="text-[var(--vocs-color-text)]">amount: </span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								({"{"}{" "}
+							</span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								amount:{" "}
+							</span>
 							<span className="text-[#d19a66]">0.01</span>
-							<span className="text-[var(--vocs-color-text)]">
+							<span className="text-[var(--vocs-text-color-primary)]">
 								, currency:{" "}
 							</span>
 							<span className="text-[#98c379]">'USD'</span>
-							<span className="text-[var(--vocs-color-text)]"> {"}"})</span>
+							<span className="text-[var(--vocs-text-color-primary)]">
+								{" "}
+								{"}"})
+							</span>
 						</code>
 					</pre>
 				)}
@@ -385,7 +375,7 @@ function CodeTabs() {
 
 export function LandingPage() {
 	return (
-		<div className="not-prose">
+		<div className="not-prose" style={{ colorScheme: "dark" }}>
 			{/* Hero Section */}
 			<section className="relative py-12 md:py-24 border-b border-white/[0.06]">
 				<div className="mx-auto px-4 sm:px-6 lg:px-20">
@@ -396,7 +386,7 @@ export function LandingPage() {
 							<AsciiLogo />
 
 							{/* Subtitle */}
-							<p className="text-base sm:text-lg md:text-xl text-[var(--vocs-color-text-2)] leading-relaxed max-w-xl">
+							<p className="text-base sm:text-lg md:text-xl text-[var(--vocs-text-color-secondary)] leading-relaxed max-w-xl">
 								The machine-native payments protocol. Accept payments from
 								humans, software, or AI agents using standard HTTP—no billing
 								accounts or manual signup required.
@@ -415,7 +405,7 @@ export function LandingPage() {
 									href="https://github.com/tempoxyz/payment-auth-spec"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-[var(--vocs-color-border)] text-[var(--vocs-color-text)] font-medium rounded-lg transition-all hover:bg-[var(--vocs-color-background-2)] no-underline"
+									className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-[var(--vocs-border-color-primary)] text-[var(--vocs-text-color-primary)] font-medium rounded-lg transition-all hover:bg-[var(--vocs-background-color-surface)] no-underline"
 								>
 									<GitHubIcon className="w-5 h-5" />
 									View on GitHub
@@ -424,7 +414,7 @@ export function LandingPage() {
 
 							{/* Co-authors badge */}
 							<div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-								<span className="text-[13px] text-[var(--vocs-color-text-3)] uppercase tracking-wider font-medium opacity-50">
+								<span className="text-[13px] text-[var(--vocs-text-color-muted)] uppercase tracking-wider font-medium opacity-50">
 									Co-authored by
 								</span>
 								<div className="flex items-center gap-4 sm:gap-6">
@@ -435,23 +425,8 @@ export function LandingPage() {
 										className="no-underline hover:opacity-80 transition-opacity"
 									>
 										<TempoLogo
-											className="text-[var(--vocs-color-text-2)]"
+											className="text-[var(--vocs-text-color-secondary)]"
 											style={{ width: "70px" }}
-										/>
-									</a>
-									<a
-										href="https://viem.sh"
-										target="_blank"
-										rel="noopener noreferrer"
-										className="no-underline hover:opacity-80 transition-opacity"
-									>
-										<ViemLogo
-											className="text-[var(--vocs-color-text-2)]"
-											style={{
-												width: "60px",
-												position: "relative",
-												top: "-2px",
-											}}
 										/>
 									</a>
 									<a
@@ -461,7 +436,7 @@ export function LandingPage() {
 										className="no-underline hover:opacity-80 transition-opacity"
 									>
 										<StripeLogo
-											className="text-[var(--vocs-color-text-2)]"
+											className="text-[var(--vocs-text-color-secondary)]"
 											style={{ width: "60px" }}
 										/>
 									</a>
@@ -489,10 +464,10 @@ export function LandingPage() {
 							<div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#0166FF]/10">
 								<GlobeIcon className="w-6 h-6 text-[#0166FF]" />
 							</div>
-							<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-color-text)]">
+							<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-text-color-primary)]">
 								Open standard built for the internet
 							</h2>
-							<p className="text-base md:text-lg text-[var(--vocs-color-text-2)] leading-relaxed">
+							<p className="text-base md:text-lg text-[var(--vocs-text-color-secondary)] leading-relaxed">
 								MPP standardizes HTTP 402 "Payment Required" with an IETF-track
 								specification. No proprietary APIs or vendor lock-in—just HTTP
 								headers and standard authentication flows.
@@ -505,7 +480,7 @@ export function LandingPage() {
 								].map((item) => (
 									<li
 										key={item}
-										className="flex items-center gap-3 text-sm md:text-base text-[var(--vocs-color-text-2)]"
+										className="flex items-center gap-3 text-sm md:text-base text-[var(--vocs-text-color-secondary)]"
 									>
 										<span className="w-1.5 h-1.5 rounded-full bg-[#0166FF] flex-shrink-0" />
 										{item}
@@ -515,17 +490,17 @@ export function LandingPage() {
 						</div>
 
 						{/* Right - Protocol Flow Diagram */}
-						<div className="flex-1 w-full bg-[var(--vocs-color-background-2)] rounded-xl overflow-hidden border border-white/20">
+						<div className="flex-1 w-full bg-[var(--vocs-background-color-surface)] rounded-xl overflow-hidden border border-white/20">
 							{/* Step 1: Initial Request */}
 							<div className="px-4 py-3 border-b border-white/20">
 								<div className="flex items-center gap-2 mb-1">
-									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-color-text-3)]">
+									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-text-color-muted)]">
 										1. Request
 									</span>
 								</div>
 								<code className="font-mono text-xs sm:text-sm">
 									<span className="text-[#0166FF]">GET</span>
-									<span className="text-[var(--vocs-color-text)]">
+									<span className="text-[var(--vocs-text-color-primary)]">
 										{" "}
 										/resource
 									</span>
@@ -535,7 +510,7 @@ export function LandingPage() {
 							{/* Step 2: 402 Challenge */}
 							<div className="px-4 py-3 border-b border-white/20">
 								<div className="flex items-center gap-2 mb-1">
-									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-color-text-3)]">
+									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-text-color-muted)]">
 										2. Challenge
 									</span>
 								</div>
@@ -544,12 +519,12 @@ export function LandingPage() {
 										<span className="text-[var(--vocs-color-destructive)]">
 											402
 										</span>
-										<span className="text-[var(--vocs-color-text-2)]">
+										<span className="text-[var(--vocs-text-color-secondary)]">
 											{" "}
 											Payment Required
 										</span>
 									</div>
-									<div className="text-[var(--vocs-color-text-3)] break-all">
+									<div className="text-[var(--vocs-text-color-muted)] break-all">
 										WWW-Authenticate: Payment method="tempo" ...
 									</div>
 								</div>
@@ -558,19 +533,19 @@ export function LandingPage() {
 							{/* Step 3: Retry with Credential */}
 							<div className="px-4 py-3 border-b border-white/20">
 								<div className="flex items-center gap-2 mb-1">
-									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-color-text-3)]">
+									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-text-color-muted)]">
 										3. Retry with credential
 									</span>
 								</div>
 								<div className="font-mono text-xs sm:text-sm space-y-0.5">
 									<div>
 										<span className="text-[#0166FF]">GET</span>
-										<span className="text-[var(--vocs-color-text)]">
+										<span className="text-[var(--vocs-text-color-primary)]">
 											{" "}
 											/resource
 										</span>
 									</div>
-									<div className="text-[var(--vocs-color-text-3)] break-all">
+									<div className="text-[var(--vocs-text-color-muted)] break-all">
 										Authorization: Payment {"<credential>"}
 									</div>
 								</div>
@@ -579,16 +554,19 @@ export function LandingPage() {
 							{/* Step 4: Success with Receipt */}
 							<div className="px-4 py-3">
 								<div className="flex items-center gap-2 mb-1">
-									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-color-text-3)]">
+									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-text-color-muted)]">
 										4. Success
 									</span>
 								</div>
 								<div className="font-mono text-xs sm:text-sm space-y-0.5">
 									<div>
 										<span className="text-[#16a34a]">200</span>
-										<span className="text-[var(--vocs-color-text-2)]"> OK</span>
+										<span className="text-[var(--vocs-text-color-secondary)]">
+											{" "}
+											OK
+										</span>
 									</div>
-									<div className="text-[var(--vocs-color-text-3)] break-all">
+									<div className="text-[var(--vocs-text-color-muted)] break-all">
 										Payment-Receipt: {"<receipt>"}
 									</div>
 								</div>
@@ -606,15 +584,15 @@ export function LandingPage() {
 						<div className="flex-1 w-full">
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
 								{/* Tempo Card */}
-								<div className="bg-[var(--vocs-color-background-2)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
 									<div className="flex items-center justify-between gap-2">
 										<TempoLogo
-											className="text-[var(--vocs-color-text)]"
+											className="text-[var(--vocs-text-color-primary)]"
 											style={{ width: "60px", height: "auto" }}
 										/>
 										<StatusBadge status="production" />
 									</div>
-									<p className="text-xs md:text-sm text-[var(--vocs-color-text-2)] leading-relaxed">
+									<p className="text-xs md:text-sm text-[var(--vocs-text-color-secondary)] leading-relaxed">
 										Instant stablecoin settlement on Tempo. Sub-second finality
 										with USDC payments directly to your wallet—no invoices or
 										delayed payouts.
@@ -622,15 +600,15 @@ export function LandingPage() {
 								</div>
 
 								{/* Stripe Card */}
-								<div className="bg-[var(--vocs-color-background-2)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
 									<div className="flex items-center justify-between gap-2">
 										<StripeLogo
-											className="text-[var(--vocs-color-text)]"
+											className="text-[var(--vocs-text-color-primary)]"
 											style={{ width: "48px", height: "auto" }}
 										/>
 										<StatusBadge status="beta" />
 									</div>
-									<p className="text-xs md:text-sm text-[var(--vocs-color-text-2)] leading-relaxed">
+									<p className="text-xs md:text-sm text-[var(--vocs-text-color-secondary)] leading-relaxed">
 										Accept cards, bank transfers, and invoices through Stripe.
 										Leverage existing Stripe infrastructure with MPP's
 										standardized protocol layer.
@@ -638,14 +616,14 @@ export function LandingPage() {
 								</div>
 
 								{/* Custom Card */}
-								<div className="bg-[var(--vocs-color-background-2)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
 									<div className="flex items-center justify-between gap-2">
-										<span className="font-semibold text-[var(--vocs-color-text)]">
+										<span className="font-semibold text-[var(--vocs-text-color-primary)]">
 											Custom
 										</span>
 										<StatusBadge status="available" />
 									</div>
-									<p className="text-xs md:text-sm text-[var(--vocs-color-text-2)] leading-relaxed">
+									<p className="text-xs md:text-sm text-[var(--vocs-text-color-secondary)] leading-relaxed">
 										Build your own payment method. MPP's extensible architecture
 										lets you integrate any payment rail—internal credits,
 										loyalty points, or custom currencies.
@@ -653,14 +631,14 @@ export function LandingPage() {
 								</div>
 
 								{/* More Coming Card */}
-								<div className="bg-[var(--vocs-color-background-2)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
 									<div className="flex items-center justify-between gap-2">
-										<span className="font-semibold text-[var(--vocs-color-text)]">
+										<span className="font-semibold text-[var(--vocs-text-color-primary)]">
 											More coming
 										</span>
 										<StatusBadge status="planned" />
 									</div>
-									<p className="text-xs md:text-sm text-[var(--vocs-color-text-2)] leading-relaxed">
+									<p className="text-xs md:text-sm text-[var(--vocs-text-color-secondary)] leading-relaxed">
 										Lightning Network for instant Bitcoin micropayments, ACH for
 										low-cost bank transfers, and more payment rails on the
 										roadmap.
@@ -674,10 +652,10 @@ export function LandingPage() {
 							<div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#0166FF]/10">
 								<LayersIcon className="w-6 h-6 text-[#0166FF]" />
 							</div>
-							<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-color-text)]">
+							<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-text-color-primary)]">
 								Multi-rail, multi-currency
 							</h2>
-							<p className="text-base md:text-lg text-[var(--vocs-color-text-2)] leading-relaxed">
+							<p className="text-base md:text-lg text-[var(--vocs-text-color-secondary)] leading-relaxed">
 								MPP is payment method agnostic. Crypto, cards, bank transfers,
 								invoices—all payment methods work through one protocol. Support
 								USD, EUR, BTC, USDC, or any currency.
@@ -690,7 +668,7 @@ export function LandingPage() {
 								].map((item) => (
 									<li
 										key={item}
-										className="flex items-center gap-3 text-sm md:text-base text-[var(--vocs-color-text-2)]"
+										className="flex items-center gap-3 text-sm md:text-base text-[var(--vocs-text-color-secondary)]"
 									>
 										<span className="w-1.5 h-1.5 rounded-full bg-[#0166FF] flex-shrink-0" />
 										{item}
@@ -711,10 +689,10 @@ export function LandingPage() {
 							<div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#0166FF]/10">
 								<ZapIcon className="w-6 h-6 text-[#0166FF]" />
 							</div>
-							<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-color-text)]">
+							<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-text-color-primary)]">
 								Developer-first experience
 							</h2>
-							<p className="text-base md:text-lg text-[var(--vocs-color-text-2)] leading-relaxed">
+							<p className="text-base md:text-lg text-[var(--vocs-text-color-secondary)] leading-relaxed">
 								Official SDKs for TypeScript, Python, and Rust. Polyfill fetch
 								or go low-level—MPP works the way you work. Add payments with
 								minimal code changes.
@@ -727,7 +705,7 @@ export function LandingPage() {
 								].map((item) => (
 									<li
 										key={item}
-										className="flex items-center gap-3 text-sm md:text-base text-[var(--vocs-color-text-2)]"
+										className="flex items-center gap-3 text-sm md:text-base text-[var(--vocs-text-color-secondary)]"
 									>
 										<span className="w-1.5 h-1.5 rounded-full bg-[#0166FF] flex-shrink-0" />
 										{item}
@@ -747,10 +725,10 @@ export function LandingPage() {
 			{/* CTA Section */}
 			<section className="relative py-12 md:py-20">
 				<div className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-20 text-center">
-					<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-color-text)] mb-4">
+					<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-[var(--vocs-text-color-primary)] mb-4">
 						Start accepting payments today
 					</h2>
-					<p className="text-base md:text-lg text-[var(--vocs-color-text-2)] mb-6 md:mb-8 max-w-2xl mx-auto">
+					<p className="text-base md:text-lg text-[var(--vocs-text-color-secondary)] mb-6 md:mb-8 max-w-2xl mx-auto">
 						Add payments to your API in minutes. No signup required—just install
 						the SDK and start charging for your resources.
 					</p>
@@ -764,7 +742,7 @@ export function LandingPage() {
 						</a>
 						<a
 							href="/quickstart/client"
-							className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-[var(--vocs-color-border)] text-[var(--vocs-color-text)] font-medium rounded-lg transition-all hover:bg-[var(--vocs-color-background-2)] no-underline"
+							className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-[var(--vocs-border-color-primary)] text-[var(--vocs-text-color-primary)] font-medium rounded-lg transition-all hover:bg-[var(--vocs-background-color-surface)] no-underline"
 						>
 							Client quickstart
 						</a>
