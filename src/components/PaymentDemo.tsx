@@ -70,15 +70,15 @@ function PaymentDemoInner() {
 	const faucetAttemptedRef = useRef<string | null>(null);
 
 	const webAuthnConnector = connectors.find((c) => c.type === "webAuthn");
-	const wagmiClient = useClient();
+	const publicClient = useClient();
 
 	const faucet = useMutation({
 		async mutationFn() {
 			if (!address) throw new Error("No address available");
-			if (!wagmiClient) throw new Error("Client not found");
+			if (!publicClient) throw new Error("Client not found");
 
 			await Actions.faucet.fundSync(
-				wagmiClient as unknown as Client<Transport, Chain>,
+				publicClient as unknown as Client<Transport, Chain>,
 				{ account: address },
 			);
 			await new Promise((resolve) => setTimeout(resolve, 400));
@@ -149,8 +149,12 @@ function PaymentDemoInner() {
 				throw new Error("Missing WWW-Authenticate header");
 			}
 
+			// Pass walletClient directly - it has both transport and signing capabilities
+			// This avoids issues with the account's signTransaction method being lost
+			// during SSR/bundling in production
 			const method = tempo({
-				account: walletClient.account,
+				// biome-ignore lint/suspicious/noExplicitAny: wagmi client types differ from viem client types
+				client: walletClient as any,
 			});
 			const challenge = Challenge.fromResponse(res1, { method });
 			const credential = await method.createCredential({
