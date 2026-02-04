@@ -88,7 +88,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: .
           wranglerVersion: "4.61.1"
-          command: ${{ github.event_name == 'pull_request' && 'versions upload' || 'deploy' }}
+          command: ${{ github.event_name == 'pull_request' && format('versions upload --preview-alias={0}', github.head_ref) || 'deploy' }}
 
       - name: Post Preview Comment
         if: github.event_name == 'pull_request'
@@ -96,10 +96,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const url = "${{ steps.deploy.outputs['deployment-url'] }}"
-            const body = url
-              ? `MPP Docs preview: ${url}`
-              : 'MPP Docs preview failed to deploy.'
+            const branch = "${{ github.head_ref }}".toLowerCase().replace(/[^a-z0-9-]/g, '-')
+            const url = `https://${branch}-mpp-docs.tempo-xyz.workers.dev`
+            const body = `MPP Docs preview: ${url}`
             const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
