@@ -10,7 +10,7 @@ import { Card, Cards } from 'vocs'
 
 ### Install
 
-```bash [test.sh]
+```bash [install.sh]
 $ curl -fsSL https://pget.tempo.xyz/install.sh | bash
 ```
 
@@ -18,7 +18,7 @@ $ curl -fsSL https://pget.tempo.xyz/install.sh | bash
 
 Run the init wizard to set up your wallet:
 
-```bash [test.sh]
+```bash [init.sh]
 $ pget init
 ```
 
@@ -27,7 +27,7 @@ This creates a new encrypted keystore and saves your configuration to `~/.pget/c
 :::tip[Quick setup for testing]
 For quick testing without a keystore, set your private key directly:
 
-```bash [test.sh]
+```bash [set-key.sh]
 $ export PGET_PRIVATE_KEY="0x..."
 ```
 
@@ -35,7 +35,7 @@ $ export PGET_PRIVATE_KEY="0x..."
 
 ### Make your first paid request
 
-```bash [test.sh]
+```bash [paid-request.sh]
 $ pget -vv https://mpp-docs.tempo.xyz/ping/paid
 ```
 
@@ -60,13 +60,13 @@ We host a live demo server at `mpp-docs.tempo.xyz` running on **Tempo testnet**.
 
 Use dry-run mode to see what would happen without actually paying:
 
-```bash [test.sh]
+```bash [dry-run.sh]
 $ pget -D https://mpp-docs.tempo.xyz/ping/paid
 ```
 
 Or inspect the payment requirements before paying:
 
-```bash [test.sh]
+```bash [inspect.sh]
 $ pget inspect https://mpp-docs.tempo.xyz/ping/paid
 ```
 
@@ -74,7 +74,7 @@ $ pget inspect https://mpp-docs.tempo.xyz/ping/paid
 
 Protect yourself with a maximum payment amount:
 
-```bash [test.sh]
+```bash [max-payment.sh]
 # Reject payments over 1 USD
 $ pget -M 1000000 https://mpp-docs.tempo.xyz/ping/paid
 ```
@@ -111,7 +111,7 @@ The agent calls pget like any other commandline tool when it detects a `402` Pay
 
 When an AI agent needs to access a paid resource, it runs:
 
-```bash [test.sh]
+```bash [agent-request.sh]
 $ pget https://api.example.com/premium-data
 ```
 
@@ -125,7 +125,7 @@ pget includes safeguards for autonomous agent use:
 
 Set a maximum amount the agent can spend per request:
 
-```bash [test.sh]
+```bash [spending-limit.sh]
 # Limit to 0.50 USDC per request
 $ pget -M 500000 https://api.example.com/data
 ```
@@ -134,7 +134,7 @@ $ pget -M 500000 https://api.example.com/data
 
 Agents can preview costs before committing:
 
-```bash [test.sh]
+```bash [preview-cost.sh]
 $ pget -D https://api.example.com/expensive-endpoint
 ```
 
@@ -171,14 +171,14 @@ For AI agent frameworks that support skills, pget can be configured as a tool:
 
 ### Premium API access
 
-```bash [test.sh]
+```bash [query-api.sh]
 # Query a paid data API
 $ pget https://api.data-provider.com/market-data?symbol=BTC
 ```
 
 ### Paid compute
 
-```bash [test.sh]
+```bash [inference.sh]
 # Run inference on a paid model
 $ pget -X POST \
   --json '{"prompt": "Explain quantum computing"}' \
@@ -187,7 +187,7 @@ $ pget -X POST \
 
 ### Commercial tools
 
-```bash [test.sh]
+```bash [analyze-repo.sh]
 # Use a paid developer tool
 $ pget https://api.dev-tools.com/analyze?repo=myorg/myrepo
 ```

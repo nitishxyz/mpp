@@ -508,7 +508,7 @@ function Button({
 	children: React.ReactNode;
 }) {
 	const baseClasses =
-		"vocs:relative vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:whitespace-nowrap vocs:rounded-md vocs:font-normal vocs:transition-colors vocs:h-8 vocs:px-3.5 vocs:text-[14px] vocs:-tracking-[2%]";
+		"vocs:relative vocs:inline-flex vocs:items-center vocs:justify-center vocs:gap-2 vocs:whitespace-nowrap vocs:rounded-md vocs:font-normal vocs:transition-colors vocs:h-8 vocs:px-3.5 vocs:text-[14px] vocs:-tracking-[2%] vocs:min-w-[110px]";
 
 	const variantClasses = {
 		primary:

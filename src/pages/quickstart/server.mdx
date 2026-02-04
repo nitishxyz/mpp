@@ -14,7 +14,7 @@ This quickstart demonstrates how to plug MPP into any server framework to accept
 
 Create an `Mpay` instance to request payment for protected resources.
 
-```ts twoslash [example.ts]
+```ts twoslash [create-mpay.ts]
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({ method: tempo() })
@@ -42,7 +42,7 @@ const mpay = Mpay.create({
 
 Use the `mpay.charge(){:ts}` method to request payment from the client within your request handler.
 
-```ts twoslash [example.ts]
+```ts twoslash [charge-handler.ts]
 import { Mpay, tempo } from 'mpay/server' // [!code collapse:2 collapsed]
 
 const mpay = Mpay.create({ method: tempo() })
@@ -124,7 +124,7 @@ const response = await mpay.charge({
 
 Plug the handler into your framework of choice, like [Hono](https://hono.dev).
 
-```ts [example.ts]
+```ts [hono-server.ts]
 import { Hono } from 'hono' // [!code focus]
 import { Mpay, tempo } from 'mpay/server'
 
@@ -178,7 +178,7 @@ on all `/resource` endpoints.
 
 After your server is running, test it with [pget](/tools/pget):
 
-```bash [test.sh]
+```bash [test-server.sh]
 # See the payment challenge
 $ pget inspect <your-server>/resource
 
