@@ -17,12 +17,7 @@ import {
 } from "react";
 import type { Address } from "viem";
 import { formatUnits } from "viem";
-import {
-	useConnect,
-	useConnection,
-	useConnectors,
-	useDisconnect,
-} from "wagmi";
+import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
 import { Hooks } from "wagmi/tempo";
 
 export const Context = createContext<Context.Value>({
@@ -30,18 +25,17 @@ export const Context = createContext<Context.Value>({
 		address: undefined,
 		balance: undefined,
 		initial: undefined,
-		spent: 0n,
 		token: undefined,
 	},
 	interaction: {
 		active: null,
-		setActive: () => { },
+		setActive: () => {},
 	},
 	steps: {
 		index: 0,
-		next: () => { },
-		prev: () => { },
-		reset: () => { },
+		next: () => {},
+		prev: () => {},
+		reset: () => {},
 	},
 });
 
@@ -52,7 +46,6 @@ export namespace Context {
 		address: Address | undefined;
 		balance: bigint | undefined;
 		initial: bigint | undefined;
-		spent: bigint;
 		token: Address | undefined;
 	};
 
@@ -99,11 +92,6 @@ export function Window({ children, className, token }: Window.Props) {
 		if (balance !== undefined && initial === undefined) setInitial(balance);
 	}, [address, balance, initial]);
 
-	const spent =
-		initial !== undefined && balance !== undefined && initial > balance
-			? initial - balance
-			: 0n;
-
 	const next = useCallback(() => setStepIndex((i) => i + 1), []);
 	const prev = useCallback(() => setStepIndex((i) => Math.max(i - 1, 0)), []);
 	const reset = useCallback(() => setStepIndex(0), []);
@@ -116,7 +104,7 @@ export function Window({ children, className, token }: Window.Props) {
 	return (
 		<Context.Provider
 			value={{
-				balance: { address, balance, initial, spent, token },
+				balance: { address, balance, initial, token },
 				interaction: { active, setActive },
 				steps,
 			}}
@@ -492,7 +480,9 @@ export namespace CtaBar {
 }
 
 export function Balance({ className, label = "Balance" }: Balance.Props) {
-	const { balance: { balance } } = useContext(Context);
+	const {
+		balance: { balance },
+	} = useContext(Context);
 
 	if (balance === undefined) return null;
 
@@ -517,10 +507,16 @@ export namespace Balance {
 }
 
 export function Spent({ className, label = "Spent" }: Spent.Props) {
-	const { balance } = useContext(Context);
-	const { address, spent } = balance;
+	const {
+		balance: { address, balance, initial },
+	} = useContext(Context);
 
 	if (!address) return null;
+
+	const spent =
+		initial !== undefined && balance !== undefined && initial > balance
+			? initial - balance
+			: 0n;
 
 	const formatted = formatUnits(spent, 6);
 	const display = Number(formatted).toLocaleString("en-US", {
