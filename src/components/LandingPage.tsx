@@ -182,14 +182,14 @@ function StatusBadge({
 			label: "Beta",
 		},
 		available: {
-			bg: "rgba(255, 255, 255, 0.05)",
-			border: "rgba(255, 255, 255, 0.1)",
+			bg: "var(--vocs-background-color-surface)",
+			border: "var(--vocs-border-color-primary)",
 			text: "var(--vocs-text-color-secondary)",
 			label: "Available",
 		},
 		planned: {
-			bg: "rgba(255, 255, 255, 0.05)",
-			border: "rgba(255, 255, 255, 0.1)",
+			bg: "var(--vocs-background-color-surface)",
+			border: "var(--vocs-border-color-primary)",
 			text: "var(--vocs-text-color-muted)",
 			label: "Planned",
 		},
@@ -216,8 +216,8 @@ function CodeTabs() {
 	const [activeTab, setActiveTab] = useState<"client" | "server">("client");
 
 	return (
-		<div className="w-full bg-[var(--vocs-background-color-surface)] rounded-xl overflow-hidden border border-white/20">
-			<div className="flex items-center gap-0 border-b border-white/20">
+		<div className="w-full bg-[var(--vocs-background-color-surface)] rounded-xl overflow-hidden border border-[var(--vocs-border-color-primary)]">
+			<div className="flex items-center gap-0 border-b border-[var(--vocs-border-color-primary)]">
 				<button
 					type="button"
 					onClick={() => setActiveTab("client")}
@@ -375,9 +375,9 @@ function CodeTabs() {
 
 export function LandingPage() {
 	return (
-		<div className="not-prose" style={{ colorScheme: "dark" }}>
+		<div className="not-prose">
 			{/* Hero Section */}
-			<section className="relative py-12 md:py-24 border-b border-white/[0.06]">
+			<section className="relative py-12 md:py-24 border-b border-[var(--vocs-border-color-primary)]">
 				<div className="mx-auto px-4 sm:px-6 lg:px-20">
 					<div className="flex flex-col lg:flex-row gap-8 lg:gap-20 items-center">
 						{/* Left side - Copy */}
@@ -456,7 +456,7 @@ export function LandingPage() {
 			</section>
 
 			{/* Feature 1: Open Standard */}
-			<section className="relative py-12 md:py-20 border-b border-white/[0.06]">
+			<section className="relative py-12 md:py-20 border-b border-[var(--vocs-border-color-primary)]">
 				<div className="mx-auto px-4 sm:px-6 lg:px-20">
 					<div className="flex flex-col lg:flex-row gap-8 lg:gap-20 items-center">
 						{/* Left - Copy */}
@@ -490,9 +490,9 @@ export function LandingPage() {
 						</div>
 
 						{/* Right - Protocol Flow Diagram */}
-						<div className="flex-1 w-full bg-[var(--vocs-background-color-surface)] rounded-xl overflow-hidden border border-white/20">
+						<div className="flex-1 w-full bg-[var(--vocs-background-color-surface)] rounded-xl overflow-hidden border border-[var(--vocs-border-color-primary)]">
 							{/* Step 1: Initial Request */}
-							<div className="px-4 py-3 border-b border-white/20">
+							<div className="px-4 py-3 border-b border-[var(--vocs-border-color-primary)]">
 								<div className="flex items-center gap-2 mb-1">
 									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-text-color-muted)]">
 										1. Request
@@ -508,7 +508,7 @@ export function LandingPage() {
 							</div>
 
 							{/* Step 2: 402 Challenge */}
-							<div className="px-4 py-3 border-b border-white/20">
+							<div className="px-4 py-3 border-b border-[var(--vocs-border-color-primary)]">
 								<div className="flex items-center gap-2 mb-1">
 									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-text-color-muted)]">
 										2. Challenge
@@ -531,7 +531,7 @@ export function LandingPage() {
 							</div>
 
 							{/* Step 3: Retry with Credential */}
-							<div className="px-4 py-3 border-b border-white/20">
+							<div className="px-4 py-3 border-b border-[var(--vocs-border-color-primary)]">
 								<div className="flex items-center gap-2 mb-1">
 									<span className="text-[10px] font-medium uppercase tracking-wider text-[var(--vocs-text-color-muted)]">
 										3. Retry with credential
@@ -577,14 +577,14 @@ export function LandingPage() {
 			</section>
 
 			{/* Feature 2: Multi-Rail (reversed layout) */}
-			<section className="relative py-12 md:py-20 border-b border-white/[0.06]">
+			<section className="relative py-12 md:py-20 border-b border-[var(--vocs-border-color-primary)]">
 				<div className="mx-auto px-4 sm:px-6 lg:px-20">
 					<div className="flex flex-col-reverse lg:flex-row gap-8 lg:gap-20 items-center">
 						{/* Left - Payment Methods Grid */}
 						<div className="flex-1 w-full">
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
 								{/* Tempo Card */}
-								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-[var(--vocs-border-color-primary)]">
 									<div className="flex items-center justify-between gap-2">
 										<TempoLogo
 											className="text-[var(--vocs-text-color-primary)]"
@@ -600,7 +600,7 @@ export function LandingPage() {
 								</div>
 
 								{/* Stripe Card */}
-								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-[var(--vocs-border-color-primary)]">
 									<div className="flex items-center justify-between gap-2">
 										<StripeLogo
 											className="text-[var(--vocs-text-color-primary)]"
@@ -616,7 +616,7 @@ export function LandingPage() {
 								</div>
 
 								{/* Custom Card */}
-								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-[var(--vocs-border-color-primary)]">
 									<div className="flex items-center justify-between gap-2">
 										<span className="font-semibold text-[var(--vocs-text-color-primary)]">
 											Custom
@@ -631,7 +631,7 @@ export function LandingPage() {
 								</div>
 
 								{/* More Coming Card */}
-								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-white/20">
+								<div className="bg-[var(--vocs-background-color-surface)] rounded-xl p-4 md:p-5 space-y-3 border border-[var(--vocs-border-color-primary)]">
 									<div className="flex items-center justify-between gap-2">
 										<span className="font-semibold text-[var(--vocs-text-color-primary)]">
 											More coming
@@ -681,7 +681,7 @@ export function LandingPage() {
 			</section>
 
 			{/* Feature 3: Developer Experience */}
-			<section className="relative py-12 md:py-20 border-b border-white/[0.06]">
+			<section className="relative py-12 md:py-20 border-b border-[var(--vocs-border-color-primary)]">
 				<div className="mx-auto px-4 sm:px-6 lg:px-20">
 					<div className="flex flex-col lg:flex-row gap-8 lg:gap-20 items-center">
 						{/* Left - Copy */}
