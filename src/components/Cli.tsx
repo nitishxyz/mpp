@@ -1,8 +1,12 @@
 "use client";
 
+import { Radio } from "@base-ui/react/radio";
+import { RadioGroup } from "@base-ui/react/radio-group";
 import { cva, cx } from "class-variance-authority";
 import {
+	Children,
 	createContext,
+	isValidElement,
 	type ReactNode,
 	useContext,
 	useEffect,
@@ -11,27 +15,54 @@ import {
 } from "react";
 import type { Address } from "viem";
 import { formatUnits } from "viem";
-import { useBlockNumber } from "wagmi";
+import {
+	useBlockNumber,
+	useConnect,
+	useConnection,
+	useConnectors,
+	useDisconnect,
+} from "wagmi";
 import { Hooks } from "wagmi/tempo";
 
 export const Context = createContext<Context.Value>({
-	address: undefined,
-	initial: undefined,
-	spent: 0n,
-	token: undefined,
+	balance: {
+		address: undefined,
+		initial: undefined,
+		spent: 0n,
+		token: undefined,
+	},
+	interaction: {
+		active: null,
+		setActive: () => { },
+	},
 });
 
 export namespace Context {
-	export type Value = {
+	export type InteractionType = "select" | "toggle" | null;
+
+	export type Balance = {
 		address: Address | undefined;
 		initial: bigint | undefined;
 		spent: bigint;
 		token: Address | undefined;
 	};
+
+	export type Interaction = {
+		active: InteractionType;
+		setActive: (type: InteractionType) => void;
+	};
+
+	export type Value = {
+		balance: Balance;
+		interaction: Interaction;
+	};
 }
 
-export function Window({ address, children, className, token }: Window.Props) {
+export function Window({ children, className, token }: Window.Props) {
+	const { address } = useConnection();
+
 	const [initial, setInitial] = useState<bigint | undefined>(undefined);
+	const [active, setActive] = useState<Context.InteractionType>(null);
 
 	const { data: balance, refetch: refetchBalance } = Hooks.token.useGetBalance({
 		account: address,
@@ -61,7 +92,12 @@ export function Window({ address, children, className, token }: Window.Props) {
 			: 0n;
 
 	return (
-		<Context.Provider value={{ address, initial, spent, token }}>
+		<Context.Provider
+			value={{
+				balance: { address, initial, spent, token },
+				interaction: { active, setActive },
+			}}
+		>
 			<div
 				className={cx(
 					"bg-gray2 rounded-xl overflow-hidden font-mono text-sm border border-primary",
@@ -76,7 +112,6 @@ export function Window({ address, children, className, token }: Window.Props) {
 
 export namespace Window {
 	export type Props = {
-		address?: Address;
 		children: ReactNode;
 		className?: string;
 		token?: Address;
@@ -87,7 +122,7 @@ export function TitleBar({ title, children, className }: TitleBar.Props) {
 	return (
 		<div
 			className={cx(
-				"flex items-center justify-between px-4 py-2.5 border-b border-primary bg-primary text-gray8",
+				"flex items-center justify-between px-4 h-9 border-b border-primary bg-primary text-gray8",
 				className,
 			)}
 		>
@@ -97,7 +132,11 @@ export function TitleBar({ title, children, className }: TitleBar.Props) {
 					<span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
 					<span className="w-3 h-3 rounded-full bg-[#27c93f]" />
 				</div>
-				{title && <span className="text-[13px] tracking-tight ml-2 mt-[2px]">{title}</span>}
+				{title && (
+					<span className="text-[13px] tracking-tight ml-2 mt-[2px]">
+						{title}
+					</span>
+				)}
 			</div>
 			{children && (
 				<div className="flex items-center gap-3 text-xs">{children}</div>
@@ -245,6 +284,51 @@ export namespace Block {
 		children: ReactNode;
 		className?: string;
 	};
+
+	export function ConnectWallet({ onConnect }: ConnectWallet.Props) {
+		const { address } = useConnection();
+		const connectors = useConnectors();
+		const { connect } = useConnect();
+
+		const connector = connectors[0];
+
+		return (
+			<Block>
+				<Line variant="info">
+					Create a Tempo Wallet, or use your existing one:
+				</Line>
+				{address ? (
+					<Line variant="success" prefix="✓">
+						Connected: {address.slice(0, 10)}…{address.slice(-8)}
+					</Line>
+				) : (
+					<Toggle
+						autoFocus
+						onSubmit={(type) => {
+							if (connector) {
+								connect(
+									{
+										connector,
+										capabilities: { type: type as "sign-in" | "sign-up" },
+									},
+									{ onSuccess: () => onConnect?.() },
+								);
+							}
+						}}
+					>
+						<Toggle.Option value="sign-in">Sign In</Toggle.Option>
+						<Toggle.Option value="sign-up">Sign Up</Toggle.Option>
+					</Toggle>
+				)}
+			</Block>
+		);
+	}
+
+	export namespace ConnectWallet {
+		export type Props = {
+			onConnect?: () => void;
+		};
+	}
 }
 
 export function Link({ href, children, className }: Link.Props) {
@@ -285,7 +369,7 @@ export function CtaBar({ className, left, right }: CtaBar.Props) {
 	return (
 		<div
 			className={cx(
-				"flex items-center justify-between px-4 h-8 border-t border-primary bg-primary text-xs",
+				"flex items-center justify-between px-4 h-9 border-t border-primary bg-primary text-xs",
 				className,
 			)}
 		>
@@ -304,8 +388,9 @@ export namespace CtaBar {
 }
 
 export function Balance({ className, label = "Balance" }: Balance.Props) {
-	const { initial, spent } = useContext(Context);
-	const balance = initial !== undefined ? initial - spent : undefined;
+	const { balance: ctx } = useContext(Context);
+	const balance =
+		ctx.initial !== undefined ? ctx.initial - ctx.spent : undefined;
 
 	if (balance === undefined) return null;
 
@@ -330,7 +415,8 @@ export namespace Balance {
 }
 
 export function Spent({ className, label = "Spent" }: Spent.Props) {
-	const { spent } = useContext(Context);
+	const { balance } = useContext(Context);
+	const { spent } = balance;
 
 	if (spent === 0n) return null;
 
@@ -420,5 +506,296 @@ export namespace StatusDot {
 		children: ReactNode;
 		className?: string;
 		variant?: Variant;
+	};
+}
+
+const SelectContext = createContext<{
+	onSubmit?: (value: string) => void;
+	currentValue: string;
+}>({ currentValue: "" });
+
+function getFirstOptionValue(children: ReactNode): string {
+	const childArray = Children.toArray(children);
+	for (const child of childArray) {
+		if (
+			isValidElement<{ value?: string }>(child) &&
+			typeof child.props.value === "string"
+		) {
+			return child.props.value;
+		}
+	}
+	return "";
+}
+
+export function Select({
+	autoFocus,
+	children,
+	className,
+	disabled,
+	onChange,
+	onSubmit,
+	value,
+}: Select.Props) {
+	const { interaction } = useContext(Context);
+	const ref = useRef<HTMLDivElement>(null);
+	const firstValue = getFirstOptionValue(children);
+	const [internalValue, setInternalValue] = useState(firstValue);
+
+	const currentValue = value ?? internalValue;
+
+	useEffect(() => {
+		if (!disabled) {
+			interaction.setActive("select");
+			return () => interaction.setActive(null);
+		}
+		interaction.setActive(null);
+	}, [disabled, interaction]);
+
+	useEffect(() => {
+		if (autoFocus && !disabled && ref.current) {
+			const firstRadio =
+				ref.current.querySelector<HTMLElement>('[role="radio"]');
+			firstRadio?.focus();
+		}
+	}, [autoFocus, disabled]);
+
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" && !disabled && currentValue) {
+			e.preventDefault();
+			onSubmit?.(currentValue);
+		}
+	};
+
+	return (
+		<SelectContext.Provider value={{ onSubmit, currentValue }}>
+			<RadioGroup
+				ref={ref}
+				value={currentValue}
+				onValueChange={(val) => {
+					const v = val as string;
+					setInternalValue(v);
+					onChange?.(v);
+				}}
+				onKeyDown={handleKeyDown}
+				disabled={disabled}
+				className={cx("flex flex-col [counter-reset:option]", className)}
+			>
+				{children}
+			</RadioGroup>
+		</SelectContext.Provider>
+	);
+}
+
+export namespace Select {
+	export type Props = {
+		autoFocus?: boolean;
+		children: ReactNode;
+		className?: string;
+		disabled?: boolean;
+		onChange?: (value: string) => void;
+		onSubmit?: (value: string) => void;
+		value?: string;
+	};
+
+	export function Option({ children, className, value }: Option.Props) {
+		const { onSubmit } = useContext(SelectContext);
+
+		return (
+			// biome-ignore lint/a11y/noLabelWithoutControl: Radio.Root renders an input
+			<label
+				className={cx(
+					"flex items-center text-left py-0.5 px-1.5 -mx-1.5 rounded transition-colors cursor-pointer",
+					"text-primary",
+					"has-[[data-checked]]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
+					"has-[[data-checked]]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
+					"has-[:focus-visible]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
+					"has-[:focus-visible]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
+					"[counter-increment:option]",
+					className,
+				)}
+				onPointerUp={() => onSubmit?.(value)}
+			>
+				<Radio.Root value={value} className="peer sr-only" />
+				<span className="w-3 invisible peer-data-[checked]:visible peer-focus-visible:visible">
+					▸
+				</span>
+				<span className="text-gray8 w-5 before:content-[counter(option)'.']" />
+				<span>{children}</span>
+			</label>
+		);
+	}
+
+	export namespace Option {
+		export type Props = {
+			children: ReactNode;
+			className?: string;
+			value: string;
+		};
+	}
+}
+
+const ToggleContext = createContext<{
+	onSubmit?: (value: string) => void;
+	currentValue: string;
+}>({ currentValue: "" });
+
+export function Toggle({
+	autoFocus,
+	children,
+	className,
+	disabled,
+	onChange,
+	onSubmit,
+	value,
+}: Toggle.Props) {
+	const { interaction } = useContext(Context);
+	const ref = useRef<HTMLDivElement>(null);
+	const firstValue = getFirstOptionValue(children);
+	const [internalValue, setInternalValue] = useState(firstValue);
+
+	const currentValue = value ?? internalValue;
+
+	useEffect(() => {
+		if (!disabled) {
+			interaction.setActive("toggle");
+			return () => interaction.setActive(null);
+		}
+		interaction.setActive(null);
+	}, [disabled, interaction]);
+
+	useEffect(() => {
+		if (autoFocus && !disabled && ref.current) {
+			const firstRadio = ref.current.querySelector<HTMLElement>(
+				'[role="radio"]',
+			);
+			firstRadio?.focus();
+		}
+	}, [autoFocus, disabled]);
+
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" && !disabled && currentValue) {
+			e.preventDefault();
+			onSubmit?.(currentValue);
+		}
+	};
+
+	return (
+		<ToggleContext.Provider value={{ onSubmit, currentValue }}>
+			<RadioGroup
+				ref={ref}
+				value={currentValue}
+				onValueChange={(val) => {
+					const v = val as string;
+					setInternalValue(v);
+					onChange?.(v);
+				}}
+				onKeyDown={handleKeyDown}
+				disabled={disabled}
+				className={cx("flex flex-row gap-2", className)}
+			>
+				{children}
+			</RadioGroup>
+		</ToggleContext.Provider>
+	);
+}
+
+export namespace Toggle {
+	export type Props = {
+		autoFocus?: boolean;
+		children: ReactNode;
+		className?: string;
+		disabled?: boolean;
+		onChange?: (value: string) => void;
+		onSubmit?: (value: string) => void;
+		value?: string;
+	};
+
+	export function Option({ children, className, value }: Option.Props) {
+		const { onSubmit } = useContext(ToggleContext);
+
+		return (
+			// biome-ignore lint/a11y/noLabelWithoutControl: Radio.Root renders an input
+			<label
+				className={cx(
+					"flex items-center px-3 py-1 rounded cursor-pointer transition-colors",
+					"text-secondary",
+					"has-[[data-checked]]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
+					"has-[[data-checked]]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
+					"has-[:focus-visible]:bg-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]/10",
+					"has-[:focus-visible]:text-[light-dark(var(--vocs-color-accent),var(--vocs-color-accent8))]",
+					className,
+				)}
+				onPointerUp={() => onSubmit?.(value)}
+			>
+				<Radio.Root value={value} className="sr-only" />
+				<span>{children}</span>
+			</label>
+		);
+	}
+
+	export namespace Option {
+		export type Props = {
+			children: ReactNode;
+			className?: string;
+			value: string;
+		};
+	}
+}
+
+export function Hint({ className }: Hint.Props) {
+	const { interaction } = useContext(Context);
+	const { address } = useConnection();
+
+	if (!interaction.active) {
+		return (
+			<span className={cx("text-gray8", className)}>
+				{address ? "Connected" : "Disconnected"}
+			</span>
+		);
+	}
+
+	const hints: Record<NonNullable<Context.InteractionType>, string> = {
+		select: "↑↓ or click to select",
+		toggle: "←→ or click to select",
+	};
+
+	return (
+		<span className={cx("text-gray8", className)}>
+			{hints[interaction.active]}
+		</span>
+	);
+}
+
+export namespace Hint {
+	export type Props = {
+		className?: string;
+	};
+}
+
+export function Account({ className }: Account.Props) {
+	const { address } = useConnection();
+	const { disconnect } = useDisconnect();
+
+	if (!address) return null;
+
+	return (
+		<span className={cx("flex items-center gap-2", className)}>
+			<span className="text-primary">
+				{address.slice(0, 6)}…{address.slice(-4)}
+			</span>
+			<button
+				type="button"
+				onClick={() => disconnect()}
+				className="text-gray8 hover:text-primary transition-colors tracking-tight"
+			>
+				Log out
+			</button>
+		</span>
+	);
+}
+
+export namespace Account {
+	export type Props = {
+		className?: string;
 	};
 }
