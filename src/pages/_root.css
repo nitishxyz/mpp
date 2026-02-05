@@ -52,8 +52,7 @@
 	max-width: 1400px;
 }
 
-/* Force dark mode on landing page to prevent flash */
+/* Landing page layout - let theme switch naturally */
 [data-layout="minimal"] {
-	color-scheme: dark;
-	background-color: var(--vocs-color-gray2);
+	background-color: var(--vocs-background-color-primary);
 }
