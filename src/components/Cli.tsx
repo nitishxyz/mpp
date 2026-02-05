@@ -18,7 +18,6 @@ import {
 import type { Address } from "viem";
 import { formatUnits } from "viem";
 import {
-	useBlockNumber,
 	useConnect,
 	useConnection,
 	useConnectors,
@@ -29,19 +28,20 @@ import { Hooks } from "wagmi/tempo";
 export const Context = createContext<Context.Value>({
 	balance: {
 		address: undefined,
+		balance: undefined,
 		initial: undefined,
 		spent: 0n,
 		token: undefined,
 	},
 	interaction: {
 		active: null,
-		setActive: () => {},
+		setActive: () => { },
 	},
 	steps: {
 		index: 0,
-		next: () => {},
-		prev: () => {},
-		reset: () => {},
+		next: () => { },
+		prev: () => { },
+		reset: () => { },
 	},
 });
 
@@ -50,6 +50,7 @@ export namespace Context {
 
 	export type Balance = {
 		address: Address | undefined;
+		balance: bigint | undefined;
 		initial: bigint | undefined;
 		spent: bigint;
 		token: Address | undefined;
@@ -81,27 +82,22 @@ export function Window({ children, className, token }: Window.Props) {
 	const [active, setActive] = useState<Context.InteractionType>(null);
 	const [stepIndex, setStepIndex] = useState(0);
 
-	const { data: balance, refetch: refetchBalance } = Hooks.token.useGetBalance({
+	const { data: balance } = Hooks.token.useGetBalance({
 		account: address,
 		token,
-		query: { enabled: !!address && !!token },
-	});
-
-	const { data: blockNumber } = useBlockNumber({
 		query: {
 			enabled: !!address && !!token,
-			refetchInterval: 1_500,
+			refetchInterval: 1_000,
 		},
 	});
 
 	useEffect(() => {
-		blockNumber;
-		refetchBalance();
-	}, [blockNumber, refetchBalance]);
-
-	useEffect(() => {
+		if (!address) {
+			setInitial(undefined);
+			return;
+		}
 		if (balance !== undefined && initial === undefined) setInitial(balance);
-	}, [balance, initial]);
+	}, [address, balance, initial]);
 
 	const spent =
 		initial !== undefined && balance !== undefined && initial > balance
@@ -120,7 +116,7 @@ export function Window({ children, className, token }: Window.Props) {
 	return (
 		<Context.Provider
 			value={{
-				balance: { address, initial, spent, token },
+				balance: { address, balance, initial, spent, token },
 				interaction: { active, setActive },
 				steps,
 			}}
@@ -149,7 +145,7 @@ export function TitleBar({ title, children, className }: TitleBar.Props) {
 	return (
 		<div
 			className={cx(
-				"flex items-center justify-between px-4 h-9 border-b border-primary bg-primary text-gray8",
+				"flex items-center justify-between px-4 h-9 border-b border-primary bg-primary text-secondary",
 				className,
 			)}
 		>
@@ -352,6 +348,13 @@ export namespace Block {
 
 		const connector = connectors[0];
 
+		useEffect(() => {
+			if (address) {
+				const timer = setTimeout(() => steps.next(), 500);
+				return () => clearTimeout(timer);
+			}
+		}, [address, steps]);
+
 		return (
 			<Block>
 				<Line variant="info">
@@ -381,6 +384,51 @@ export namespace Block {
 						<Toggle.Option value="sign-in">Sign In</Toggle.Option>
 						<Toggle.Option value="sign-up">Sign Up</Toggle.Option>
 					</Toggle>
+				)}
+			</Block>
+		);
+	}
+
+	export function Faucet() {
+		const { steps, balance: ctx } = useContext(Context);
+		const { address } = useConnection();
+		const { mutate, isPending, isSuccess } = Hooks.faucet.useFundSync();
+		const [alreadyFunded, setAlreadyFunded] = useState(false);
+
+		useEffect(() => {
+			if (!address) return;
+			if (isPending) return;
+			if (isSuccess) return;
+			if (alreadyFunded) return;
+			if (ctx.initial === undefined) return;
+			if (ctx.initial > 0n) {
+				setAlreadyFunded(true);
+				return;
+			}
+
+			mutate({ account: address });
+		}, [address, alreadyFunded, ctx.initial, isPending, isSuccess, mutate]);
+
+		useEffect(() => {
+			if (isSuccess || alreadyFunded) {
+				const timer = setTimeout(() => steps.next(), 1000);
+				return () => clearTimeout(timer);
+			}
+		}, [alreadyFunded, isSuccess, steps]);
+
+		if (!address) return null;
+
+		const funded = isSuccess || alreadyFunded;
+
+		return (
+			<Block>
+				{isPending && (
+					<Line variant="loading">Requesting testnet funds...</Line>
+				)}
+				{funded && (
+					<Line variant="success" prefix="✓">
+						Wallet funded
+					</Line>
 				)}
 			</Block>
 		);
@@ -444,9 +492,7 @@ export namespace CtaBar {
 }
 
 export function Balance({ className, label = "Balance" }: Balance.Props) {
-	const { balance: ctx } = useContext(Context);
-	const balance =
-		ctx.initial !== undefined ? ctx.initial - ctx.spent : undefined;
+	const { balance: { balance } } = useContext(Context);
 
 	if (balance === undefined) return null;
 
@@ -472,18 +518,18 @@ export namespace Balance {
 
 export function Spent({ className, label = "Spent" }: Spent.Props) {
 	const { balance } = useContext(Context);
-	const { spent } = balance;
+	const { address, spent } = balance;
 
-	if (spent === 0n) return null;
+	if (!address) return null;
 
 	const formatted = formatUnits(spent, 6);
 	const display = Number(formatted).toLocaleString("en-US", {
 		maximumFractionDigits: 4,
-		minimumFractionDigits: 3,
+		minimumFractionDigits: 2,
 	});
 
 	return (
-		<span className={cx("text-gray8", className)}>
+		<span className={cx("text-secondary", className)}>
 			{label}: <span className="text-warning">${display}</span>
 		</span>
 	);
@@ -844,7 +890,7 @@ export function Account({ className }: Account.Props) {
 			<button
 				type="button"
 				onClick={() => disconnect()}
-				className="text-gray8 hover:text-primary transition-colors tracking-tight"
+				className="text-secondary hover:text-primary transition-colors tracking-tight"
 			>
 				Log out
 			</button>
@@ -860,13 +906,16 @@ export namespace Account {
 
 export function Refresh({ className }: Refresh.Props) {
 	const { steps } = useContext(Context);
+	const { address } = useConnection();
+
+	if (address) return null;
 
 	return (
 		<button
 			type="button"
 			onClick={() => steps.reset()}
 			className={cx(
-				"text-gray8 hover:text-primary transition-colors tracking-tight",
+				"text-secondary hover:text-primary transition-colors tracking-tight",
 				className,
 			)}
 		>

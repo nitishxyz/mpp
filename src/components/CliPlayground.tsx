@@ -1,5 +1,6 @@
 "use client";
 
+import { alphaUsd } from "../wagmi.config";
 import * as Cli from "./Cli";
 
 export function CliPlayground() {
@@ -125,7 +126,7 @@ export function CliPlayground() {
 				/>
 			</Cli.Window>
 
-			<Cli.Window>
+			<Cli.Window token={alphaUsd}>
 				<Cli.TitleBar title="Connect Wallet">
 					<Cli.Refresh />
 					<Cli.Account />
@@ -139,12 +140,20 @@ export function CliPlayground() {
 						<Cli.Step>
 							<Cli.Block.ConnectWallet />
 						</Cli.Step>
+						<Cli.Step>
+							<Cli.Block.Faucet />
+						</Cli.Step>
 					</Cli.Steps>
 				</Cli.Panel>
 
 				<Cli.CtaBar
 					left={<Cli.Hint />}
-					right={<Cli.Status variant="ready">Ready</Cli.Status>}
+					right={
+						<>
+							<Cli.Balance />
+							<Cli.Spent />
+						</>
+					}
 				/>
 			</Cli.Window>
 		</div>
