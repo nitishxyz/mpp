@@ -4,7 +4,7 @@ import { Mpay, tempo } from "mpay/server";
 // [!endregion imports]
 
 // [!region mpay]
-const mpay = Mpay.create({ method: tempo() });
+const mpay = Mpay.create({ methods: [tempo.charge()] });
 // [!endregion mpay]
 
 // [!region handler]

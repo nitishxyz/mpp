@@ -442,7 +442,7 @@ export function CliDemo() {
 				// Set up mpay fetch with the account
 				const customFetch = Fetch.from({
 					methods: [
-						tempo({
+						tempo.charge({
 							account: acc,
 							rpcUrl: {
 								42431: "https://rpc.moderato.tempo.xyz",

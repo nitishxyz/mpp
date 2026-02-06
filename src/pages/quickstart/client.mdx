@@ -45,7 +45,7 @@ import { Fetch, tempo } from 'mpay/client'
 const account = privateKeyToAccount('0xabc…123')
 
 Fetch.polyfill({
-  methods: [tempo({ account })]
+  methods: [tempo.charge({ account })]
 })
 ```
 
@@ -75,7 +75,7 @@ const account = privateKeyToAccount('0xabc…123')
 
 // [!code hl:start]
 const paidFetch = Fetch.from({
-  methods: [tempo({ account })]
+  methods: [tempo.charge({ account })]
 })
 // [!code hl:end]
 const response = await paidFetch('https://mpp.dev/api/ping/paid')
@@ -90,7 +90,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { Fetch, tempo } from 'mpay/client'
 
 const paidFetch = Fetch.from({
-  methods: [tempo()]
+  methods: [tempo.charge()]
 })
 
 // [!code hl:start]
@@ -116,7 +116,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 // [!code hl:start]
 const mpay = Mpay.create({
-  methods: [tempo()],
+  methods: [tempo.charge()],
 })
 // [!code hl:end]
 

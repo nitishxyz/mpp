@@ -1,17 +1,11 @@
-# `tempo` [Tempo payment method namespace]
+# `Method.tempo.charge` [One-time payments]
 
-The `tempo` namespace provides client-side payment methods for the Tempo blockchain.
-
-## Methods
-
-| Method | Description |
-|--------|-------------|
-| [`tempo.charge()`](/sdk/typescript/client/Method.tempo.charge) | One-time payments |
-| [`tempo.stream()`](/sdk/typescript/client/Method.tempo.stream) | Pay-as-you-go streaming payments |
+Creates a Tempo charge payment method for client-side transaction signing.
 
 ## Usage
 
 ```ts twoslash
+// @noErrors
 import { Fetch, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -24,31 +18,33 @@ const fetch = Fetch.from({
     // [!code focus:end]
   ],
 })
+
+const response = await fetch('https://mpp.dev/api/ping/paid')
 ```
 
-### With multiple intents
-
-Register both charge and stream methods on a single client.
+### With polyfill
 
 ```ts twoslash
+// @noErrors
 import { Fetch, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const account = privateKeyToAccount('0x...')
 
-const fetch = Fetch.from({
-  // [!code focus:start]
-  methods: [
-    tempo.charge({ account }),
-    tempo.stream({ account }),
-  ],
-  // [!code focus:end]
+Fetch.polyfill({
+  methods: [tempo.charge({ account })],
 })
 ```
 
-## Shared parameters
+## Return Type
 
-Both `tempo.charge()` and `tempo.stream()` accept these common parameters:
+```ts
+import type { Method } from 'mpay'
+
+type ReturnType = Method.Client
+```
+
+## Parameters
 
 ### account (optional)
 
@@ -57,6 +53,7 @@ Both `tempo.charge()` and `tempo.stream()` accept these common parameters:
 Account to sign transactions with. Can be overridden per-call via context.
 
 ```ts twoslash
+// @noErrors
 import { tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -65,13 +62,20 @@ const method = tempo.charge({
 })
 ```
 
+### client (optional)
+
+- **Type:** `(chainId: number) => Client`
+
+Function that returns a viem client for the given chain ID. Mutually exclusive with `rpcUrl`.
+
 ### rpcUrl (optional)
 
 - **Type:** `{ [chainId: number]: string }`
 
-RPC URLs keyed by chain ID.
+RPC URLs keyed by chain ID. Mutually exclusive with `client`.
 
 ```ts twoslash
+// @noErrors
 import { tempo } from 'mpay/client'
 
 const method = tempo.charge({

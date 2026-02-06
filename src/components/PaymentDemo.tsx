@@ -149,11 +149,12 @@ function PaymentDemoInner() {
 				throw new Error("Missing WWW-Authenticate header");
 			}
 
-			const method = tempo({
+			const method = tempo.charge({
 				account: walletClient.account,
 			});
-			const challenge = Challenge.fromResponse(res1, { method });
-			const credential = await method.createCredential({
+			const challenge = Challenge.fromResponse(res1);
+			// Challenge type widening: createCredential expects method-narrowed challenge
+			const credential = await (method.createCredential as (args: { challenge: Challenge.Challenge; context: Record<string, unknown> }) => Promise<string>)({
 				challenge,
 				context: {},
 			});

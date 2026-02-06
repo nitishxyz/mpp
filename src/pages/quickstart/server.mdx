@@ -17,7 +17,7 @@ Create an `Mpay` instance to request payment for protected resources.
 ```ts twoslash [create-mpay.ts]
 import { Mpay, tempo } from 'mpay/server'
 
-const mpay = Mpay.create({ method: tempo() })
+const mpay = Mpay.create({ methods: [tempo.charge()] })
 ```
 
 :::tip
@@ -30,7 +30,7 @@ MPAY_SECRET_KEY="random-secret-key" // [!code focus]
 
 // config.ts // [!code focus]
 const mpay = Mpay.create({
-  method: tempo(),
+  methods: [tempo.charge()],
   secretKey: process.env.MPAY_SECRET_KEY!, // [!code focus]
 })
 ```
@@ -45,7 +45,7 @@ Use the `mpay.charge(){:ts}` method to request payment from the client within yo
 ```ts twoslash [charge-handler.ts]
 import { Mpay, tempo } from 'mpay/server' // [!code collapse:2 collapsed]
 
-const mpay = Mpay.create({ method: tempo() })
+const mpay = Mpay.create({ methods: [tempo.charge()] })
 
 // [!code focus:start]
 export async function handler(request: Request) { 
@@ -79,7 +79,7 @@ Use the `Mpay.toNodeListener` helper to transform the handler into a Node.js-com
 // @noErrors
 import { Mpay, tempo } from 'mpay/server'
 
-const mpay = Mpay.create({ method: tempo() })
+const mpay = Mpay.create({ methods: [tempo.charge()] })
 
 type IncomingMessage = import('node:http').IncomingMessage
 type ServerResponse = import('node:http').ServerResponse
@@ -106,10 +106,10 @@ We can also hoist values that we use often up into the `Mpay` instance.
 
 ```ts
 const mpay = Mpay.create({ 
-  method: tempo({
+  methods: [tempo.charge({
     currency: '0x20c0000000000000000000000000000000000001', // [!code ++]
     recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8', // [!code ++]
-  }) 
+  })] 
 })
 
 const response = await mpay.charge({ 
@@ -128,7 +128,7 @@ Plug the handler into your framework of choice, like [Hono](https://hono.dev).
 import { Hono } from 'hono' // [!code focus]
 import { Mpay, tempo } from 'mpay/server'
 
-const mpay = Mpay.create({ method: tempo() })
+const mpay = Mpay.create({ methods: [tempo.charge()] })
 
 const app = new Hono() // [!code focus]
 

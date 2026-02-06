@@ -1,4 +1,4 @@
-import { Badge, Card, Cards } from 'vocs'
+import { Card, Cards } from 'vocs'
 
 # Tempo [Instant stablecoin payments on the Tempo blockchain]
 
@@ -22,17 +22,12 @@ The [Tempo](https://docs.tempo.xyz) payment method enables instant payments usin
     to="/payment-methods/tempo/charge"
   />
   <Card
-    topRight={<Badge variant="warning">Coming soon</Badge>}
     icon="lucide:waves"
     title="Stream"
     description="Pay-as-you-go streaming payments"
-    disabled
+    to="/payment-methods/tempo/stream"
   />
 </Cards>
-
-:::info[Advanced intents]
-Streaming payments for metered usage are planned for a future release.
-:::
 
 ## Specification
 

@@ -1,0 +1,129 @@
+# `Method.tempo.stream` [Pay-as-you-go streaming payments]
+
+Creates a Tempo stream payment method for server-side voucher verification and channel management.
+
+## Usage
+
+```ts twoslash
+// @noErrors
+import { Mpay, tempo } from 'mpay/server'
+
+declare const storage: import('mpay/server').ChannelStorage
+
+const mpay = Mpay.create({
+  // [!code focus:start]
+  methods: [
+    tempo.stream({
+      currency: '0x20c0000000000000000000000000000000000001',
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+      rpcUrl: 'https://rpc.tempo.xyz',
+      storage,
+    }),
+  ],
+  // [!code focus:end]
+})
+```
+
+### With charge and stream
+
+Register both intents on a single server.
+
+```ts twoslash
+// @noErrors
+import { Mpay, tempo } from 'mpay/server'
+
+declare const storage: import('mpay/server').ChannelStorage
+
+const mpay = Mpay.create({
+  methods: [
+    tempo.charge(),
+    tempo.stream({
+      rpcUrl: 'https://rpc.tempo.xyz',
+      storage,
+    }),
+  ],
+})
+```
+
+## Return Type
+
+```ts
+import type { Method } from 'mpay'
+
+type ReturnType = Method.Server
+```
+
+## Parameters
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Chain ID for the Tempo network. Defaults to the Tempo testnet chain ID.
+
+### currency (optional)
+
+- **Type:** `Address`
+
+Default TIP-20 token address for the payment currency.
+
+### escrowContract (optional)
+
+- **Type:** `Address`
+
+Escrow contract address for the payment channel. Defaults to the canonical escrow contract for the given chain ID.
+
+### minVoucherDelta (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Minimum voucher delta to accept. Rejects vouchers where the increment over the previous highest voucher is below this threshold.
+
+### recipient (optional)
+
+- **Type:** `Address`
+
+Default recipient address for payments.
+
+### rpcUrl
+
+- **Type:** `string`
+
+RPC URL for on-chain verification of channel state, deposits, and top-ups.
+
+```ts twoslash
+// @noErrors
+import { tempo } from 'mpay/server'
+
+declare const storage: import('mpay/server').ChannelStorage
+
+const method = tempo.stream({
+  rpcUrl: 'https://rpc.tempo.xyz', // [!code focus]
+  storage,
+})
+```
+
+### storage
+
+- **Type:** `ChannelStorage`
+
+Storage backend for persisting channel and session state. Implements atomic read-modify-write operations for concurrency safety.
+
+```ts twoslash
+// @noErrors
+import { tempo } from 'mpay/server'
+
+declare const storage: import('mpay/server').ChannelStorage
+
+const method = tempo.stream({
+  rpcUrl: 'https://rpc.tempo.xyz',
+  storage, // [!code focus]
+})
+```
+
+### walletClient (optional)
+
+- **Type:** `WalletClient`
+
+Wallet client for submitting on-chain close transactions. Required to settle channels on-chain when the server initiates a close.

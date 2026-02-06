@@ -7,7 +7,7 @@ The `charge` intent for the Tempo payment method. Requests a one-time payment fr
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
 
-const mpay = Mpay.create({ method: tempo() })
+const mpay = Mpay.create({ methods: [tempo.charge()] })
 
 export async function handler(request: Request) {
   // [!code focus:start]
@@ -30,7 +30,7 @@ Set a custom expiration time for the charge using the `expires` option.
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
 
-const mpay = Mpay.create({ method: tempo() })
+const mpay = Mpay.create({ methods: [tempo.charge()] })
 // ---cut---
 import { Expires } from 'mpay'
 
@@ -54,7 +54,7 @@ Add a human-readable description for the payment request.
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
 
-const mpay = Mpay.create({ method: tempo() })
+const mpay = Mpay.create({ methods: [tempo.charge()] })
 // ---cut---
 export async function handler(request: Request) {
   const response = await mpay.charge({
@@ -87,7 +87,7 @@ type ReturnType = (request: Request) => Promise<{
 
 - **Type:** `string`
 
-Payment amount in atomic units. For USD stablecoins with 6 decimals, `1000000` equals 1 USD.
+Payment amount in human-readable units. For example, `'0.1'` represents $0.10 USD.
 
 ### request.currency
 

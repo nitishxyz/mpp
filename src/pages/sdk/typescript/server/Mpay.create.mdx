@@ -8,7 +8,7 @@ Creates a server-side payment handler from a method.
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo(),
+  methods: [tempo.charge()],
 })
 ```
 
@@ -20,7 +20,7 @@ Use a custom transport for non-HTTP environments like MCP servers.
 import { Mpay, tempo, Transport } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo(),
+  methods: [tempo.charge()],
   transport: Transport.mcpSdk(),
 })
 ```
@@ -31,25 +31,25 @@ const payment = Mpay.create({
 import type { Method } from 'mpay'
 import type { Mpay, Transport } from 'mpay/server'
 
-type ReturnType = Mpay<Method.Server, Transport.Http>
+type ReturnType = Mpay<[Method.Server], Transport.Http>
 ```
 
 The returned object includes the method's intent functions (e.g., `charge`) which can be called to handle payment requests.
 
 ## Parameters
 
-### method
+### methods
 
-- **Type:** `Method.Server`
+- **Type:** `readonly Method.Server[]`
 
-Payment method (e.g., `tempo()`).
+Array of payment methods (for example, `[tempo.charge()]`).
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
   // [!code focus:start]
-  method: tempo(),
+  methods: [tempo.charge()],
   // [!code focus:end]
 })
 ```
@@ -64,7 +64,7 @@ Server realm (e.g., hostname). Used to identify the server in payment challenges
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo(),
+  methods: [tempo.charge()],
   realm: 'mpp.dev', // [!code focus]
 })
 ```
@@ -73,13 +73,13 @@ const payment = Mpay.create({
 
 - **Type:** `string`
 
-Secret key for HMAC-bound challenge IDs. Required for stateless verification—allows the server to verify that a challenge was issued by itself without storing state.
+Secret key for HMAC-bound challenge IDs. Enables stateless verification—allows the server to verify that a challenge was issued by itself without storing state. Defaults to `'tmp'`.
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo(),
+  methods: [tempo.charge()],
   secretKey: process.env.MPAY_SECRET_KEY!, // [!code focus]
 })
 ```
@@ -95,7 +95,7 @@ Transport to use for handling payment requests. Defaults to HTTP transport.
 import { Mpay, tempo, Transport } from 'mpay/server'
 
 const payment = Mpay.create({
-  method: tempo(),
+  methods: [tempo.charge()],
   transport: Transport.mcp(), // [!code focus]
 })
 ```

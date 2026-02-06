@@ -1,0 +1,73 @@
+import { Tab, Tabs } from 'vocs'
+
+# Stream [Pay-as-you-go streaming payments]
+
+The `stream` intent enables pay-as-you-go payments using cumulative vouchers over on-chain payment channels.
+
+## How it works
+
+Stream payments use a payment channel with four actions:
+
+1. **Open** — The client opens a payment channel on-chain and submits an initial voucher
+2. **Voucher** — The client submits incremental vouchers to increase the cumulative payment
+3. **Top up** — The client deposits additional funds into the channel
+4. **Close** — Either party closes the channel, settling the final balance on-chain
+
+Vouchers are EIP-712 signed messages containing a cumulative amount. The server tracks the highest accepted voucher and grants access based on the delta between vouchers.
+
+<Tabs stateKey="platform">
+  <Tab title="Server">
+  <div className="space-y-4">
+Use the [`.stream` method](/sdk/typescript/server/Method.tempo.stream) on your [`Mpay` instance](/sdk/typescript/server/Mpay.create) to accept streaming payments.
+
+```ts twoslash
+// @noErrors
+import { Mpay, tempo } from 'mpay/server'
+
+declare const storage: import('mpay/server').ChannelStorage
+
+const mpay = Mpay.create({
+  methods: [
+    tempo.stream({
+      currency: '0x20c0000000000000000000000000000000000001',
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+      rpcUrl: 'https://rpc.tempo.xyz',
+      storage,
+    }),
+  ],
+})
+```
+
+The server verifies voucher signatures, tracks cumulative amounts, and validates on-chain channel state.
+
+:::info
+See [`tempo.stream` server reference](/sdk/typescript/server/Method.tempo.stream) for full API documentation.
+:::
+  </div>
+  </Tab>
+  <Tab title="Client">
+  <div className="space-y-4">
+Use the [`tempo.stream` method](/sdk/typescript/client/Method.tempo.stream) on a [`Fetch` instance](/sdk/typescript/client/Fetch.from) to sign vouchers for streaming payments.
+
+```ts twoslash
+// @noErrors
+import { Fetch, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const fetch = Fetch.from({
+  methods: [tempo.stream({ account })],
+})
+```
+
+:::info
+See [`tempo.stream` client reference](/sdk/typescript/client/Method.tempo.stream) for full API documentation.
+:::
+  </div>
+  </Tab>
+</Tabs>
+
+## Specification
+
+For complete protocol details, credential formats, and verification requirements, see the [Tempo Stream specification](/specs).

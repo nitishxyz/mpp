@@ -98,7 +98,7 @@ export default defineConfig({
 						items: [
 							{ text: "Overview", link: "/payment-methods/tempo" },
 							{ text: "Charge", link: "/payment-methods/tempo/charge" },
-							{ text: "Stream 🚧", disabled: true },
+							{ text: "Stream", link: "/payment-methods/tempo/stream" },
 						],
 					},
 					{
@@ -178,6 +178,14 @@ export default defineConfig({
 												text: ".tempo",
 												link: "/sdk/typescript/client/Method.tempo",
 											},
+											{
+												text: ".tempo.charge",
+												link: "/sdk/typescript/client/Method.tempo.charge",
+											},
+											{
+												text: ".tempo.stream",
+												link: "/sdk/typescript/client/Method.tempo.stream",
+											},
 										],
 									},
 								],
@@ -232,6 +240,10 @@ export default defineConfig({
 											{
 												text: ".tempo.charge",
 												link: "/sdk/typescript/server/Method.tempo.charge",
+											},
+											{
+												text: ".tempo.stream",
+												link: "/sdk/typescript/server/Method.tempo.stream",
 											},
 										],
 									},

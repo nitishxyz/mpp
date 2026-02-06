@@ -10,7 +10,7 @@ const account = privateKeyToAccount("0x...");
 
 // [!region fetch]
 const fetch = Fetch.from({
-	methods: [tempo({ account })],
+	methods: [tempo.charge({ account })],
 });
 // [!endregion fetch]
 

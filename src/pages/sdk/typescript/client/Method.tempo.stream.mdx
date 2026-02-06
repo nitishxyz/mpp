@@ -1,0 +1,90 @@
+# `Method.tempo.stream` [Pay-as-you-go streaming payments]
+
+Creates a Tempo stream payment method for client-side voucher signing.
+
+## Usage
+
+```ts twoslash
+// @noErrors
+import { Fetch, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const fetch = Fetch.from({
+  methods: [
+    // [!code focus:start]
+    tempo.stream({ account }),
+    // [!code focus:end]
+  ],
+})
+```
+
+### With charge and stream
+
+Register both intents on a single client.
+
+```ts twoslash
+// @noErrors
+import { Fetch, tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const account = privateKeyToAccount('0x...')
+
+const fetch = Fetch.from({
+  methods: [
+    tempo.charge({ account }),
+    tempo.stream({ account }),
+  ],
+})
+```
+
+## Return Type
+
+```ts
+import type { Method } from 'mpay'
+
+type ReturnType = Method.Client
+```
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account`
+
+Account to sign vouchers with. Can be overridden per-call via context.
+
+```ts twoslash
+// @noErrors
+import { tempo } from 'mpay/client'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const method = tempo.stream({
+  account: privateKeyToAccount('0x...'), // [!code focus]
+})
+```
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Chain ID override. Derived from the server Challenge if not provided.
+
+### client (optional)
+
+- **Type:** `Client`
+
+Viem client for signing vouchers. Mutually exclusive with `walletClient`.
+
+### escrowContract (optional)
+
+- **Type:** `Address`
+
+Escrow contract address override. Derived from the server Challenge if not provided.
+
+### walletClient (optional)
+
+- **Type:** `WalletClient`
+
+Wallet client for signing vouchers. Mutually exclusive with `client`.

@@ -1,6 +1,13 @@
-# `tempo`
+# `tempo` [Tempo payment method namespace]
 
-Creates a Tempo payment method for server-side payment handling.
+The `tempo` namespace provides server-side payment methods for the Tempo blockchain.
+
+## Methods
+
+| Method | Description |
+|--------|-------------|
+| [`tempo.charge()`](/sdk/typescript/server/Method.tempo.charge) | One-time payments |
+| [`tempo.stream()`](/sdk/typescript/server/Method.tempo.stream) | Pay-as-you-go streaming payments |
 
 ## Usage
 
@@ -8,85 +15,55 @@ Creates a Tempo payment method for server-side payment handling.
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
+  methods: [tempo.charge()],
+})
+```
+
+### With multiple intents
+
+Register both charge and stream methods on a single server.
+
+```ts twoslash
+import { Mpay, tempo } from 'mpay/server'
+
+const mpay = Mpay.create({
   // [!code focus:start]
-  method: tempo(),
+  methods: [
+    tempo.charge(),
+    tempo.stream({ rpcUrl: 'https://rpc.tempo.xyz', storage: {} as any }),
+  ],
   // [!code focus:end]
 })
 ```
 
-### With Fee Payer
+## Shared parameters
 
-Provide a fee payer account to cover transaction fees on behalf of users.
+Both `tempo.charge()` and `tempo.stream()` accept these common parameters:
 
-```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
-import { Mpay, tempo } from 'mpay/server'
+### chainId (optional)
 
-const mpay = Mpay.create({
-  method: tempo({ 
-    feePayer: privateKeyToAccount('0x...'), // [!code focus]
-  }), 
-})
-```
+- **Type:** `number`
 
-## Return Type
-
-```ts
-import type { Method } from 'mpay'
-
-type ReturnType = Method.Server
-```
-
-## Parameters
-
-### feePayer (optional)
-
-- **Type:** `Account`
-
-Fee payer account for covering transaction fees.
-
-```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
-import { Mpay, tempo } from 'mpay/server'
-
-const mpay = Mpay.create({
-  method: tempo({ feePayer: privateKeyToAccount('0x...') }), // [!code focus]
-})
-```
+Chain ID for the Tempo network.
 
 ### rpcUrl (optional)
 
-- **Type:** `{ [chainId: number]: string }`
+- **Type:** `{ [chainId: number]: string }` (charge) or `string` (stream)
 
-RPC URLs keyed by chain ID.
-
-```ts twoslash
-import { Mpay, tempo } from 'mpay/server'
-
-const mpay = Mpay.create({
-  method: tempo({
-    // [!code focus:start]
-    rpcUrl: {
-      1337: 'http://localhost:8545',
-      4217: 'https://rpc.tempo.xyz',
-    },
-    // [!code focus:end]
-  }),
-})
-```
+RPC URL(s) for connecting to the Tempo blockchain.
 
 ### testnet (optional)
 
 - **Type:** `boolean`
 
-Testnet mode.
+Testnet mode. When `true`, uses the Tempo testnet chain ID.
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
 
 const mpay = Mpay.create({
-  method: tempo({
+  methods: [tempo.charge({
     testnet: true, // [!code focus]
-  }),
+  })],
 })
 ```
