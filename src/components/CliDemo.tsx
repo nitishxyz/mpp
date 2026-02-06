@@ -445,7 +445,7 @@ export function CliDemo() {
 						tempo({
 							account: acc,
 							rpcUrl: {
-								42431: "https://rpc.moderato.tempo.xyz",
+								42431: "/api/rpc",
 							},
 						}),
 					],
@@ -527,14 +527,21 @@ export function CliDemo() {
 						}
 					}
 
-					// Make the paid request
-					const res = await mpayFetch(url.toString());
-
-					if (!res.ok) {
-						throw new Error(`API returned ${res.status}`);
+					// Make the paid request, retrying if the payment credential
+					// is rejected (nonce conflict from a prior in-flight tx)
+					let res: Response | undefined;
+					for (let attempt = 0; attempt < 3; attempt++) {
+						res = await mpayFetch(url.toString());
+						if (res.ok || res.status !== 402) break;
+						await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
 					}
 
-					const data = (await res.json()) as {
+					if (!res!.ok) {
+						throw new Error(`API returned ${res!.status}`);
+					}
+					const resOk = res!;
+
+					const data = (await resOk.json()) as {
 						location?: { city: string; region: string };
 						results?: { name: string }[];
 						summary?: string;
@@ -546,7 +553,7 @@ export function CliDemo() {
 					spent += call.priceNum;
 
 					// Show receipt info if available
-					const receiptHeader = res.headers.get("Payment-Receipt");
+					const receiptHeader = resOk.headers.get("Payment-Receipt");
 					let txDisplay = "";
 					if (receiptHeader) {
 						const receipt = Receipt.deserialize(receiptHeader);
@@ -581,8 +588,8 @@ export function CliDemo() {
 						setBalance(balance - spent);
 					}
 
-					// Small delay between calls for visual effect
-					await new Promise((r) => setTimeout(r, 400));
+					// Delay between calls to allow on-chain nonce settlement
+					await new Promise((r) => setTimeout(r, 1000));
 				} catch (err) {
 					addLine({
 						type: "error",

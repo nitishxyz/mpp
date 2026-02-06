@@ -1,18 +1,29 @@
-// RPC configuration for Tempo Moderato (testnet)
+import { env } from "cloudflare:workers";
+
 const RPC_URL = "https://rpc.moderato.tempo.xyz";
-// alphaUSD on Moderato
 const DEFAULT_CURRENCY = "0x20c0000000000000000000000000000000000001";
+
+function getRpcHeaders(): Record<string, string> {
+	const headers: Record<string, string> = {
+		"Content-Type": "application/json",
+	};
+	const user = env.RPC_AUTH_USER;
+	const pass = env.RPC_AUTH_PASS;
+	if (user && pass) {
+		headers.Authorization = `Basic ${btoa(`${user}:${pass}`)}`;
+	}
+	return headers;
+}
 
 interface RpcResult {
 	result?: string;
 	error?: { message?: string };
 }
 
-// Helper to make RPC calls
 async function rpcCall(method: string, params: unknown[]): Promise<RpcResult> {
 	const response = await fetch(RPC_URL, {
 		method: "POST",
-		headers: { "Content-Type": "application/json" },
+		headers: getRpcHeaders(),
 		body: JSON.stringify({
 			jsonrpc: "2.0",
 			method,
@@ -33,7 +44,6 @@ export async function POST(request: Request) {
 				return Response.json({ error: "Invalid address" }, { status: 400 });
 			}
 
-			// Call the Tempo faucet RPC method
 			const result = await rpcCall("tempo_fundAddress", [address]);
 
 			if (result.error) {
@@ -49,11 +59,10 @@ export async function POST(request: Request) {
 				return Response.json({ error: "Invalid address" }, { status: 400 });
 			}
 
-			// Get token balance via eth_call
 			const result = await rpcCall("eth_call", [
 				{
 					to: DEFAULT_CURRENCY,
-					data: `0x70a08231000000000000000000000000${address.slice(2)}`, // balanceOf(address)
+					data: `0x70a08231000000000000000000000000${address.slice(2)}`,
 				},
 				"latest",
 			]);
