@@ -12,7 +12,7 @@ const payment = Mpay.create({
 })
 ```
 
-### With Custom Transport
+### With custom transport
 
 Use a custom transport for non-HTTP environments like MCP servers.
 
@@ -34,7 +34,7 @@ import type { Mpay, Transport } from 'mpay/server'
 type ReturnType = Mpay<[MethodIntent.Server], Transport.Http>
 ```
 
-The returned object includes the method's intent functions (e.g., `charge`) which can be called to handle payment requests.
+The returned object includes the method's intent functions (for example, `charge`) which you call to handle payment requests.
 
 ## Parameters
 
@@ -58,7 +58,7 @@ const payment = Mpay.create({
 
 - **Type:** `string`
 
-Server realm (e.g., hostname). Used to identify the server in payment challenges.
+Server realm (for example, hostname). Used to identify the server in payment challenges.
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'

@@ -1,15 +1,15 @@
 # Custom [Build your own payment method]
 
-The mpay SDK is designed for extensibility. You can implement custom payment methods to integrate any payment rails—Lightning Network, other blockchains, card processors, or proprietary systems.
+The mpay SDK supports extensibility. You can implement custom payment methods to integrate any payment rails—Lightning Network, other blockchains, card processors, or proprietary systems.
 
 ## Overview
 
 A custom payment method requires:
 
-1. **Intent definition** — Schema for request parameters and credential payloads
-2. **Method intent** — Extends a base intent with method-specific schemas
-3. **Client logic** — Creates credentials when encountering `402` responses
-4. **Server logic** — Verifies credentials and returns Receipts
+1. **Intent definition:** Schema for request parameters and Credential payloads
+2. **Method Intent:** Extend a base Intent with method-specific schemas
+3. **Client logic:** Create Credentials when the client gets a `402` response
+4. **Server logic:** Verify Credentials and return Receipts
 
 ## Define an intent
 
@@ -32,7 +32,7 @@ const charge = Intent.from({
 
 ## Create a method intent
 
-Extend the base intent with method-specific request fields and credential payload schemas. This example uses Lightning Network:
+Extend the base Intent with method-specific request fields and Credential payload schemas. The following example uses Lightning Network:
 
 ```ts twoslash
 import { Intent, MethodIntent, z } from 'mpay'
@@ -68,7 +68,7 @@ const lightningCharge = MethodIntent.fromIntent(charge, {
 
 ## Client implementation
 
-Extend the method intent with credential creation logic. This runs when the client encounters a `402` response:
+Extend the method intent with Credential creation logic. The `createCredential` function runs when the client gets a `402` response:
 
 ```ts twoslash
 import { Credential, Intent, MethodIntent, z } from 'mpay'
@@ -120,7 +120,7 @@ const clientMethod = MethodIntent.toClient(lightningCharge, {
 
 ## Server implementation
 
-Extend the method intent with verification logic. For Lightning, verify the preimage hashes to the payment hash:
+Extend the method intent with verification logic. For Lightning Network, verify that the preimage hashes to the payment hash:
 
 ```ts twoslash
 import { Intent, MethodIntent, Receipt, z } from 'mpay'
@@ -302,5 +302,5 @@ const mpay = Mpay.create({
 
 - [`Intent.from`](/sdk/typescript/Intent.from) — Create a base intent
 - [`MethodIntent.fromIntent`](/sdk/typescript/MethodIntent.fromIntent) — Extend a base intent with method-specific schemas
-- [`MethodIntent.toClient`](/sdk/typescript/MethodIntent.fromIntent) — Add client-side credential creation logic
-- [`MethodIntent.toServer`](/sdk/typescript/MethodIntent.fromIntent) — Add server-side verification logic
+- [`MethodIntent.toClient`](/sdk/typescript/MethodIntent.fromIntent) — Extend an intent with client-side Credential creation logic
+- [`MethodIntent.toServer`](/sdk/typescript/MethodIntent.fromIntent) — Extend an intent with server-side verification logic

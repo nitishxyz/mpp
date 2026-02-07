@@ -20,13 +20,13 @@ const fetch = Fetch.from({
   methods: [tempo.charge({ account })],
 })
 
-// Use the wrapped fetch — handles 402 automatically
+// Handles 402 automatically
 const res = await fetch('https://mpp.dev/api/ping/paid')
 ```
 
 ### Per-call accounts
 
-Instead of defining an `account` at instantiation, you can pass it on a per-request basis via the `context` option. 
+Instead of defining an `account` at instantiation, you can pass it on a per-request basis using the `context` option. 
 
 :::tip
 This is useful when you need to use different accounts for different requests.

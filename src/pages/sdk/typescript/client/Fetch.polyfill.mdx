@@ -18,11 +18,12 @@ Fetch.polyfill({
 const res = await fetch('https://mpp.dev/api/ping/paid')
 ```
 
-### Per-Call Accounts
+### Per-call accounts
 
-Instead of defining an account at instantiation, you can pass it on a per-request basis via the `context` option. This is useful when you need to use different accounts for different requests.
+Instead of defining an account at instantiation, you can pass it on a per-request basis using the `context` option. This is useful when you need to use different accounts for different requests.
 
-```ts
+```ts twoslash
+// @noErrors
 import { Fetch, tempo } from 'mpay/client'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -41,7 +42,7 @@ const res = await fetch('https://mpp.dev/api/ping/paid', {
 })
 ```
 
-## Return Type
+## Return type
 
 ```ts
 void
