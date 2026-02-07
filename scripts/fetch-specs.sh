@@ -8,9 +8,13 @@ if ! command -v gh &>/dev/null; then
   exit 0
 fi
 
-if ! gh auth status &>/dev/null; then
-  echo "gh CLI not authenticated -- skipping spec artifact download."
-  echo "Run 'gh auth login' or set GH_TOKEN to fetch spec artifacts."
+if [[ -n "${SPEC_PAT:-}" ]]; then
+  export GH_TOKEN="$SPEC_PAT"
+fi
+
+if [[ -z "${GH_TOKEN:-}" ]]; then
+  echo "GH_TOKEN / SPEC_PAT not set -- skipping spec artifact download."
+  echo "Set SPEC_PAT or GH_TOKEN to fetch spec artifacts."
   node scripts/gen-specs-page.ts
   exit 0
 fi

@@ -105,7 +105,7 @@ for (const [heading, matcher, parent] of categories) {
 			links.push(
 				`<a href="/specs/${spec.basename}.txt"><code data-v="true">.txt</code></a>`,
 			);
-		lines.push(`- ${spec.title} [${links.join(", ")}]`);
+		lines.push(`- ${spec.title} [${links.join(",")}]`);
 		used.add(spec.basename);
 	}
 	lines.push("");
@@ -124,7 +124,7 @@ if (uncategorized.length > 0) {
 			links.push(
 				`<a href="/specs/${spec.basename}.txt"><code data-v="true">.txt</code></a>`,
 			);
-		lines.push(`- ${spec.title} [${links.join(", ")}]`);
+		lines.push(`- ${spec.title} [${links.join(",")}]`);
 	}
 	lines.push("");
 }
