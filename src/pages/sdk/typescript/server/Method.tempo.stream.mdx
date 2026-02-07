@@ -48,12 +48,18 @@ const mpay = Mpay.create({
 ## Return Type
 
 ```ts
-import type { Method } from 'mpay'
+import type { MethodIntent } from 'mpay'
 
-type ReturnType = Method.Server
+type ReturnType = MethodIntent.Server
 ```
 
 ## Parameters
+
+### amount (optional)
+
+- **Type:** `string`
+
+Default amount to charge per unit.
 
 ### chainId (optional)
 
@@ -67,11 +73,24 @@ Chain ID for the Tempo network. Defaults to the Tempo testnet chain ID.
 
 Default TIP-20 token address for the payment currency.
 
+### decimals (optional)
+
+- **Type:** `number`
+- **Default:** `6`
+
+Decimal places for amount parsing.
+
 ### escrowContract (optional)
 
 - **Type:** `Address`
 
 Escrow contract address for the payment channel. Defaults to the canonical escrow contract for the given chain ID.
+
+### feePayer (optional)
+
+- **Type:** `Account`
+
+Account for sponsoring open/topUp transaction fees.
 
 ### minVoucherDelta (optional)
 
@@ -121,6 +140,24 @@ const method = tempo.stream({
   storage, // [!code focus]
 })
 ```
+
+### suggestedDeposit (optional)
+
+- **Type:** `string`
+
+Suggested deposit amount communicated to clients in the challenge.
+
+### testnet (optional)
+
+- **Type:** `boolean`
+
+Testnet mode.
+
+### unitType (optional)
+
+- **Type:** `string`
+
+Unit type label (for example, "token", "byte", "request").
 
 ### walletClient (optional)
 

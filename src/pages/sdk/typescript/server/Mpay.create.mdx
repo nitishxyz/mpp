@@ -28,10 +28,10 @@ const payment = Mpay.create({
 ## Return Type
 
 ```ts
-import type { Method } from 'mpay'
+import type { MethodIntent } from 'mpay'
 import type { Mpay, Transport } from 'mpay/server'
 
-type ReturnType = Mpay<[Method.Server], Transport.Http>
+type ReturnType = Mpay<[MethodIntent.Server], Transport.Http>
 ```
 
 The returned object includes the method's intent functions (e.g., `charge`) which can be called to handle payment requests.
@@ -40,7 +40,7 @@ The returned object includes the method's intent functions (e.g., `charge`) whic
 
 ### methods
 
-- **Type:** `readonly Method.Server[]`
+- **Type:** `readonly MethodIntent.Server[]`
 
 Array of payment methods (for example, `[tempo.charge()]`).
 
