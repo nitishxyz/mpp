@@ -6,9 +6,9 @@ Creates a validated payment request from a method intent.
 
 ```ts twoslash
 import { PaymentRequest } from 'mpay'
-import { Intents } from 'mpay/tempo'
+import { MethodIntents } from 'mpay/tempo'
 
-const request = PaymentRequest.fromIntent(Intents.charge, {
+const request = PaymentRequest.fromIntent(MethodIntents.charge, {
   amount: '0.1',
   currency: '0x20c0000000000000000000000000000000000001',
   decimals: 6,
@@ -16,7 +16,7 @@ const request = PaymentRequest.fromIntent(Intents.charge, {
 })
 ```
 
-## Return Type
+## Return type
 
 ```ts
 type ReturnType = Request<z.output<intent['schema']['request']>>

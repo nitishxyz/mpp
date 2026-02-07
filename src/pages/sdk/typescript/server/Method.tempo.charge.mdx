@@ -23,7 +23,7 @@ export async function handler(request: Request) {
 }
 ```
 
-### With Expiry
+### With expiry
 
 Set a custom expiration time for the charge using the `expires` option.
 
@@ -47,7 +47,7 @@ export async function handler(request: Request) {
 }
 ```
 
-### With Description
+### With description
 
 Add a human-readable description for the payment request.
 
@@ -69,7 +69,7 @@ export async function handler(request: Request) {
 }
 ```
 
-## Return Type
+## Return type
 
 Returns a function that accepts a `Request` and returns a response object with payment status.
 
@@ -81,7 +81,48 @@ type ReturnType = (request: Request) => Promise<{
 }>
 ```
 
-## Parameters
+## Configuration
+
+These parameters configure the `tempo.charge()` constructor.
+
+### decimals (optional)
+
+- **Type:** `number`
+- **Default:** `6`
+
+Decimal places for amount parsing.
+
+### externalId (optional)
+
+- **Type:** `string`
+
+External identifier for the payment.
+
+### feePayer (optional)
+
+- **Type:** `Account`
+
+Account for sponsoring transaction fees.
+
+### memo (optional)
+
+- **Type:** `string`
+
+On-chain memo for the transaction.
+
+### rpcUrl (optional)
+
+- **Type:** `string | { [chainId: number]: string }`
+
+RPC URL for on-chain transaction submission.
+
+### testnet (optional)
+
+- **Type:** `boolean`
+
+Testnet mode. Defaults the chain ID to `42431` (Tempo testnet).
+
+## Request parameters
 
 ### request.amount
 
@@ -95,11 +136,11 @@ Payment amount in human-readable units. For example, `'0.1'` represents $0.10 US
 
 TIP-20 token address for the payment currency.
 
-### request.recipient
+### description (optional)
 
 - **Type:** `string`
 
-Address to receive the payment.
+Human-readable description of the payment request.
 
 ### request.expires (optional)
 
@@ -108,8 +149,8 @@ Address to receive the payment.
 
 ISO 8601 timestamp for when the payment challenge expires.
 
-### description (optional)
+### request.recipient
 
 - **Type:** `string`
 
-Human-readable description of the payment request.
+Address to receive the payment.

@@ -8,11 +8,11 @@ If `secretKey` option is provided, the challenge ID is computed as HMAC-SHA256 o
 
 ```ts twoslash
 import { Challenge } from 'mpay'
-import { Intents } from 'mpay/tempo'
+import { MethodIntents } from 'mpay/tempo'
 
 // With HMAC-bound ID (recommended for servers)
 const challenge = Challenge.fromIntent(
-  Intents.charge,
+  MethodIntents.charge,
   {
     realm: 'mpp.dev',
     request: {
@@ -26,7 +26,7 @@ const challenge = Challenge.fromIntent(
 )
 ```
 
-## Return Type
+## Return type
 
 ```ts
 type ReturnType = Challenge<z.output<intent['schema']['request']>>
@@ -72,7 +72,7 @@ Explicit challenge ID.
 
 - **Type:** `string`
 
-Server realm (e.g., hostname).
+Server realm (for example, hostname).
 
 #### request
 

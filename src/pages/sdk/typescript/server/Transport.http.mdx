@@ -16,10 +16,10 @@ const mpay = Mpay.create({
 ## Behavior
 
 - Reads credentials from the `Authorization` header
-- Issues challenges via `WWW-Authenticate` header with `402` status
-- Attaches receipts via `Payment-Receipt` header
+- Issues challenges in the `WWW-Authenticate` header with `402` status
+- Attaches receipts in the `Payment-Receipt` header
 
-## Return Type
+## Return type
 
 ```ts
 type ReturnType = Transport<Request, Response>

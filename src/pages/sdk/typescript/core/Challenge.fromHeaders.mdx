@@ -11,19 +11,19 @@ const response = await fetch('/resource')
 const challenge = Challenge.fromHeaders(response.headers)
 ```
 
-### With Method Type Narrowing
+### With method type narrowing
 
 Use a method definition to get type-safe access to method-specific request fields.
 
 ```ts twoslash
 import { Challenge } from 'mpay'
-import { tempo } from 'mpay/tempo'
+import { MethodIntents } from 'mpay/tempo'
 
 const response = await fetch('/resource')
-const challenge = Challenge.fromHeaders(response.headers, { method: tempo })
+const challenge = Challenge.fromHeaders(response.headers, { methods: [MethodIntents.charge] })
 ```
 
-## Return Type
+## Return type
 
 ```ts
 type ReturnType = Challenge
@@ -41,6 +41,6 @@ The HTTP headers object.
 
 ### options (optional)
 
-- **Type:** `{ method?: Method }`
+- **Type:** `{ methods?: readonly MethodIntent[] }`
 
-Optional settings to narrow the challenge type using a method definition.
+Optional settings to narrow the Challenge type using method intents.

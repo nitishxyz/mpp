@@ -30,7 +30,7 @@ const mpay = Mpay.create({
   // [!code focus:start]
   methods: [
     tempo.charge(),
-    tempo.stream({ rpcUrl: 'https://rpc.tempo.xyz', storage: {} as any }),
+    tempo.stream({ storage: {} as any }),
   ],
   // [!code focus:end]
 })

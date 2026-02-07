@@ -21,7 +21,7 @@ const challenge = Challenge.from(
 )
 ```
 
-### With Explicit ID
+### With explicit ID
 
 Use an explicit ID when you don't need HMAC-bound challenge verification.
 
@@ -37,7 +37,7 @@ const challenge = Challenge.from({
 })
 ```
 
-## Return Type
+## Return type
 
 ```ts
 type ReturnType = Challenge
@@ -79,19 +79,19 @@ Explicit challenge ID.
 
 - **Type:** `string`
 
-Intent type (e.g., "charge", "authorize").
+Intent type (for example, "charge", "authorize").
 
 #### method
 
 - **Type:** `string`
 
-Payment method (e.g., "tempo", "stripe").
+Payment method (for example, "tempo", "stripe").
 
 #### realm
 
 - **Type:** `string`
 
-Server realm (e.g., hostname).
+Server realm (for example, hostname).
 
 #### request
 

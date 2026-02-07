@@ -313,3 +313,8 @@ export function SidebarHeader() {
 - `pnpm build` — Production build
 - `pnpm check` — Biome format/lint
 - `pnpm check:types` — TypeScript check
+
+
+## Testing changes
+
+When testing changes, you should *always* make sure the site builds and types check

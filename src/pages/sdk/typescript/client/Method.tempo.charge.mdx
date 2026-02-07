@@ -36,12 +36,12 @@ Fetch.polyfill({
 })
 ```
 
-## Return Type
+## Return type
 
 ```ts
-import type { Method } from 'mpay'
+import type { MethodIntent } from 'mpay'
 
-type ReturnType = Method.Client
+type ReturnType = MethodIntent.Client
 ```
 
 ## Parameters
@@ -50,7 +50,7 @@ type ReturnType = Method.Client
 
 - **Type:** `Account`
 
-Account to sign transactions with. Can be overridden per-call via context.
+Account to sign transactions with. You can override this per call using the context.
 
 ```ts twoslash
 // @noErrors
@@ -66,23 +66,4 @@ const method = tempo.charge({
 
 - **Type:** `(chainId: number) => Client`
 
-Function that returns a viem client for the given chain ID. Mutually exclusive with `rpcUrl`.
-
-### rpcUrl (optional)
-
-- **Type:** `{ [chainId: number]: string }`
-
-RPC URLs keyed by chain ID. Mutually exclusive with `client`.
-
-```ts twoslash
-// @noErrors
-import { tempo } from 'mpay/client'
-
-const method = tempo.charge({
-  // [!code focus:start]
-  rpcUrl: {
-    123456: 'https://rpc.tempo.xyz',
-  },
-  // [!code focus:end]
-})
-```
+Function that returns a viem client for the given chain ID.

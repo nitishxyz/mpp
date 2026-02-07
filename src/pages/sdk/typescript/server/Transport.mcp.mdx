@@ -16,12 +16,12 @@ const mpay = Mpay.create({
 ## Behavior
 
 - Reads credentials from `_meta["org.paymentauth/credential"]`
-- Issues challenges via JSON-RPC error with code `-32042`
-- Attaches receipts via `_meta["org.paymentauth/receipt"]`
+- Issues challenges in a JSON-RPC error with code `-32042`
+- Attaches receipts in `_meta["org.paymentauth/receipt"]`
 
 Use this transport when handling raw JSON-RPC messages directly. For use with [`@modelcontextprotocol/sdk`](https://github.com/modelcontextprotocol/typescript-sdk), use [`Transport.mcpSdk()`](/sdk/typescript/server/Transport.mcpSdk) instead.
 
-## Return Type
+## Return type
 
 ```ts
 import type { Mcp } from 'mpay'

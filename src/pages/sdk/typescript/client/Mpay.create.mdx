@@ -24,12 +24,12 @@ if (response.status === 402) {
 }
 ```
 
-## Return Type
+## Return type
 
 ```ts
 type Mpay = {
   /** The configured payment methods. */
-  methods: readonly Method.Client[]
+  methods: readonly MethodIntent.Client[]
   /** The transport used. */
   transport: Transport
   /** Creates a credential from a payment-required response. */
@@ -44,7 +44,7 @@ type Mpay = {
 
 ### methods
 
-- **Type:** `readonly Method.Client[]`
+- **Type:** `readonly MethodIntent.Client[]`
 
 Array of payment methods to use.
 

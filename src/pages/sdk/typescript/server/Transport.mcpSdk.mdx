@@ -30,9 +30,9 @@ server.registerTool('premium', { description: 'A premium tool' }, async (extra) 
 
 - Reads credentials from `_meta["org.paymentauth/credential"]`
 - Issues challenges as `McpError` with code `-32042` and challenge in `error.data`
-- Attaches receipts via `_meta["org.paymentauth/receipt"]` on tool results
+- Attaches receipts in `_meta["org.paymentauth/receipt"]` on tool results
 
-## Return Type
+## Return type
 
 ```ts
 import type { CallToolResult, McpError } from '@modelcontextprotocol/sdk/types.js'

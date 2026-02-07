@@ -11,19 +11,19 @@ const header = 'Payment id="abc123", realm="mpp.dev", method="tempo", intent="ch
 const challenge = Challenge.deserialize(header)
 ```
 
-### With Method Type Narrowing
+### With method type narrowing
 
 Use a method definition to get type-safe access to method-specific request fields.
 
 ```ts twoslash
 import { Challenge } from 'mpay'
-import { tempo } from 'mpay/tempo'
+import { MethodIntents } from 'mpay/tempo'
 
 const header = 'Payment id="abc123", realm="mpp.dev", method="tempo", intent="charge", request="eyJhbW91bnQiOi..."'
-const challenge = Challenge.deserialize(header, { method: tempo })
+const challenge = Challenge.deserialize(header, { methods: [MethodIntents.charge] })
 ```
 
-## Return Type
+## Return type
 
 ```ts
 type ReturnType = Challenge
@@ -41,6 +41,6 @@ The WWW-Authenticate header value.
 
 ### options (optional)
 
-- **Type:** `{ method?: Method }`
+- **Type:** `{ methods?: readonly MethodIntent[] }`
 
-Optional settings to narrow the challenge type using a method definition.
+Optional settings to narrow the Challenge type using method intents.

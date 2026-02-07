@@ -18,11 +18,11 @@ const mpay = Mpay.create({
 
 ## Behavior
 
-- Detects payment required via **`402` status code**
-- Extracts challenges from **`WWW-Authenticate` header**
-- Sends credentials via **`Authorization` header**
+- Detects payment required using the **`402` status code**
+- Extracts challenges from the **`WWW-Authenticate` header**
+- Sends credentials using the **`Authorization` header**
 
-## Return Type
+## Return type
 
 ```ts
 type HttpTransport = Transport<RequestInit, Response>

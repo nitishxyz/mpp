@@ -16,7 +16,6 @@ const mpay = Mpay.create({
     tempo.stream({
       currency: '0x20c0000000000000000000000000000000000001',
       recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
-      rpcUrl: 'https://rpc.tempo.xyz',
       storage,
     }),
   ],
@@ -38,22 +37,27 @@ const mpay = Mpay.create({
   methods: [
     tempo.charge(),
     tempo.stream({
-      rpcUrl: 'https://rpc.tempo.xyz',
       storage,
     }),
   ],
 })
 ```
 
-## Return Type
+## Return type
 
 ```ts
-import type { Method } from 'mpay'
+import type { MethodIntent } from 'mpay'
 
-type ReturnType = Method.Server
+type ReturnType = MethodIntent.Server
 ```
 
 ## Parameters
+
+### amount (optional)
+
+- **Type:** `string`
+
+Default amount to charge per unit.
 
 ### chainId (optional)
 
@@ -67,11 +71,24 @@ Chain ID for the Tempo network. Defaults to the Tempo testnet chain ID.
 
 Default TIP-20 token address for the payment currency.
 
+### decimals (optional)
+
+- **Type:** `number`
+- **Default:** `6`
+
+Decimal places for amount parsing.
+
 ### escrowContract (optional)
 
 - **Type:** `Address`
 
 Escrow contract address for the payment channel. Defaults to the canonical escrow contract for the given chain ID.
+
+### feePayer (optional)
+
+- **Type:** `Account`
+
+Account for sponsoring open and top-up transaction fees.
 
 ### minVoucherDelta (optional)
 
@@ -86,24 +103,6 @@ Minimum voucher delta to accept. Rejects vouchers where the increment over the p
 
 Default recipient address for payments.
 
-### rpcUrl
-
-- **Type:** `string`
-
-RPC URL for on-chain verification of channel state, deposits, and top-ups.
-
-```ts twoslash
-// @noErrors
-import { tempo } from 'mpay/server'
-
-declare const storage: import('mpay/server').ChannelStorage
-
-const method = tempo.stream({
-  rpcUrl: 'https://rpc.tempo.xyz', // [!code focus]
-  storage,
-})
-```
-
 ### storage
 
 - **Type:** `ChannelStorage`
@@ -117,10 +116,27 @@ import { tempo } from 'mpay/server'
 declare const storage: import('mpay/server').ChannelStorage
 
 const method = tempo.stream({
-  rpcUrl: 'https://rpc.tempo.xyz',
   storage, // [!code focus]
 })
 ```
+
+### suggestedDeposit (optional)
+
+- **Type:** `string`
+
+Suggested deposit amount communicated to clients in the challenge.
+
+### testnet (optional)
+
+- **Type:** `boolean`
+
+Testnet mode.
+
+### unitType (optional)
+
+- **Type:** `string`
+
+Unit type label (for example, "token", "byte", "request").
 
 ### walletClient (optional)
 

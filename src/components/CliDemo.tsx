@@ -318,6 +318,8 @@ export function CliDemo() {
 				const { privateKeyToAccount, generatePrivateKey } = await import(
 					"viem/accounts"
 				);
+				const { createClient, http } = await import("viem");
+				type Chain = import("viem").Chain;
 
 				// Initial terminal output
 				addLines([
@@ -444,9 +446,11 @@ export function CliDemo() {
 					methods: [
 						tempo.charge({
 							account: acc,
-							rpcUrl: {
-								42431: "/api/rpc",
-							},
+							client: () =>
+								createClient({
+									chain: { id: 42431, name: "Tempo Testnet" } as Chain,
+									transport: http("/api/rpc"),
+								}),
 						}),
 					],
 				});
