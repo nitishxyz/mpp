@@ -16,6 +16,9 @@ export default defineConfig({
 	redirects: [
 		{ source: "/docs", destination: "/overview" },
 		{ source: "/specifications", destination: "/specs" },
+		{ source: "/quickstart/pget", destination: "/quickstart/tempoctl" },
+		{ source: "/tools/pget", destination: "/tools/tempoctl" },
+		{ source: "/tools/pget/examples", destination: "/tools/tempoctl/examples" },
 	],
 	description:
 		"Machine Payments Protocol - Machine-native payments for machine-to-machine transactions",
@@ -58,7 +61,7 @@ export default defineConfig({
 				items: [
 					{ text: "Client", link: "/quickstart/client" },
 					{ text: "Server", link: "/quickstart/server" },
-					{ text: "pget CLI", link: "/quickstart/pget" },
+					{ text: "tempoctl CLI", link: "/quickstart/tempoctl" },
 				],
 			},
 			{
@@ -366,11 +369,11 @@ export default defineConfig({
 						],
 					},
 					{
-						text: "pget CLI",
+						text: "tempoctl CLI",
 						collapsed: true,
 						items: [
-							{ text: "Reference", link: "/tools/pget" },
-							{ text: "Examples", link: "/tools/pget/examples" },
+							{ text: "Reference", link: "/tools/tempoctl" },
+							{ text: "Examples", link: "/tools/tempoctl/examples" },
 						],
 					},
 				],

@@ -174,26 +174,26 @@ on all `/resource` endpoints.
 :::::
 
 
-## Testing with pget
+## Testing with tempoctl
 
-After your server is running, test it with [pget](/tools/pget):
+After your server is running, test it with [tempoctl](/tools/tempoctl):
 
 ```bash [test-server.sh]
 # See the payment challenge
-$ pget inspect <your-server>/resource
+$ tempoctl inspect <your-server>/resource
 
 # Make a paid request (requires funded wallet)
-$ pget query <your-server>/resource
+$ tempoctl query <your-server>/resource
 
 # Verbose output to see the full 402 flow
-$ pget query -vi <your-server>/resource
+$ tempoctl query -vi <your-server>/resource
 
 # Dry run to preview payment without executing
-$ pget query -D <your-server>/resource
+$ tempoctl query -D <your-server>/resource
 ```
 
 :::tip
-Use `pget inspect` to debug your server's challenge response without making any payments.
+Use `tempoctl inspect` to debug your server's challenge response without making any payments.
 :::
 
 ## Next steps
