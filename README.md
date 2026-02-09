@@ -69,7 +69,7 @@ npx gitpick wevm/mpay/examples/basic
 
 mpay includes a basic CLI for making HTTP requests with automatic payment handling.
 
-```
+```bash
 # create account - stored in keychain, autofunded on testnet
 npm run mpay account create
 
