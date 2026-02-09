@@ -42,6 +42,7 @@ export namespace Store {
 	export type State = {
 		initialBalance: bigint | undefined;
 		interaction: InteractionType;
+		restartStep: number;
 		stepIndex: number;
 		token: Address | undefined;
 		view: ViewType;
@@ -51,6 +52,7 @@ export namespace Store {
 export const store = new ts_Store<Store.State>({
 	initialBalance: undefined,
 	interaction: null,
+	restartStep: 0,
 	stepIndex: 0,
 	token: undefined,
 	view: "main",
@@ -750,6 +752,7 @@ export namespace Hint {
 export function Account({ className }: Account.Props) {
 	const { address } = useConnection();
 	const { disconnect } = useDisconnect();
+	const restartStep = useStore(store, (s) => s.restartStep);
 
 	if (!address) return null;
 
@@ -762,7 +765,7 @@ export function Account({ className }: Account.Props) {
 				type="button"
 				onClick={() => {
 					disconnect();
-					store.setState((s) => ({ ...s, stepIndex: 0 }));
+					store.setState((s) => ({ ...s, stepIndex: restartStep }));
 				}}
 				className="text-secondary hover:text-primary transition-colors"
 				aria-label="Log out"
@@ -780,10 +783,11 @@ export namespace Account {
 }
 
 export function Refresh({ className }: Refresh.Props) {
+	const restartStep = useStore(store, (s) => s.restartStep);
 	return (
 		<button
 			type="button"
-			onClick={() => store.setState((s) => ({ ...s, stepIndex: 0 }))}
+			onClick={() => store.setState((s) => ({ ...s, stepIndex: restartStep }))}
 			className={cx(
 				"text-secondary hover:text-primary transition-colors",
 				className,
@@ -972,9 +976,14 @@ export function Demo({
 	children,
 	className,
 	height = 300,
+	restartStep = 0,
 	title,
 	token,
 }: Demo.Props) {
+	useEffect(() => {
+		store.setState((s) => ({ ...s, restartStep }));
+	}, [restartStep]);
+
 	return (
 		<Window className={className} token={token}>
 			<TitleBar title={title}>
@@ -1004,6 +1013,7 @@ export namespace Demo {
 		className?: string;
 		height?: number;
 		children: ReactNode;
+		restartStep?: number;
 		title?: string;
 		token?: Address;
 	};

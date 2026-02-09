@@ -126,7 +126,11 @@ export function CliPlayground() {
 				/>
 			</Cli.Window>
 
-			<Cli.Demo title="Make a request with payment" token={alphaUsd}>
+			<Cli.Demo
+				title="Make a request with payment"
+				token={alphaUsd}
+				restartStep={1}
+			>
 				<Cli.Startup />
 				<Cli.ConnectWallet />
 				<Cli.Faucet />
