@@ -57,17 +57,14 @@ export function createKvStorage(
 		},
 
 		async updateChannel(channelId, fn) {
-			console.log("updateChannel", channelId, fn);
 			const current = await this.getChannel(channelId);
 			const next = fn(current);
-			console.log("updateChannel", channelId, next);
 			if (next) await kv.put(`channel:${channelId}`, Json.stringify(next));
 			else await kv.delete(`channel:${channelId}`);
 			return next;
 		},
 
 		async updateSession(challengeId, fn) {
-			console.log("updateSession", challengeId, fn);
 			const current = await this.getSession(challengeId);
 			const next = fn(current);
 			if (next) await kv.put(`session:${challengeId}`, Json.stringify(next));
