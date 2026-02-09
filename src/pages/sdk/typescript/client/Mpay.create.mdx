@@ -11,7 +11,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0x...')
 
 Mpay.create({
-  methods: [tempo.charge({ account })],
+  methods: [tempo({ account })],
 })
 
 // Global fetch now handles 402 automatically
@@ -30,7 +30,7 @@ const account = privateKeyToAccount('0x...')
 
 const mpay = Mpay.create({
   polyfill: false, // [!code hl]
-  methods: [tempo.charge({ account })],
+  methods: [tempo({ account })],
 })
 
 // Use the returned fetch // [!code hl]
@@ -47,7 +47,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 
 const mpay = Mpay.create({
   polyfill: false, // [!code hl]
-  methods: [tempo.charge()],
+  methods: [tempo()],
 })
 
 // [!code hl:start]
@@ -99,7 +99,7 @@ const account = privateKeyToAccount('0x...')
 
 const mpay = Mpay.create({
   // [!code focus:start]
-  methods: [tempo.charge({ account })],
+  methods: [tempo({ account })],
   // [!code focus:end]
 })
 ```
@@ -119,7 +119,7 @@ const account = privateKeyToAccount('0x...')
 
 const mpay = Mpay.create({
   polyfill: false, // [!code focus]
-  methods: [tempo.charge({ account })],
+  methods: [tempo({ account })],
 })
 ```
 
@@ -140,7 +140,7 @@ const account = privateKeyToAccount('0x...')
 
 const mpay = Mpay.create({
   fetch: customFetch, // [!code focus]
-  methods: [tempo.charge({ account })],
+  methods: [tempo({ account })],
 })
 ```
 
@@ -158,7 +158,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0x...')
 
 const mpay = Mpay.create({
-  methods: [tempo.charge({ account })],
+  methods: [tempo({ account })],
   transport: Transport.mcp(), // [!code focus]
 })
 ```
