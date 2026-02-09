@@ -9,7 +9,7 @@ import * as Cli from "./Cli";
 
 export function CliDemo() {
 	return (
-		<Cli.Demo title="agent-demo" token={alphaUsd} height={337}>
+		<Cli.Demo title="agent-demo" token={alphaUsd} height={337} restartStep={1}>
 			<Cli.Startup />
 			<Cli.ConnectWallet />
 			<Cli.Faucet />
