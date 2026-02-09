@@ -45,7 +45,7 @@ import { Mpay, tempo } from 'mpay/client' // [!code hl]
 const account = privateKeyToAccount('0xabc…123')
 
 Mpay.create({ // [!code hl]
-  methods: [tempo({ account })], // [!code hl] 
+  methods: [tempo.charge({ account })], // [!code hl] 
 }) // [!code hl]
 ```
 
@@ -55,7 +55,7 @@ If you want to avoid polyfilling, use the returned `fetch` instead.
 ```ts
 const mpay = Mpay.create({
   polyfill: false, // [!code hl]
-  methods: [tempo({ account })]
+  methods: [tempo.charge({ account })]
 })
 
 const response = await mpay.fetch('https://mpp.dev/api/ping/paid') // [!code hl]
@@ -87,7 +87,7 @@ import { Mpay, tempo } from 'mpay/client'
 
 const mpay = Mpay.create({
   polyfill: false,
-  methods: [tempo()]
+  methods: [tempo.charge()]
 })
 
 const response = await mpay.fetch('https://mpp.dev/api/ping/paid', {
@@ -115,7 +115,7 @@ const mpay = Mpay.create({
   // [!code hl:start]
   polyfill: false,
   // [!code hl:end]
-  methods: [tempo()],
+  methods: [tempo.charge()],
 })
 
 // [!code hl:start]

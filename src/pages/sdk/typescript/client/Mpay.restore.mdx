@@ -11,7 +11,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0x...')
 
 Mpay.create({
-  methods: [tempo({ account })],
+  methods: [tempo.charge({ account })],
 })
 
 // ... use payment-aware fetch ...

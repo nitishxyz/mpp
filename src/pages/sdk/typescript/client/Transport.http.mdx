@@ -11,7 +11,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0x...')
 
 const mpay = Mpay.create({
-  methods: [tempo({ account })],
+  methods: [tempo.charge({ account })],
   transport: Transport.http(), // [!code focus]
 })
 ```
