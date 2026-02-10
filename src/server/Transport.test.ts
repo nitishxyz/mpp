@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import * as Challenge from '../Challenge.js'
 import * as Credential from '../Credential.js'
-import { BadRequestError, ChannelClosedError, ChannelConflictError } from '../Errors.js'
+import { BadRequestError, ChannelClosedError } from '../Errors.js'
 import * as Mcp from '../Mcp.js'
 import * as Receipt from '../Receipt.js'
 import * as Intents from '../tempo/Intents.js'
@@ -116,19 +116,6 @@ describe('http', () => {
       const body = await response.json()
       expect(body.type).toBe('https://tempoxyz.github.io/payment-auth-spec/problems/bad-request')
       expect(body.status).toBe(400)
-    })
-
-    test('ChannelConflictError returns 409', async () => {
-      const transport = Transport.http()
-      const request = new Request('https://example.com')
-      const error = new ChannelConflictError({ reason: 'another stream active' })
-
-      const response = await transport.respondChallenge({ challenge, input: request, error })
-
-      expect(response.status).toBe(409)
-      const body = await response.json()
-      expect(body.type).toBe('https://paymentauth.org/problems/stream/channel-conflict')
-      expect(body.status).toBe(409)
     })
 
     test('ChannelClosedError returns 410', async () => {

@@ -1,7 +1,10 @@
 import { charge as charge_ } from './Charge.js'
+import { session as session_ } from './Session.js'
 import { stream as stream_ } from './Stream.js'
 
 export { charge } from './Charge.js'
+export type { Session } from './Session.js'
+export { session } from './Session.js'
 export { stream } from './Stream.js'
 
 export function tempo(parameters: tempo.Parameters = {}) {
@@ -12,5 +15,6 @@ export namespace tempo {
   export type Parameters = charge_.Parameters & stream_.Parameters
 
   export const charge = charge_
+  export const session = session_
   export const stream = stream_
 }
