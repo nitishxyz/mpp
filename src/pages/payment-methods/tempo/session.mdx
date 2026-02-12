@@ -113,7 +113,7 @@ const mpay = Mpay.create({
 
 During a session, the server verifies each voucher with a single `ecrecover`—no RPC calls, no database writes in the hot path. On-chain interaction only happens during open, settlement, and close.
 
-Use `mpay.stream` in your request handler to meter access:
+Use `mpay.session` in your request handler to meter access:
 
 ```ts twoslash
 import { Mpay, tempo } from 'mpay/server'
@@ -128,7 +128,7 @@ const mpay = Mpay.create({
 })
 // ---cut---
 export async function handler(request: Request) {
-  const result = await mpay.stream({
+  const result = await mpay.session({
     amount: '25',
     unitType: 'llm_token',
   })(request)
@@ -157,7 +157,7 @@ const mpay = Mpay.create({
 ```
 
 :::info
-See [`tempo.stream` server reference](/sdk/typescript/server/Method.tempo.session) for the full parameter list.
+See [`tempo.session` server reference](/sdk/typescript/server/Method.tempo.session) for the full parameter list.
 :::
 
   </div>
@@ -220,7 +220,7 @@ Mpay.create({
 ```
 
 :::info
-See [`tempo.stream` client reference](/sdk/typescript/client/Method.tempo.session) for the full parameter list.
+See [`tempo.session` client reference](/sdk/typescript/client/Method.tempo.session) for the full parameter list.
 :::
 
   </div>
