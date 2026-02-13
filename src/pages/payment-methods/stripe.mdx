@@ -1,25 +1,262 @@
-import { Badge, Card, Cards } from 'vocs'
+import { Card, Cards } from 'vocs'
+import { SpecCard } from '../../components/SpecCard'
 
 # Stripe [Cards, bank transfers, and invoices]
 
-:::warning[Coming soon]
-Stripe support is still in development. Follow [@mpp](https://x.com/mpp) on Twitter to learn when it goes live.
-:::
-
-The Stripe payment method enables traditional payment rails through [Stripe](https://stripe.com): credit cards, bank transfers, and invoices.
+Use Stripe to accept card, bank transfer, and invoice payments through Stripe Payment Tokens (SPTs). The Stripe method supports the `charge` intent for one-time payments.
 
 ## Supported intents
 
 <Cards>
   <Card
-    topRight={<Badge variant="warning">Coming soon</Badge>}
     icon="lucide:credit-card"
     title="Charge"
     description="One-time card or bank payment"
-    disabled
   />
 </Cards>
 
-## Build your own
+## How it works
 
-Need Stripe payments now? See [Custom payment methods](/payment-methods/custom) for a guide on implementing your own Stripe integration with the mpay SDK.
+1. The server replies with a Challenge that includes the amount, currency, and Stripe method details.
+2. The client creates an SPT with Stripe.js or the Stripe API and sends a Credential containing the SPT.
+3. The server verifies the Credential by creating a Stripe `PaymentIntent`.
+4. The server returns the resource with a Receipt that references the `PaymentIntent`.
+
+## Server
+
+Create a Stripe method intent from the base `charge` intent, then pass it to `Mpay.create`.
+
+```ts twoslash
+import { Intent, MethodIntent, z } from 'mpay'
+import { Mpay } from 'mpay/server'
+
+const stripeCharge = MethodIntent.fromIntent(Intent.charge, {
+  method: 'stripe',
+  schema: {
+    credential: {
+      payload: z.object({
+        externalId: z.optional(z.string()),
+        spt: z.string(),
+      }),
+    },
+    request: {
+      methodDetails: z.object({
+        metadata: z.optional(z.record(z.string(), z.string())),
+        networkId: z.string(),
+        paymentMethodTypes: z.array(z.string()),
+      }),
+    },
+  },
+})
+
+const stripeServer = MethodIntent.toServer(stripeCharge, {
+  defaults: {
+    networkId: 'internal',
+    paymentMethodTypes: ['card'],
+  },
+  async verify({ credential }) {
+    const spt = credential.payload.spt
+
+    const body = new URLSearchParams({
+      amount: credential.challenge.request.amount as string,
+      'automatic_payment_methods[allow_redirects]': 'never',
+      'automatic_payment_methods[enabled]': 'true',
+      confirm: 'true',
+      currency: credential.challenge.request.currency as string,
+      shared_payment_granted_token: spt,
+    })
+
+    const response = await fetch('https://api.stripe.com/v1/payment_intents', {
+      body,
+      headers: {
+        Authorization: `Basic ${btoa(`${process.env.STRIPE_SECRET_KEY!}:`)}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      method: 'POST',
+    })
+
+    if (!response.ok) throw new Error('Stripe payment failed')
+
+    const { id } = (await response.json()) as { id: string }
+
+    return {
+      method: 'stripe',
+      reference: id,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+    } as const
+  },
+})
+
+const mpay = Mpay.create({ methods: [stripeServer] })
+
+export async function handler(request: Request) {
+  const result = await mpay.charge({
+    amount: '1',
+    currency: 'usd',
+    decimals: 2,
+    description: 'Premium API access',
+  })(request)
+
+  if (result.status === 402) return result.challenge
+
+  return result.withReceipt(Response.json({ data: '...' }))
+}
+```
+
+### Create SPT endpoint
+
+Create SPTs on a server using your Stripe secret key. The client calls this endpoint from `createSpt`. Use the test helper endpoint in test mode. Use Stripe's shared payment token API in production.
+
+```ts twoslash
+type CreateSptRequest = {
+  amount: string
+  currency: string
+  expiresAt: number
+  metadata?: Record<string, string>
+  networkId?: string
+  paymentMethod: string
+}
+export async function handler(request: Request) {
+  const { amount, currency, expiresAt, metadata, networkId, paymentMethod } =
+    (await request.json()) as CreateSptRequest
+
+  const body = new URLSearchParams({
+    'usage_limits[currency]': currency,
+    'usage_limits[expires_at]': expiresAt.toString(),
+    'usage_limits[max_amount]': amount,
+    payment_method: paymentMethod,
+    'seller_details[network_id]': networkId ?? 'internal',
+  })
+
+  if (metadata) {
+    for (const [key, value] of Object.entries(metadata)) {
+      body.set(`metadata[${key}]`, value)
+    }
+  }
+
+  const response = await fetch(
+    'https://api.stripe.com/v1/test_helpers/shared_payment/granted_tokens',
+    {
+      body,
+      headers: {
+        Authorization: `Basic ${btoa(`${process.env.STRIPE_SECRET_KEY!}:`)}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      method: 'POST',
+    },
+  )
+
+  const { id: spt } = (await response.json()) as { id: string }
+  return Response.json({ spt })
+}
+```
+
+## Client
+
+Create a client method intent that generates a Credential with an SPT.
+
+```ts twoslash
+import { Credential, Intent, MethodIntent, z } from 'mpay'
+import { Mpay } from 'mpay/client'
+
+type CreateSptParams = {
+  amount: string
+  currency: string
+  expiresAt: number
+  metadata?: Record<string, string>
+  networkId?: string
+  paymentMethod: string
+}
+
+const stripeCharge = MethodIntent.fromIntent(Intent.charge, {
+  method: 'stripe',
+  schema: {
+    credential: {
+      payload: z.object({
+        externalId: z.optional(z.string()),
+        spt: z.string(),
+      }),
+    },
+    request: {
+      methodDetails: z.object({
+        metadata: z.optional(z.record(z.string(), z.string())),
+        networkId: z.string(),
+        paymentMethodTypes: z.array(z.string()),
+      }),
+    },
+  },
+})
+
+const stripeClient = MethodIntent.toClient(stripeCharge, {
+  context: z.object({
+    paymentMethod: z.string(),
+  }),
+  async createCredential({ challenge, context }) {
+    const response = await fetch('/api/create-spt', {
+      body: JSON.stringify({
+        amount: challenge.request.amount,
+        currency: challenge.request.currency,
+        expiresAt: Math.floor(new Date(challenge.request.expires as string).getTime() / 1000),
+        metadata: challenge.request.methodDetails?.metadata,
+        networkId: challenge.request.methodDetails?.networkId,
+        paymentMethod: context.paymentMethod,
+      } satisfies CreateSptParams),
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    })
+
+    if (!response.ok) throw new Error('Failed to create SPT')
+    const { spt } = (await response.json()) as { spt: string }
+
+    return Credential.serialize({
+      challenge,
+      payload: { spt },
+    })
+  },
+})
+
+const mpay = Mpay.create({
+  methods: [stripeClient],
+  polyfill: false,
+})
+
+const response = await mpay.fetch('https://api.example.com/resource', {
+  context: {
+    paymentMethod: 'pm_card_visa',
+  },
+})
+
+const data = await response.json()
+console.log(data)
+// @log: { data: '...' }
+```
+
+## Request fields
+
+The Challenge request includes the base charge fields plus Stripe method details.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `amount` | `string` | Required | Amount in the smallest currency unit |
+| `currency` | `string` | Required | ISO currency code |
+| `description` | `string` | Optional | Human-readable payment description |
+| `externalId` | `string` | Optional | Merchant reference ID |
+| `methodDetails.metadata` | `Record<string, string>` | Optional | Metadata forwarded to Stripe |
+| `methodDetails.networkId` | `string` | Required | Stripe Business Network profile ID |
+| `methodDetails.paymentMethodTypes` | `string[]` | Required | Allowed Stripe payment method types |
+
+## Credential payload
+
+The Credential payload contains the SPT and an optional client reference id.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `externalId` | `string` | Optional | Client reference ID |
+| `spt` | `string` | Required | Stripe Payment Token ID (starts with `spt_`) |
+
+## Specification
+
+<Cards>
+  <SpecCard to="/specs/draft-stripe-charge-00" />
+</Cards>
