@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"prebuild": "bash scripts/fetch-specs.sh",
-		"build": "vite build && node scripts/patch-cf.ts",
+		"build": "vite build",
 		"check": "biome check --write",
 		"check:sdk-drift": "npx tsx .github/actions/sdk-drift-check/check-sdk-drift.ts",
 		"check:types": "tsc --noEmit",
@@ -54,10 +54,5 @@
 		"vite": "^7",
 		"vitest": "^4.0.18",
 		"wrangler": "^4.61.1"
-	},
-	"pnpm": {
-		"patchedDependencies": {
-			"vocs@0.0.0": "patches/vocs@0.0.0.patch"
-		}
 	}
 }
