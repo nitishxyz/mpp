@@ -42,7 +42,6 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.15",
-		"@hiogawa/node-loader-cloudflare": "^0.0.2",
 		"@iconify/json": "^2.2.433",
 		"@types/node": "^22",
 		"@types/react": "^19",
