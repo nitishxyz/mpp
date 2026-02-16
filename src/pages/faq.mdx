@@ -8,13 +8,13 @@ MPP (Machine Payments Protocol) lets any client—humans, software, or AI agents
 
 No. MPP is payment-method agnostic—the protocol works with any payment rail.
 
-Today, [Tempo](/payment-methods/tempo) stablecoin payments are in production. [Stripe](/payment-methods/stripe) support (credit cards, bank transfers, invoices) is launching soon. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the Challenge-Credential-Receipt flow for their rail.
+Today, [Tempo](/payment-methods/tempo) stablecoin payments and [Stripe](/payment-methods/stripe) (credit cards, bank transfers, invoices) are in production. Anyone can build a [custom payment method](/payment-methods/custom) by implementing the Challenge-Credential-Receipt flow for their rail.
 
 ## Do I need a stablecoin wallet?
 
-For Tempo payments, yes—you need an account (a private key) to sign transactions. The SDK and `tempoctl` CLI handle key management for you.
+For Tempo payments, yes—you need an account (a private key) to sign transactions. The SDK and `presto` CLI handle key management for you.
 
-When Stripe support launches, you can use traditional cards and bank transfers without stablecoins.
+With Stripe, you can use traditional cards and bank transfers without stablecoins.
 
 ## How is MPP different from x402?
 
@@ -24,7 +24,7 @@ Both MPP and x402 use HTTP `402` to signal that a request requires payment. The 
 - **Payment intents.** MPP defines distinct intents—charge, session, authorize—each with its own flow. x402 supports only one-shot charges.
 - **Cryptographic security.** MPP binds Challenges to requests with unique IDs and expiration, preventing replay attacks. x402 lacks this binding.
 - **Streaming payments.** MPP's session intent enables pay-as-you-go streaming with off-chain vouchers. x402 has no equivalent.
-- **Standards-track.** MPP's core scheme is being submitted to the IETF. x402 is a proprietary protocol.
+- **Standards-track.** MPP's core scheme is on the IETF standards track. x402 is a proprietary protocol.
 
 More flexibility. More security. More functionality. MPP is designed as a universal protocol that any payment network can plug into. The extension model is permissive by default—anyone can propose a new payment method or intent.
 
@@ -63,7 +63,7 @@ You can browse all available services at [payments.tempo.xyz](https://payments.t
 
 ## Can any AI agent use MPP?
 
-Yes. Any agent that can run shell commands can use MPP—point it at `tempoctl` and a paid service endpoint. The [`tempoctl` quickstart](/quickstart/tempoctl) has copy-paste instructions for Claude, Codex, and Amp.
+Yes. Any agent that can run shell commands can use MPP—point it at `presto` and a paid service endpoint. The [`presto` quickstart](/quickstart/presto) has copy-paste instructions for Claude, Codex, and Amp.
 
 For programmatic integration, the [TypeScript](/sdk/typescript), [Python](/sdk/python), and [Rust](/sdk/rust) SDKs provide native support.
 
@@ -81,7 +81,7 @@ Yes. See the [server quickstart](/quickstart/server) to start accepting payments
 
 ## Is MPP an IETF standard?
 
-The core Payment HTTP Authentication Scheme is being submitted to the IETF as an internet standard. Payment method specifications and intent specifications (charge, session, authorize) are separate documents that anyone can author and publish independently—they do not require IETF approval. This mirrors how the web works: HTTP is standardized, but content types and authentication schemes evolve independently.
+The core Payment HTTP Authentication Scheme is on the IETF standards track. Payment method specifications and intent specifications (charge, session, authorize) are separate documents that anyone can author and publish independently—they do not require IETF approval. This mirrors how the web works: HTTP is standardized, but content types and authentication schemes evolve independently.
 
 ## Can I use MPP outside of HTTP?
 
