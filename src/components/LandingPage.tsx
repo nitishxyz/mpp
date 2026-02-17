@@ -161,6 +161,7 @@ function LandingStyles() {
 					background-color: var(--vocs-background-color-primary) !important;
 				}
 				.lockup-stacked { max-width: 320px; margin: 0 auto; }
+				.hero-right { align-items: center !important; }
 				.co-designed-by { padding-top: 64px; }
 				.not-prose p { font-size: 17px; }
 				.not-prose .text-sm { font-size: 15px; }
@@ -282,7 +283,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
           </div>
 
           {/* Right pane — hero content (staggers in after CLI) */}
-          <div className="flex-[9] min-w-0 order-first lg:order-last text-center lg:text-left flex flex-col justify-center gap-6">
+          <div className="hero-right flex-[9] min-w-0 order-first lg:order-last text-center lg:text-left flex flex-col items-start justify-center gap-6">
             {/* Co-designed by */}
             <div style={anim(shouldAnimate, 800, 800)}>
               <CoDesignedBy shouldAnimate={false} />
@@ -290,7 +291,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
 
             {/* Lockup */}
             <div
-              className="mx-auto lg:mx-0"
+              className=""
               style={{
                 width: "min(300px, 88vw)",
                 ...anim(shouldAnimate, 1000, 900),
