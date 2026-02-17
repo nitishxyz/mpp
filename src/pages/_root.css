@@ -450,23 +450,17 @@ pre[data-v] {
   white-space: nowrap;
 }
 
-/* Agents page — fixed column widths so endpoint column aligns across tables */
-.service-tables {
-  display: contents;
-}
-
-.service-tables table {
-  table-layout: fixed;
-}
-
-.service-tables table td:first-child,
-.service-tables table th:first-child {
+/* Fixed width for service name column */
+[data-v-content] table td:first-child,
+[data-v-content] table th:first-child {
   width: 9rem;
+  min-width: 9rem;
 }
 
-.service-tables table th:nth-child(3),
-.service-tables table td:nth-child(3) {
-  width: 16rem;
+/* Endpoint column — min 210px, left-aligned so it lines up across tables */
+[data-v-content] table th:nth-child(3),
+[data-v-content] table td:nth-child(3) {
+  min-width: 210px;
   text-align: left;
 }
 
