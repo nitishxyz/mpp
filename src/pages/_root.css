@@ -446,7 +446,6 @@ pre[data-v] {
 
 [data-v-content] table {
   width: 100% !important;
-  table-layout: fixed;
 }
 
 [data-v-content] table td,
@@ -454,15 +453,18 @@ pre[data-v] {
   white-space: nowrap;
 }
 
-/* Fixed width for service name column */
-[data-v-content] table td:first-child,
-[data-v-content] table th:first-child {
+/* Agents page — fixed column widths so endpoint column aligns across tables */
+.service-tables table {
+  table-layout: fixed;
+}
+
+.service-tables table td:first-child,
+.service-tables table th:first-child {
   width: 9rem;
 }
 
-/* Endpoint / 3rd column — fixed width so it aligns across tables */
-[data-v-content] table th:nth-child(3),
-[data-v-content] table td:nth-child(3) {
+.service-tables table th:nth-child(3),
+.service-tables table td:nth-child(3) {
   width: 16rem;
   text-align: left;
 }
