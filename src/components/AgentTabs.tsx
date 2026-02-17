@@ -104,39 +104,25 @@ function AmpLogo({ className }: { className?: string }) {
   );
 }
 
-const AGENT_PROMPT = `"Add ${SETUP_URL} to my SKILLS.md for future reference. Use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed."`;
+const SETUP_PROMPT = `"Add ${SETUP_URL} to my SKILLS.md for future reference."`;
+const TASK_PROMPT = `"Use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed."`;
 
 const AGENTS = [
-  {
-    label: "Claude",
-    bin: "claude",
-    args: "-p",
-    icon: ClaudeLogo,
-    prompt: AGENT_PROMPT,
-  },
-  {
-    label: "Codex",
-    bin: "codex",
-    args: "--full-auto",
-    icon: CodexLogo,
-    prompt: AGENT_PROMPT,
-  },
-  {
-    label: "Amp",
-    bin: "amp",
-    args: null,
-    icon: AmpLogo,
-    prompt: AGENT_PROMPT,
-  },
+  { label: "Claude", bin: "claude", args: "-p", icon: ClaudeLogo },
+  { label: "Codex", bin: "codex", args: "--full-auto", icon: CodexLogo },
+  { label: "Amp", bin: "amp", args: null, icon: AmpLogo },
 ];
 
 export function AgentTabs() {
   const [active, setActive] = useState(0);
   const agent = AGENTS[active];
-  const fullPrompt = [agent.bin, agent.args, agent.prompt]
+  const setupCmd = [agent.bin, agent.args, SETUP_PROMPT]
     .filter(Boolean)
     .join(" ");
-  const allSteps = `${PRESTO_INSTALL} && ${PRESTO_LOGIN} && ${fullPrompt}`;
+  const taskCmd = [agent.bin, agent.args, TASK_PROMPT]
+    .filter(Boolean)
+    .join(" ");
+  const allSteps = `${PRESTO_INSTALL} && ${PRESTO_LOGIN} && ${setupCmd} && ${taskCmd}`;
 
   return (
     <div className="not-prose flex flex-col gap-3" style={{ maxWidth: 620 }}>
@@ -220,6 +206,33 @@ export function AgentTabs() {
               marginTop: 8,
             }}
           >
+            # setup
+          </div>
+          <div>
+            <span style={{ color: AGENT_COLOR }}>{agent.bin}</span>
+            {agent.args && (
+              <span
+                style={{
+                  color: "var(--vocs-text-color-heading)",
+                  opacity: 0.6,
+                }}
+              >
+                {" "}
+                {agent.args}
+              </span>
+            )}
+            <span style={{ color: "var(--vocs-text-color-heading)" }}>
+              {" "}
+              {SETUP_PROMPT}
+            </span>
+          </div>
+          <div
+            style={{
+              color: "var(--vocs-text-color-muted)",
+              opacity: 0.5,
+              marginTop: 8,
+            }}
+          >
             # try it
           </div>
           <div>
@@ -237,7 +250,7 @@ export function AgentTabs() {
             )}
             <span style={{ color: "var(--vocs-text-color-heading)" }}>
               {" "}
-              {agent.prompt}
+              {TASK_PROMPT}
             </span>
           </div>
         </div>

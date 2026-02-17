@@ -1183,39 +1183,37 @@ function AgentTabs() {
   const { activeAgent: active, setActiveAgent: setActive } =
     useContext(AgentContext);
   const [copied, setCopied] = useState(false);
-  const prompt = `"Add ${SETUP_URL} to my SKILLS.md for future reference. Use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed."`;
-  const displayPrompt = `"Use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed."`;
+  const setupPrompt = `"Add ${SETUP_URL} to my SKILLS.md for future reference."`;
+  const taskPrompt = `"Use fal.ai to generate a logo for my startup called 'Moonshot Labs' - modern, minimal, space themed."`;
+  const displayPrompt = taskPrompt;
   const commands = [
     {
       label: "Claude",
       bin: "claude",
       args: "-p",
-      str: prompt,
-      displayStr: displayPrompt,
       icon: ClaudeLogo,
     },
     {
       label: "Codex",
       bin: "codex",
       args: "--full-auto",
-      str: prompt,
-      displayStr: displayPrompt,
       icon: OpenAILogo,
     },
     {
       label: "Amp",
       bin: "amp",
       args: null,
-      str: prompt,
-      displayStr: displayPrompt,
       icon: AmpLogo,
     },
   ];
   const cmd = commands[active];
-  const fullCommand = [cmd.bin, cmd.args, cmd.str].filter(Boolean).join(" ");
+  const setupCmd = [cmd.bin, cmd.args, setupPrompt]
+    .filter(Boolean)
+    .join(" ");
+  const taskCmd = [cmd.bin, cmd.args, taskPrompt].filter(Boolean).join(" ");
   const handleCopy = () => {
     navigator.clipboard.writeText(
-      `${PRESTO_INSTALL} && ${PRESTO_LOGIN} && ${fullCommand}`,
+      `${PRESTO_INSTALL} && ${PRESTO_LOGIN} && ${setupCmd} && ${taskCmd}`,
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -1294,7 +1292,7 @@ function AgentTabs() {
           )}
           <span style={{ color: "var(--vocs-text-color-heading)" }}>
             {" "}
-            {cmd.displayStr}
+            {displayPrompt}
           </span>
         </span>
         <span
