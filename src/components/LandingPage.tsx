@@ -290,6 +290,7 @@ function Hero({ shouldAnimate }: { shouldAnimate: boolean }) {
 
             {/* Lockup */}
             <div
+              className="mx-auto lg:mx-0"
               style={{
                 width: "min(300px, 88vw)",
                 ...anim(shouldAnimate, 1000, 900),
