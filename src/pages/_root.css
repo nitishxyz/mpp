@@ -173,10 +173,10 @@ a[class*="rounded-md"][class*="border"]:hover {
 }
 
 /* Links in docs content get persistent underlines for visibility */
-[data-v-content] a:not([data-v-card]):not([class*="vocs:rounded-md"]) {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-thickness: 1px;
+[data-v-content] a[data-v-link] {
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+  text-decoration-thickness: 1px !important;
 }
 [data-v-content] a:hover {
   text-decoration: underline;

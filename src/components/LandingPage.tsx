@@ -854,7 +854,11 @@ function DesktopTooltip({
     .filter(Boolean)
     .join(" ");
   const prefix = [agent.bin, agent.args].filter(Boolean).join(" ");
-  const setupCmd = [agent.bin, agent.args, `"Add ${SETUP_URL} to my SKILLS.md for future reference."`]
+  const setupCmd = [
+    agent.bin,
+    agent.args,
+    `"Add ${SETUP_URL} to my SKILLS.md for future reference."`,
+  ]
     .filter(Boolean)
     .join(" ");
 
@@ -971,7 +975,11 @@ function MobileServiceCard({
     .join(" ");
   const prefix = [agent.bin, agent.args].filter(Boolean).join(" ");
   const Logo = service.logo;
-  const setupCmd = [agent.bin, agent.args, `"Add ${SETUP_URL} to my SKILLS.md for future reference."`]
+  const setupCmd = [
+    agent.bin,
+    agent.args,
+    `"Add ${SETUP_URL} to my SKILLS.md for future reference."`,
+  ]
     .filter(Boolean)
     .join(" ");
 
