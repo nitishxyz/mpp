@@ -206,15 +206,7 @@
           "description": "Human-readable pricing note."
         }
       },
-      "additionalProperties": false,
-      "if": {
-        "not": {
-          "required": ["dynamic"]
-        }
-      },
-      "then": {
-        "required": ["amount"]
-      }
+      "additionalProperties": false
     },
 
     "PaymentMethod": {
