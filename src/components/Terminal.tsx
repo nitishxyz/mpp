@@ -4,13 +4,7 @@ import { Receipt } from "mppx";
 import type { ReactNode } from "react";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { BlockCursorInput } from "./BlockCursorInput";
-import {
-  ARTICLE_SUMMARIES,
-  CHAT_RESPONSES,
-  IMAGE_RESULTS,
-  SEARCH_RESULTS,
-  SPINNER_FRAMES,
-} from "./terminal-data";
+import { ASCII_ARTS, POEMS, SPINNER_FRAMES } from "./terminal-data";
 
 // ---------------------------------------------------------------------------
 // Demo client hook
@@ -60,7 +54,7 @@ function timeAgo(iso: string) {
 // ---------------------------------------------------------------------------
 
 const linkPattern =
-  /(https?:\/\/\S+|mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
+  /(mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
 
 function CssTriangle() {
   return (
@@ -78,29 +72,10 @@ function CssTriangle() {
   );
 }
 
-const SUMMARY_LABEL_WIDTH = "5.5em";
 const QUICKSTART_LABEL_WIDTH = "13em";
 
 function BlankLine() {
   return <div className="h-6" />;
-}
-
-function SummaryRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <p style={{ color: "var(--term-gray6)" }}>
-      {"\u00a0\u00a0"}
-      <span style={{ display: "inline-block", width: SUMMARY_LABEL_WIDTH }}>
-        {label}
-      </span>
-      {children}
-    </p>
-  );
 }
 
 function TruncatedHex({
@@ -127,9 +102,8 @@ function renderText(text: string): ReactNode {
   return parts.map((part, i) => {
     linkPattern.lastIndex = 0;
     if (!linkPattern.test(part)) return part;
-    const href = part.startsWith("http")
-      ? part
-      : part === "Tempo.xyz"
+    const href =
+      part === "Tempo.xyz"
         ? "https://tempo.xyz"
         : part === "Stripe.com"
           ? "https://stripe.com"
@@ -183,6 +157,32 @@ function QuickstartOutput() {
 }
 
 // ---------------------------------------------------------------------------
+// Persist state — skip re-animation on refresh within 24h
+// ---------------------------------------------------------------------------
+
+const PERSIST_KEY = "mpp-terminal-visited";
+const PERSIST_TTL = 24 * 60 * 60 * 1000;
+
+function hasVisitedRecently(): boolean {
+  try {
+    const stored = localStorage.getItem(PERSIST_KEY);
+    if (!stored) return false;
+    const ts = Number(stored);
+    return Date.now() - ts < PERSIST_TTL;
+  } catch {
+    return false;
+  }
+}
+
+function markVisited() {
+  try {
+    localStorage.setItem(PERSIST_KEY, String(Date.now()));
+  } catch {
+    // localStorage unavailable
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Typewriter commands
 // ---------------------------------------------------------------------------
 
@@ -193,7 +193,7 @@ const JITTER = 35;
 const LINE_DELAY = 500;
 
 function useTypewriter() {
-  const skip = SKIP_ANIMATION;
+  const skip = SKIP_ANIMATION || hasVisitedRecently();
   const [showLogin, setShowLogin] = useState(skip);
   const [showPrompt, setShowPrompt] = useState(skip);
   const [started, setStarted] = useState(skip);
@@ -201,6 +201,11 @@ function useTypewriter() {
   const [charIndex, setCharIndex] = useState(0);
   const done = started && lineIndex >= lines.length;
 
+  useEffect(() => {
+    if (done) markVisited();
+  }, [done]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: skip is stable (derived from env var + localStorage)
   useEffect(() => {
     if (skip) return;
     const t1 = setTimeout(() => setShowLogin(true), 500);
@@ -327,8 +332,7 @@ function normalizeUrl(input: string): string {
     .replace(/\/.*$/, "");
 }
 
-/** @internal kept for cleanup task */
-export function lookupCompany(url: string): string[] {
+function lookupCompany(url: string): string[] {
   const domain = normalizeUrl(url);
   const company = COMPANIES[domain];
   if (company) {
@@ -377,10 +381,8 @@ function createCyclicPicker<T>(items: T[], first?: T): () => T {
   };
 }
 
-const pickChat = createCyclicPicker(CHAT_RESPONSES);
-const pickImage = createCyclicPicker(IMAGE_RESULTS);
-const pickSearch = createCyclicPicker(SEARCH_RESULTS);
-const pickArticle = createCyclicPicker(ARTICLE_SUMMARIES);
+const pickPoem = createCyclicPicker(POEMS, POEMS[POEMS.length - 1]);
+const pickAscii = createCyclicPicker(ASCII_ARTS);
 
 // ---------------------------------------------------------------------------
 // Step components
@@ -412,7 +414,6 @@ const COST_PER_TOKEN = 0.0001;
 
 function AsyncSteps({
   endpoint,
-  liveEndpoint,
   isRestart = false,
   output,
   walletState,
@@ -425,7 +426,6 @@ function AsyncSteps({
   onTxHash,
 }: {
   endpoint: string;
-  liveEndpoint?: string;
   isRestart?: boolean;
   output: string[];
   walletState: WalletState;
@@ -449,9 +449,11 @@ function AsyncSteps({
     const needsFunding = !funded || walletState.balance <= 0;
     const d = (ms: number) => (SKIP_ANIMATION ? 0 : ms);
     const s: { key: string; delay: number }[] = [];
-    s.push({ key: "wallet", delay: isRestart ? 0 : d(600) });
-    if (needsFunding || (completed && !isRestart))
-      s.push({ key: "fund", delay: demoClient ? 0 : d(1500) });
+    if (!funded) {
+      s.push({ key: "wallet", delay: isRestart ? 0 : d(600) });
+      if (needsFunding || (completed && !isRestart))
+        s.push({ key: "fund", delay: demoClient ? 0 : d(1500) });
+    }
     s.push({ key: "req402", delay: d(1200) });
     if (paymentChannel) {
       s.push({ key: "channel", delay: d(1200) });
@@ -528,7 +530,9 @@ function AsyncSteps({
 
         let liveContent: string[] = [];
         try {
-          const demoEndpoint = liveEndpoint ?? endpoint;
+          const demoEndpoint = paymentChannel
+            ? "/api/demo/poem"
+            : "/api/demo/ascii";
 
           if (paymentChannel) {
             // Use session SSE for bidirectional voucher flow
@@ -566,14 +570,27 @@ function AsyncSteps({
 
             // Close channel and capture the real close tx hash
             try {
+              console.log(
+                "[DEBUG] before close - opened:",
+                demoClient.session.opened,
+                "channelId:",
+                demoClient.session.channelId,
+              );
               const closeReceipt = await demoClient.session.close();
+              console.log(
+                "[DEBUG] closeReceipt:",
+                JSON.stringify(closeReceipt),
+              );
+              console.log("[DEBUG] sseReceipt:", JSON.stringify(sseReceipt));
               const hash =
                 closeReceipt?.txHash ?? sseReceipt?.txHash ?? undefined;
+              console.log("[DEBUG] resolved hash:", hash);
               if (hash) {
                 setTxHash(hash);
                 onTxHash?.(hash);
               }
-            } catch {
+            } catch (e) {
+              console.error("[DEBUG] session.close() error:", e);
               // Channel close failed — keep random hash
             }
           } else {
@@ -594,8 +611,17 @@ function AsyncSteps({
             liveContent = data.lines;
             onContentReceived?.(liveContent);
           }
-        } catch {
-          // live fetch failed — use simulated content
+        } catch (e) {
+          console.error("Live fetch failed, using simulated content:", e);
+          if (paymentChannel) {
+            const fallback = pickPoem();
+            onContentReceived?.(fallback);
+            setStreamChars(fallback.join("\n").length);
+            setTokenCount(Math.ceil(fallback.join("\n").length / 4));
+          } else {
+            const fallback = pickAscii();
+            onContentReceived?.(fallback);
+          }
         }
 
         if (!paymentChannel) {
@@ -610,15 +636,13 @@ function AsyncSteps({
             await new Promise((r) => setTimeout(r, 600));
           }
         }
-      } catch {
-        // live demo error
+      } catch (e) {
+        console.error("Live demo error:", e);
       }
     })();
   }, [
     demoClient,
     completed,
-    endpoint,
-    liveEndpoint,
     steps,
     paymentChannel,
     walletState.setBalance,
@@ -711,7 +735,8 @@ function AsyncSteps({
       {atOrPast("req402") && (
         <>
           <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={atStep("req402")} /> GET {endpoint}
+            <StepIcon spinning={atStep("req402")} />{" "}
+            <span style={{ color: "var(--term-blue9)" }}>GET</span> {endpoint}
             {pastStep("req402") && (
               <>
                 {" "}
@@ -729,24 +754,20 @@ function AsyncSteps({
                 paddingLeft: "2ch",
               }}
             >
-              WWW-Authenticate: Payment
+              <span style={{ color: "var(--term-gray9)" }}>
+                WWW-Authenticate:
+              </span>{" "}
+              Payment
             </p>
           )}
         </>
       )}
       {atOrPast("channel") && (
-        <>
-          <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={atStep("channel")} /> Opening payment channel
-          </p>
+        <p style={{ color: "var(--term-gray6)" }}>
+          <StepIcon spinning={atStep("channel")} /> Opening payment channel
           {pastStep("channel") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              channel{" "}
+            <>
+              {" — "}
               <a
                 href={`https://explore.tempo.xyz/receipt/${channelTxHash}`}
                 target="_blank"
@@ -757,34 +778,18 @@ function AsyncSteps({
                   {channelTxHash}
                 </TruncatedHex>
               </a>
-            </p>
-          )}
-          {pastStep("channel") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              deposit{" "}
+              {" · "}Deposit{" "}
               <span style={{ color: "var(--term-amber9)" }}>5 USDC</span>
-            </p>
+            </>
           )}
-        </>
+        </p>
       )}
       {atOrPast("pay") && (
-        <>
-          <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={atStep("pay")} /> Fulfilling payment
-          </p>
+        <p style={{ color: "var(--term-gray6)" }}>
+          <StepIcon spinning={atStep("pay")} /> Fulfilling payment
           {pastStep("pay") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              tx{" "}
+            <>
+              {" — "}
               <a
                 href={`https://explore.tempo.xyz/receipt/${txHash}`}
                 target="_blank"
@@ -793,26 +798,18 @@ function AsyncSteps({
               >
                 <TruncatedHex hash={txHash}>{txHash}</TruncatedHex>
               </a>
-            </p>
-          )}
-          {pastStep("pay") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              amount{" "}
+              {" · "}
               <span style={{ color: "var(--term-amber9)" }}>0.001 USDC</span>
-            </p>
+            </>
           )}
-        </>
+        </p>
       )}
       {/* biome-ignore format: contains unicode → */}
       {atOrPast("req200") && (
         <>
           <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={atStep("req200")} /> GET {endpoint}
+            <StepIcon spinning={atStep("req200")} />{" "}
+            <span style={{ color: "var(--term-blue9)" }}>GET</span> {endpoint}
             {pastStep("req200") && (
               <>
                 {" "}
@@ -821,7 +818,9 @@ function AsyncSteps({
             )}
           </p>
           <p style={{ color: "var(--term-gray6)" }}>
-            <span className="inline-block w-[1ch]" /> Authorization: Payment
+            <span className="inline-block w-[1ch]" />{" "}
+            <span style={{ color: "var(--term-gray9)" }}>Authorization:</span>{" "}
+            Payment
           </p>
         </>
       )}
@@ -832,7 +831,7 @@ function AsyncSteps({
             className="whitespace-pre-wrap"
             style={{ color: "var(--term-gray10)" }}
           >
-            {renderText(outputText)}
+            {outputText}
           </pre>
         </>
       )}
@@ -866,46 +865,27 @@ function AsyncSteps({
           <p style={{ color: "var(--term-gray6)" }}>
             <StepIcon spinning={atStep("closeChannel")} /> Closing payment
             channel
+            {pastStep("closeChannel") && (
+              <>
+                {" — "}
+                <a
+                  href={`https://explore.tempo.xyz/receipt/${txHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  <TruncatedHex hash={txHash}>{txHash}</TruncatedHex>
+                </a>
+              </>
+            )}
           </p>
           {pastStep("closeChannel") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              tx{" "}
-              <a
-                href={`https://explore.tempo.xyz/receipt/${txHash}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline"
-              >
-                <TruncatedHex hash={txHash}>{txHash}</TruncatedHex>
-              </a>
-            </p>
-          )}
-          {pastStep("closeChannel") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              spent{" "}
+            <p style={{ color: "var(--term-gray6)", paddingLeft: "2ch" }}>
+              Spent{" "}
               <span style={{ color: "var(--term-amber9)" }}>
                 {(tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
               </span>
-            </p>
-          )}
-          {pastStep("closeChannel") && (
-            <p
-              style={{
-                color: "var(--term-gray6)",
-                paddingLeft: "2ch",
-              }}
-            >
-              refunded{" "}
+              {" · "}Refunded{" "}
               <span style={{ color: "var(--term-amber9)" }}>
                 {(5 - tokenCount * COST_PER_TOKEN).toFixed(4)} USDC
               </span>
@@ -1204,7 +1184,8 @@ function StripeSteps({
       {atOrPast("req402") && (
         <>
           <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={atStep("req402")} /> GET {endpoint}
+            <StepIcon spinning={atStep("req402")} />{" "}
+            <span style={{ color: "var(--term-blue9)" }}>GET</span> {endpoint}
             {pastStep("req402") && (
               <>
                 {" "}
@@ -1222,7 +1203,10 @@ function StripeSteps({
                 paddingLeft: "2ch",
               }}
             >
-              WWW-Authenticate: Payment method=stripe intent=charge
+              <span style={{ color: "var(--term-gray9)" }}>
+                WWW-Authenticate:
+              </span>{" "}
+              Payment method=stripe intent=charge
             </p>
           )}
         </>
@@ -1287,7 +1271,8 @@ function StripeSteps({
       {atOrPast("req200") && (
         <>
           <p style={{ color: "var(--term-gray6)" }}>
-            <StepIcon spinning={atStep("req200")} /> GET {endpoint}
+            <StepIcon spinning={atStep("req200")} />{" "}
+            <span style={{ color: "var(--term-blue9)" }}>GET</span> {endpoint}
             {pastStep("req200") && (
               <>
                 {" "}
@@ -1296,7 +1281,9 @@ function StripeSteps({
             )}
           </p>
           <p style={{ color: "var(--term-gray6)" }}>
-            <span className="inline-block w-[1ch]" /> Authorization: Payment
+            <span className="inline-block w-[1ch]" />{" "}
+            <span style={{ color: "var(--term-gray9)" }}>Authorization:</span>{" "}
+            Payment
           </p>
         </>
       )}
@@ -1318,7 +1305,7 @@ function StripeSteps({
                       textIndent: `-${indent}ch`,
                     }}
                   >
-                    {renderText(line)}
+                    {line}
                   </pre>
                 );
               }
@@ -1328,7 +1315,7 @@ function StripeSteps({
                   key={i}
                   className="whitespace-pre-wrap"
                 >
-                  {renderText(line)}
+                  {line}
                 </pre>
               );
             })}
@@ -1363,28 +1350,7 @@ type Run = {
   txHash?: string;
 };
 
-function runCost(run: Run): number {
-  if (run.chosen === "Chat with AI") {
-    const tokens = Math.ceil(run.output.join("\n").length / 4);
-    return tokens * COST_PER_TOKEN;
-  }
-  if (run.chosen === "Generate image") return 0.003;
-  if (run.chosen === "Search the web") return 0.005;
-  if (run.chosen === "Summarize article") return LOOKUP_COST;
-  if (run.chosen === "Write poem") {
-    const tokens = Math.ceil(run.output.join("\n").length / 4);
-    return tokens * COST_PER_TOKEN;
-  }
-  if (run.chosen === "Create ASCII art") return 0.001;
-  if (run.chosen === "Lookup company") return LOOKUP_COST;
-  return 0;
-}
-
 const METHOD_LABELS: Record<string, string> = {
-  "Chat with AI": "Tempo session",
-  "Generate image": "Tempo charge",
-  "Search the web": "Tempo charge",
-  "Summarize article": "Stripe charge",
   "Write poem": "Tempo session",
   "Create ASCII art": "Tempo charge",
   "Lookup company": "Stripe charge",
@@ -1403,16 +1369,12 @@ function scrollTerminalIntoView() {
 function Wizard({
   options,
   demoClient,
-  onRestart,
-  address,
   walletState,
   savedCard,
   setSavedCard,
 }: {
   options: string[];
   demoClient?: DemoClient | null;
-  onRestart?: () => void;
-  address: string;
   walletState: WalletState;
   savedCard: SavedCard | undefined;
   setSavedCard: (card: SavedCard | undefined) => void;
@@ -1426,11 +1388,11 @@ function Wizard({
   const urlRef = useRef<HTMLInputElement>(null);
   const currentTxHashRef = useRef<string | undefined>(undefined);
   const [walletExistedAtMount] = useState(() => walletState.created);
-  const [quit, setQuit] = useState(false);
+  const [showContinuePrompt, setShowContinuePrompt] = useState(false);
   const [runs, setRuns] = useState<Run[]>([]);
   const [runKey, setRunKey] = useState(0);
 
-  const currentOptions = runs.length > 0 ? [...options, "Quit"] : options;
+  const currentOptions = options;
 
   const handleContentReceived = (content: string[]) => {
     setChosenOutput(content);
@@ -1438,57 +1400,29 @@ function Wizard({
 
   const confirm = (index?: number) => {
     const opt = currentOptions[index ?? selected];
-    if (opt === "Quit") {
-      const usdcSpent = runs
-        .filter(
-          (r) =>
-            r.chosen !== "Lookup company" && r.chosen !== "Summarize article",
-        )
-        .reduce((sum, r) => sum + runCost(r), 0);
-      walletState.setBalance(INITIAL_BALANCE - usdcSpent);
-      setQuit(true);
-      document
-        .querySelector(".landing-ctas")
-        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (opt === "Lookup company") {
+      setWaitingForUrl(true);
+      setUrlInput("");
+      setTimeout(() => urlRef.current?.focus(), 0);
       return;
     }
-    if (opt === "Write poem" || opt === "Create ASCII art") {
-      if (demoClient) {
-        setChosenOutput([]);
-      } else {
-        if (opt === "Write poem") setChosenOutput(pickChat());
-        else setChosenOutput(pickImage());
-      }
-      setChosenUrl(undefined);
-      setChosen(opt);
-      scrollTerminalIntoView();
-      return;
+    if (demoClient) {
+      setChosenOutput([]);
+    } else {
+      const output = opt === "Write poem" ? pickPoem() : pickAscii();
+      setChosenOutput(output);
     }
-    setWaitingForUrl(true);
-    setUrlInput("");
-    setTimeout(() => urlRef.current?.focus(), 0);
+    setChosen(opt);
+    scrollTerminalIntoView();
   };
 
   const submitUrl = () => {
     if (!urlInput.trim()) return;
-    const opt = currentOptions[selected];
-
-    if (demoClient) {
-      setChosenOutput([]); // live mode — content comes from API
-    } else {
-      // simulated mode — pick from canned data
-      if (opt === "Chat with AI" || opt === "Write poem")
-        setChosenOutput(pickChat());
-      else if (opt === "Generate image" || opt === "Create ASCII art")
-        setChosenOutput(pickImage());
-      else if (opt === "Search the web") setChosenOutput(pickSearch());
-      else if (opt === "Summarize article" || opt === "Lookup company")
-        setChosenOutput(pickArticle());
-    }
-
+    const output = lookupCompany(urlInput);
+    setChosenOutput(output);
     setChosenUrl(urlInput.trim());
     setWaitingForUrl(false);
-    setChosen(opt);
+    setChosen("Lookup company");
     scrollTerminalIntoView();
   };
 
@@ -1508,19 +1442,21 @@ function Wizard({
     setRunKey((k) => k + 1);
     setChosen(null);
     setSelected(0);
+    setShowContinuePrompt(true);
   };
 
   useEffect(() => {
-    if (!quit) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter") onRestart?.();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [quit, onRestart]);
-
-  useEffect(() => {
-    if (chosen || quit || waitingForUrl) return;
+    if (chosen || waitingForUrl) return;
+    if (showContinuePrompt) {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Enter") {
+          setShowContinuePrompt(false);
+          scrollTerminalIntoView();
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp") {
         e.preventDefault();
@@ -1559,16 +1495,11 @@ function Wizard({
     },
   ) => {
     const isActive = !opts?.completed;
-    if (choice === "Chat with AI" || choice === "Write poem") {
-      const isPoem = choice === "Write poem";
-      const liveEndpoint = isPoem
-        ? `/api/demo/poem?prompt=${encodeURIComponent(opts?.url ?? "")}`
-        : `/api/demo/chat?prompt=${encodeURIComponent(opts?.url ?? "")}`;
+    if (choice === "Write poem")
       return (
         <AsyncSteps
           key={key}
-          endpoint={isPoem ? "/api/poem" : "/api/chat"}
-          liveEndpoint={liveEndpoint}
+          endpoint="/api/poem"
           isRestart={opts?.isRestart}
           output={output}
           walletState={walletState}
@@ -1587,17 +1518,11 @@ function Wizard({
           }
         />
       );
-    }
-    if (choice === "Generate image" || choice === "Create ASCII art") {
-      const isAscii = choice === "Create ASCII art";
-      const liveEndpoint = isAscii
-        ? `/api/demo/ascii?prompt=${encodeURIComponent(opts?.url ?? "")}`
-        : `/api/demo/image?prompt=${encodeURIComponent(opts?.url ?? "")}`;
+    if (choice === "Create ASCII art")
       return (
         <AsyncSteps
           key={key}
-          endpoint={isAscii ? "/api/ascii" : "/api/image"}
-          liveEndpoint={liveEndpoint}
+          endpoint="/api/ascii"
           isRestart={opts?.isRestart}
           output={output}
           walletState={walletState}
@@ -1615,39 +1540,11 @@ function Wizard({
           }
         />
       );
-    }
-    if (choice === "Search the web")
-      return (
-        <AsyncSteps
-          key={key}
-          endpoint="/api/search"
-          liveEndpoint={`/api/demo/search?query=${encodeURIComponent(opts?.url ?? "")}`}
-          isRestart={opts?.isRestart}
-          output={output}
-          walletState={walletState}
-          onDone={opts?.onDone}
-          completed={opts?.completed}
-          demoClient={isActive ? demoClient : undefined}
-          onContentReceived={isActive ? handleContentReceived : undefined}
-          initialTxHash={opts?.txHash}
-          onTxHash={
-            isActive
-              ? (hash) => {
-                  currentTxHashRef.current = hash;
-                }
-              : undefined
-          }
-        />
-      );
-    if (choice === "Summarize article" || choice === "Lookup company") {
-      const endpoint =
-        choice === "Lookup company"
-          ? `/api/demo/lookup?url=${encodeURIComponent(opts?.url ?? "")}`
-          : `/api/demo/article?url=${encodeURIComponent(opts?.url ?? "")}`;
+    if (choice === "Lookup company")
       return (
         <StripeSteps
           key={key}
-          endpoint={endpoint}
+          endpoint={`/api/demo/lookup?url=${encodeURIComponent(opts?.url ?? "")}`}
           output={output}
           onDone={opts?.onDone}
           completed={opts?.completed}
@@ -1657,14 +1554,13 @@ function Wizard({
           onContentReceived={isActive ? handleContentReceived : undefined}
         />
       );
-    }
     return null;
   };
 
   return (
     <div className="flex flex-col">
       {runs.map((run, runIndex) => {
-        const runOptions = runIndex > 0 ? [...options, "Quit"] : options;
+        const runOptions = options;
         return (
           <div key={run.key}>
             <p style={{ color: "var(--term-gray10)" }}>
@@ -1697,12 +1593,7 @@ function Wizard({
             </div>
             {run.url && (
               <p style={{ color: "var(--term-gray6)" }}>
-                {run.chosen === "Search the web"
-                  ? "Enter query: "
-                  : run.chosen === "Summarize article" ||
-                      run.chosen === "Lookup company"
-                    ? "Enter URL: "
-                    : "Enter prompt: "}
+                Enter URL:{" "}
                 <span style={{ color: "var(--term-gray10)" }}>{run.url}</span>
               </p>
             )}
@@ -1717,7 +1608,19 @@ function Wizard({
         );
       })}
 
-      {!quit && (
+      {showContinuePrompt ? (
+        <button
+          type="button"
+          className="w-fit cursor-pointer text-left"
+          style={{ color: "var(--term-gray6)" }}
+          onClick={() => {
+            setShowContinuePrompt(false);
+            scrollTerminalIntoView();
+          }}
+        >
+          Run another demo? [Press Enter]
+        </button>
+      ) : (
         <div>
           <p style={{ color: "var(--term-gray10)" }}>
             What would you like to do?
@@ -1761,15 +1664,8 @@ function Wizard({
             </p>
           )}
           {waitingForUrl && (
-            <p className="flex" style={{ color: "var(--term-gray6)" }}>
-              <span className="shrink-0 whitespace-pre">
-                {currentOptions[selected] === "Search the web"
-                  ? "Enter query: "
-                  : currentOptions[selected] === "Summarize article" ||
-                      currentOptions[selected] === "Lookup company"
-                    ? "Enter URL: "
-                    : "Enter prompt: "}
-              </span>
+            <p style={{ color: "var(--term-gray6)" }}>
+              Enter URL:{" "}
               <BlockCursorInput
                 ref={urlRef}
                 type="text"
@@ -1778,42 +1674,10 @@ function Wizard({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") submitUrl();
                 }}
-                className="term-url-input min-w-0 flex-1 bg-transparent outline-none"
+                className="term-url-input bg-transparent outline-none"
                 style={{ color: "var(--term-gray10)" }}
-                placeholder={
-                  currentOptions[selected] === "Chat with AI" ||
-                  currentOptions[selected] === "Write poem"
-                    ? "what are micropayments?"
-                    : currentOptions[selected] === "Generate image" ||
-                        currentOptions[selected] === "Create ASCII art"
-                      ? "a neon cityscape at night"
-                      : currentOptions[selected] === "Search the web"
-                        ? "AI agent payments"
-                        : "stripe.com"
-                }
+                placeholder="stripe.com"
               />
-            </p>
-          )}
-          {chosen === "Summarize article" && chosenUrl && (
-            <p style={{ color: "var(--term-gray6)" }}>
-              Enter URL:{" "}
-              <span style={{ color: "var(--term-gray10)" }}>{chosenUrl}</span>
-            </p>
-          )}
-          {(chosen === "Chat with AI" ||
-            chosen === "Generate image" ||
-            chosen === "Write poem" ||
-            chosen === "Create ASCII art") &&
-            chosenUrl && (
-              <p style={{ color: "var(--term-gray6)" }}>
-                Enter prompt:{" "}
-                <span style={{ color: "var(--term-gray10)" }}>{chosenUrl}</span>
-              </p>
-            )}
-          {chosen === "Search the web" && chosenUrl && (
-            <p style={{ color: "var(--term-gray6)" }}>
-              Enter query:{" "}
-              <span style={{ color: "var(--term-gray10)" }}>{chosenUrl}</span>
             </p>
           )}
           {chosen === "Lookup company" && chosenUrl && (
@@ -1830,110 +1694,25 @@ function Wizard({
             })}
         </div>
       )}
-
-      {quit &&
-        (() => {
-          const usdcSpent = runs
-            .filter(
-              (r) =>
-                r.chosen !== "Lookup company" &&
-                r.chosen !== "Summarize article",
-            )
-            .reduce((sum, r) => sum + runCost(r), 0);
-          const usdSpent = runs
-            .filter(
-              (r) =>
-                r.chosen === "Lookup company" ||
-                r.chosen === "Summarize article",
-            )
-            .reduce((sum, r) => sum + runCost(r), 0);
-          const balance = INITIAL_BALANCE - usdcSpent;
-          return (
-            <div className="flex flex-col">
-              <p style={{ color: "var(--term-gray10)" }}>
-                <strong>Machine Payments Protocol</strong> — open, programmable,
-                Internet-native payments.
-              </p>
-              <p style={{ color: "var(--term-gray10)" }}>
-                {"\u00a0\u00a0"}Spent
-              </p>
-              <SummaryRow label="Total">
-                <span style={{ color: "var(--term-amber9)" }}>
-                  ${(usdcSpent + usdSpent).toFixed(4)}
-                </span>
-              </SummaryRow>
-              <SummaryRow label="Tempo">
-                <span style={{ color: "var(--term-amber9)" }}>
-                  {usdcSpent.toFixed(4)} USDC
-                </span>
-              </SummaryRow>
-              <SummaryRow label="Stripe">
-                <span style={{ color: "var(--term-amber9)" }}>
-                  {usdSpent.toFixed(2)} USD
-                </span>
-              </SummaryRow>
-              <p style={{ color: "var(--term-gray10)" }}>
-                {"\u00a0\u00a0"}Wallet
-              </p>
-              <SummaryRow label="Address">
-                <a
-                  href={`https://explore.tempo.xyz/address/${address}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  <TruncatedHex hash={address}>{address}</TruncatedHex>
-                </a>
-              </SummaryRow>
-              <SummaryRow label="Balance">
-                <span style={{ color: "var(--term-amber9)" }}>
-                  {balance.toFixed(4)} USDC
-                </span>
-              </SummaryRow>
-              <button
-                type="button"
-                className="cursor-pointer text-left"
-                style={{ color: "var(--term-gray6)" }}
-                onClick={() => onRestart?.()}
-              >
-                [Exited — press Enter to restart]
-              </button>
-            </div>
-          );
-        })()}
     </div>
   );
 }
 
 function DiscoverServices({
   demoClient,
-  onRestart,
-  address,
   walletState,
   savedCard,
   setSavedCard,
 }: {
   demoClient?: DemoClient | null;
-  onRestart?: () => void;
-  address: string;
   walletState: WalletState;
   savedCard: SavedCard | undefined;
   setSavedCard: (card: SavedCard | undefined) => void;
 }) {
-  const isClassic =
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("mode") === "classic";
-
-  const options = isClassic
-    ? ["Write poem", "Create ASCII art", "Lookup company"]
-    : ["Chat with AI", "Generate image", "Search the web", "Summarize article"];
-
   return (
     <Wizard
-      options={options}
+      options={["Write poem", "Create ASCII art", "Lookup company"]}
       demoClient={demoClient}
-      onRestart={onRestart}
-      address={address}
       walletState={walletState}
       savedCard={savedCard}
       setSavedCard={setSavedCard}
@@ -1942,14 +1721,128 @@ function DiscoverServices({
 }
 
 // ---------------------------------------------------------------------------
+// Wallet setup (pre-wizard, funds wallet before any demo)
+// ---------------------------------------------------------------------------
+
+function WalletSetup({
+  walletState,
+  demoClient,
+  onDone,
+}: {
+  walletState: WalletState;
+  demoClient?: DemoClient | null;
+  onDone: () => void;
+}) {
+  const [step, setStep] = useState(0);
+  const doneCalled = useRef(false);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    (async () => {
+      walletState.setCreated(true);
+      await new Promise((r) => setTimeout(r, SKIP_ANIMATION ? 0 : 600));
+      setStep(1);
+
+      if (demoClient) {
+        try {
+          await demoClient.fundWallet();
+        } catch (e) {
+          console.error("Live funding failed, continuing:", e);
+        }
+      }
+      walletState.setFunded(true);
+      walletState.setBalance(INITIAL_BALANCE);
+      await new Promise((r) => setTimeout(r, SKIP_ANIMATION ? 0 : 1500));
+      setStep(2);
+    })();
+  }, [demoClient, walletState]);
+
+  useEffect(() => {
+    if (step === 2 && !doneCalled.current) {
+      doneCalled.current = true;
+      onDone();
+    }
+  }, [step, onDone]);
+
+  return (
+    <div className="flex flex-col">
+      <BlankLine />
+      <p style={{ color: "var(--term-gray6)" }}>
+        <StepIcon spinning={step === 0} /> Creating wallet{" "}
+        <a
+          href={`https://explore.tempo.xyz/address/${walletState.address}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline"
+        >
+          <TruncatedHex hash={walletState.address}>
+            {walletState.address}
+          </TruncatedHex>
+        </a>
+      </p>
+      {step >= 1 && (
+        <p style={{ color: "var(--term-gray6)" }}>
+          <StepIcon spinning={step === 1} /> Funding wallet with{" "}
+          <span style={{ color: "var(--term-amber9)" }}>100 USDC</span>
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Reset icon (⟲ arrow)
+// ---------------------------------------------------------------------------
+
+function ResetIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      role="img"
+      aria-label="Reset terminal"
+    >
+      <title>Reset</title>
+      <path d="M3 12a9 9 0 1 1 9 9" />
+      <polyline points="3 3 3 12 12 12" />
+    </svg>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Exported Terminal component
 // ---------------------------------------------------------------------------
 
 export function Terminal({ className }: { className?: string }) {
+  const [resetKey, setResetKey] = useState(0);
+  return (
+    <TerminalInner
+      key={resetKey}
+      className={className}
+      onReset={() => setResetKey((k) => k + 1)}
+    />
+  );
+}
+
+function TerminalInner({
+  className,
+  onReset,
+}: {
+  className?: string;
+  onReset: () => void;
+}) {
   const { client: demoClient } = useDemoClient();
   const { showLogin, showPrompt, started, lineIndex, charIndex, done } =
     useTypewriter();
-  const [wizardKey, setWizardKey] = useState(0);
+  const [walletReady, setWalletReady] = useState(false);
   const [address, setAddress] = useState("");
   const [balance, setBalance] = useState(0);
   const [created, setCreated] = useState(false);
@@ -2050,12 +1943,21 @@ export function Terminal({ className }: { className?: string }) {
             className="size-3 rounded-full"
             style={{ backgroundColor: "var(--term-gray4)" }}
           />
+          <button
+            type="button"
+            onClick={onReset}
+            className="ml-auto cursor-pointer transition-opacity hover:opacity-70"
+            style={{ color: "var(--term-gray5)" }}
+            title="Reset terminal"
+          >
+            <ResetIcon />
+          </button>
         </div>
 
         {/* Terminal body */}
         <div
           ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
+          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.90625rem] md:text-[0.99375rem] leading-[1.45rem] md:leading-[1.6rem]"
           style={{
             backgroundColor: "var(--term-bg2)",
           }}
@@ -2074,7 +1976,7 @@ export function Terminal({ className }: { className?: string }) {
             </span>
             <div className="h-2" />
             <p style={{ color: "var(--term-gray6)" }}>
-              mpp.dev@{__COMMIT_SHA__.slice(0, 7)} (released{" "}
+              mpp.sh@{__COMMIT_SHA__.slice(0, 7)} (released{" "}
               {timeAgo(__COMMIT_TIMESTAMP__)})
             </p>
             {showLogin && (
@@ -2085,6 +1987,7 @@ export function Terminal({ className }: { className?: string }) {
                 Last login: Wed Oct 29 22:30:00 1969 on ttys000
               </p>
             )}
+            <BlankLine />
             {showPrompt && !started && (
               <p style={{ color: "var(--term-gray6)" }}>
                 <span style={{ color: "var(--term-gray10)" }}>$ ~ </span>
@@ -2149,20 +2052,29 @@ export function Terminal({ className }: { className?: string }) {
                         }}
                       />
                     </p>
-                    {i === 0 && lineIndex > 0 && <QuickstartOutput />}
+                    {i === 0 && lineIndex > 0 && (
+                      <>
+                        <BlankLine />
+                        <QuickstartOutput />
+                      </>
+                    )}
                   </Fragment>
                 );
               })}
 
             {done && (
-              <DiscoverServices
-                key={wizardKey}
+              <WalletSetup
+                walletState={walletState}
                 demoClient={demoClient}
-                address={address}
+                onDone={() => setWalletReady(true)}
+              />
+            )}
+            {done && walletReady && (
+              <DiscoverServices
+                demoClient={demoClient}
                 walletState={walletState}
                 savedCard={savedCard}
                 setSavedCard={setSavedCard}
-                onRestart={() => setWizardKey((k) => k + 1)}
               />
             )}
           </div>

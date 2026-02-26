@@ -55,13 +55,14 @@ function LandingStyles() {
   return (
     <style>{`
 			[data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
-			[data-v-main] { padding-bottom: 0 !important; }
+			[data-v-main] { padding-bottom: 0 !important; overflow: hidden; }
 			[data-v-main] article[data-v-content] { padding-top: 0 !important; padding-bottom: 0 !important; }
 			[data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
 			[data-v-gutter-top] { position: relative !important; z-index: 50 !important; user-select: none !important; -webkit-user-select: none !important; }
 
 			.landing-hero {
 				min-height: calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px));
+				justify-content: center;
 			}
 
 			@media (min-width: 768px) {
@@ -74,16 +75,10 @@ function LandingStyles() {
 					content: '';
 					position: fixed;
 					bottom: 0; left: 0; right: 0;
-					height: 80px;
-					background: linear-gradient(to top, oklch(from var(--vocs-background-color-primary) l c h / 0.8) 0%, transparent 100%);
+					height: 120px;
+					background: linear-gradient(to top, var(--vocs-background-color-primary) 0%, oklch(from var(--vocs-background-color-primary) l c h / 0.8) 30%, transparent 100%);
 					pointer-events: none;
 					z-index: 49;
-				}
-			}
-
-			@media (min-width: 1280px) {
-				.landing-hero {
-					min-height: calc(100dvh - var(--vocs-spacing-topNav, 64px) - var(--vocs-spacing-banner, 0px));
 				}
 			}
 
@@ -97,7 +92,10 @@ function LandingStyles() {
 				[data-terminal] p,
 				[data-terminal] .text-sm,
 				[data-terminal] .font-mono { font-size: inherit !important; }
-				.landing-hero { padding-top: calc(var(--vocs-spacing-topNav, 56px) + 1rem); }
+				.landing-hero {
+					padding-top: calc(var(--vocs-spacing-topNav, 56px) + 1rem);
+					justify-content: flex-start;
+				}
 				section { padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem)) !important; }
 			}
 
@@ -107,14 +105,6 @@ function LandingStyles() {
 					padding: 0.4rem 0.75rem !important;
 				}
 			}
-
-			@media (max-width: 1079px) {
-				.landing-hero > div {
-					margin-top: 0 !important;
-				}
-			}
-
-
 
 		`}</style>
   );
@@ -127,22 +117,26 @@ function LandingStyles() {
 function Hero() {
   return (
     <section
-      className="landing-hero flex flex-col items-center px-3 md:px-6 mb-12 pt-4 md:pt-7"
+      className="landing-hero flex flex-col items-center px-3 md:px-6 pt-4 md:pt-7"
       style={{ position: "relative", zIndex: 2 }}
     >
       <div
         className="w-full flex flex-col"
         style={{
           maxWidth: 960,
-          marginBottom: "auto",
           gap: 0,
         }}
       >
+        {/* Branding */}
+        <DesignedBy />
+
         {/* Title across the top */}
-        <Lockup />
+        <div className="mt-5" style={{ maxWidth: 640 }}>
+          <Lockup />
+        </div>
 
         {/* Tagline */}
-        <div className="mt-3">
+        <div className="mt-3" style={{ maxWidth: 640 }}>
           <Tagline />
         </div>
 
@@ -187,18 +181,15 @@ function Hero() {
           </Link>
         </div>
 
-        {/* Terminal: full width */}
+        {/* Terminal: responsive height */}
         <div
           className="relative -mx-3 md:mx-0 w-[calc(100%+1.5rem)] md:w-full mt-6"
           style={{
-            height: 540,
+            height: "clamp(360px, 55vh, 580px)",
           }}
         >
           <Terminal className="absolute inset-0" />
         </div>
-
-        {/* Designed by */}
-        <DesignedBy />
       </div>
     </section>
   );
@@ -340,13 +331,15 @@ function Lockup() {
     <h1
       style={{
         color: ACCENT,
-        fontFamily: '"Geist Mono", monospace',
+        fontFamily: '"Geist Pixel Grid", "Geist Mono", monospace',
         fontSize: "clamp(2.25rem, 6vw, 4rem)",
         fontWeight: 700,
-        letterSpacing: "-0.03em",
-        lineHeight: 1.05,
+        letterSpacing: "-0.02em",
+        lineHeight: 1.1,
         margin: 0,
         textTransform: "uppercase" as const,
+        WebkitTextStroke: "0.5px currentColor",
+        paintOrder: "stroke fill" as const,
       }}
     >
       Machine Payments Protocol
