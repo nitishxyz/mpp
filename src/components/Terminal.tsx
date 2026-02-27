@@ -1665,9 +1665,8 @@ function Wizard({
               <p
                 style={{
                   color: "var(--term-gray5)",
-                  position: "absolute",
-                  bottom: 20,
-                  left: 20,
+                  textAlign: "right",
+                  marginTop: "0.75rem",
                 }}
               >
                 Use ↑↓ arrows and Enter to select

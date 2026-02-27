@@ -7,6 +7,7 @@ import { AnalyticsEvents, captureEvent } from "../lib/posthog";
 import { Terminal } from "./Terminal";
 
 const ACCENT = "var(--vocs-text-color-heading)";
+const ACCENT_MUTED = "light-dark(rgba(0,0,0,0.85), rgba(255,255,255,0.85))";
 
 const AgentContext = createContext<{
   activeAgent: number;
@@ -43,57 +44,70 @@ export function LandingPage() {
 
         <NavLogoOverlay />
 
-        {/* Hero — auto height, pulled up near top */}
+        {/* Hero — two-column on desktop: title left, description+CTAs right */}
         <div
-          className="landing-hero px-3 md:px-6 pt-10 md:pt-16"
+          className="landing-hero px-3 md:px-6"
           style={{ maxWidth: 960, margin: "0 auto", width: "100%" }}
         >
-          <div className="mt-0" style={{ maxWidth: 640 }}>
-            <Lockup />
+          <div className="hero-layout">
+            {/* Left: title */}
+            <div className="hero-title">
+              <Lockup />
+            </div>
+
+            {/* Right: description + buttons, vertically justified to match title height */}
+            <div className="hero-right">
+              <Tagline />
+              <div
+                className="flex items-center gap-3 md:gap-4 landing-ctas"
+                style={{ marginTop: "12px" }}
+              >
+                <Link
+                  to="/quickstart/presto"
+                  className="no-underline! rounded-lg transition-opacity hover:opacity-80"
+                  style={{
+                    fontSize: "1.0625rem",
+                    fontWeight: 500,
+                    color: "var(--vocs-background-color-primary)",
+                    backgroundColor: ACCENT_MUTED,
+                    padding: "0.5rem 1.5rem",
+                  }}
+                  onClick={() =>
+                    captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
+                      cta_label: "Use with agents",
+                      href: "/quickstart/presto",
+                    })
+                  }
+                >
+                  Use with agents
+                </Link>
+                <Link
+                  to="/quickstart"
+                  className="no-underline! rounded-lg server-cta"
+                  style={{
+                    fontSize: "1.0625rem",
+                    fontWeight: 500,
+                    color: "var(--vocs-text-color-heading)",
+                    backgroundColor:
+                      "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))",
+                    border: "1px solid var(--vocs-border-color-primary)",
+                    transition: "background-color 0.15s, border-color 0.15s",
+                    padding: "0.5rem 1.5rem",
+                  }}
+                  onClick={() =>
+                    captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
+                      cta_label: "Install to server",
+                      href: "/quickstart",
+                    })
+                  }
+                >
+                  Install to server
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="mt-3" style={{ maxWidth: 640 }}>
-            <Tagline />
-          </div>
-          <div className="flex items-center gap-3 md:gap-4 mt-8 landing-ctas">
-            <Link
-              to="/quickstart/presto"
-              className="no-underline! px-6 py-3 md:px-7 md:py-3.5 rounded-lg transition-opacity hover:opacity-80"
-              style={{
-                fontSize: "1.0625rem",
-                fontWeight: 500,
-                color: "var(--vocs-background-color-primary)",
-                backgroundColor: ACCENT,
-              }}
-              onClick={() =>
-                captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
-                  cta_label: "Use with agents",
-                  href: "/quickstart/presto",
-                })
-              }
-            >
-              Use with agents
-            </Link>
-            <Link
-              to="/quickstart"
-              className="no-underline! px-6 py-3 md:px-7 md:py-3.5 rounded-lg server-cta"
-              style={{
-                fontSize: "1.0625rem",
-                fontWeight: 500,
-                color: "var(--vocs-text-color-heading)",
-                backgroundColor:
-                  "light-dark(rgba(0,0,0,0.04), rgba(255,255,255,0.06))",
-                border: "1px solid var(--vocs-border-color-primary)",
-                transition: "background-color 0.15s, border-color 0.15s",
-              }}
-              onClick={() =>
-                captureEvent(AnalyticsEvents.LANDING_CTA_CLICKED, {
-                  cta_label: "Install to server",
-                  href: "/quickstart",
-                })
-              }
-            >
-              Install to server
-            </Link>
+          <div className="designed-by-mobile" style={{ display: "none" }}>
+            <DesignedBy />
           </div>
         </div>
 
@@ -139,36 +153,69 @@ function LandingStyles() {
   return (
     <style>{`
       [data-v-logo] { visibility: hidden !important; width: 0 !important; overflow: hidden !important; }
-      [data-v-main] { padding: 0 !important; margin: 0 !important; }
-      [data-v-main] article[data-v-content] { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+      html, body { overflow: hidden !important; height: 100dvh !important; }
+      [data-v-main] { padding: 0 !important; margin: 0 !important; overflow: hidden !important; height: 100dvh !important; }
+      [data-v-main] article[data-v-content] { padding: 0 !important; margin: 0 !important; max-width: none !important; overflow: hidden !important; }
       [data-v-main] article[data-v-content] > * { margin-top: 0 !important; }
       [data-v-gutter-top] { position: sticky !important; top: 0 !important; z-index: 100 !important; user-select: none !important; -webkit-user-select: none !important; }
 
-      /* Flex column fills viewport */
+      /* Flex column fills remaining viewport below nav */
       .landing-page {
         display: flex;
         flex-direction: column;
-        height: 100dvh;
+        justify-content: center;
+        height: calc(100dvh - var(--vocs-spacing-topNav, 56px));
         overflow: hidden;
-        row-gap: clamp(1.5rem, 3vh, 3rem);
+        row-gap: clamp(2rem, 4vh, 4rem);
       }
-      .landing-page::before,
-      .landing-page::after {
-        content: '';
-        flex: 1;
-      }
-      .landing-page::before { max-height: 3vh; }
-      .landing-page::after { max-height: 1rem; }
+      .landing-hero { flex-shrink: 0; margin-top: clamp(2rem, 6vh, 5rem); }
 
-      .landing-hero { flex-shrink: 0; }
-      .landing-terminal { flex-shrink: 0; padding-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; }
+      /* Two-column hero: title left, description+CTAs right */
+      .hero-layout {
+        display: flex;
+        gap: 2.5rem;
+        align-items: stretch;
+      }
+      .hero-title { flex-shrink: 0; }
+      .hero-right {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 0.75rem;
+        padding: 0.25rem 0;
+        margin-top: 10px;
+      }
+
+      /* Mobile: stack vertically, fix sizing and order */
+      @media (max-width: 767px) {
+        .hero-layout { flex-direction: column; gap: 0; }
+        .hero-right { gap: 0; margin-top: 0 !important; padding: 0 !important; }
+        .hero-title span { font-size: clamp(2.25rem, 7vw, 3.5rem) !important; }
+        .hero-title span span:first-child { font-size: clamp(4rem, 18vw, 7rem) !important; margin-left: -4px !important; line-height: 0.85 !important; }
+        .lockup-subtitle { text-align: left !important; text-align-last: auto !important; margin-top: 0.25rem !important; letter-spacing: 0.04em !important; }
+        .hero-right .text-base { font-size: 1.125rem !important; line-height: 1.6 !important; margin-top: 1.5rem !important; }
+        .landing-terminal { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+        .landing-hero { padding: 1.75rem 1.5rem 0 !important; margin-top: 0 !important; }
+        .landing-page { row-gap: 1.5rem !important; }
+        .landing-ctas { margin-top: 2rem !important; gap: 1rem !important; }
+        .landing-ctas a { font-size: 1.0625rem !important; padding: 0.75rem 1.75rem !important; }
+        .designed-by-mobile { display: block !important; margin-top: 2.5rem; }
+        .NavLogoOverlay-wrap { display: none !important; }
+        [data-v-logo] { visibility: visible !important; width: auto !important; overflow: visible !important; }
+      }
+      .landing-terminal { flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
       .landing-top-fade, .landing-bottom-fade { display: none; }
 
       /* Short viewport: terminal overflows, activate snap scroll */
       @media (max-height: 920px) {
-        .landing-page { height: auto; min-height: 100dvh; overflow: visible; }
-        html, body { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
-        .landing-hero { scroll-snap-align: start; }
+        .landing-page {
+          height: calc(100dvh - var(--vocs-spacing-topNav, 56px)) !important;
+          overflow-y: auto !important;
+          scroll-snap-type: y mandatory !important;
+          scroll-behavior: smooth !important;
+          justify-content: flex-start !important;
+        }
+        .landing-hero { scroll-snap-align: start; padding-top: clamp(4rem, 10vh, 7rem); }
         .landing-terminal {
           min-height: calc(100dvh - var(--vocs-spacing-topNav, 64px));
           scroll-snap-align: start;
@@ -204,8 +251,10 @@ function LandingStyles() {
         border-color: light-dark(rgba(0,0,0,0.18), rgba(255,255,255,0.18)) !important;
       }
 
+      .landing-page ~ [data-v-gutter-top],
       [data-v-gutter-top] {
         background: linear-gradient(to bottom, var(--vocs-background-color-primary) 60%, transparent 100%) !important;
+        background-color: transparent !important;
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
         border-bottom: none !important;
@@ -216,8 +265,6 @@ function LandingStyles() {
         [data-terminal] p,
         [data-terminal] .text-sm,
         [data-terminal] .font-mono { font-size: inherit !important; }
-        .landing-hero { padding-top: 1.5rem !important; }
-        .landing-page { row-gap: clamp(0.75rem, 2vh, 1.5rem) !important; }
       }
     `}</style>
   );
@@ -233,6 +280,7 @@ function NavLogoOverlay() {
   if (!mounted) return null;
   return createPortal(
     <div
+      className="NavLogoOverlay-wrap"
       style={{
         position: "fixed",
         top: 0,
@@ -344,12 +392,7 @@ function DesignedBy() {
       className="flex items-center gap-3"
       style={{ color: "var(--vocs-text-color-muted)" }}
     >
-      <span
-        className="text-xs tracking-widest uppercase"
-        style={{ fontFamily: 'var(--font-mono, "Geist Mono", monospace)' }}
-      >
-        Designed by
-      </span>
+      <span className="text-sm">Designed by</span>
       <a
         href="https://tempo.xyz"
         target="_blank"
@@ -361,7 +404,7 @@ function DesignedBy() {
       >
         <TempoLogo />
       </a>
-      <span className="text-sm">×</span>
+      <span className="text-base">×</span>
       <a
         href="https://stripe.com"
         target="_blank"
@@ -383,25 +426,37 @@ function DesignedBy() {
 
 function Lockup() {
   return (
-    <h1
+    <span
       style={{
         color: ACCENT,
-        fontFamily: '"Geist Pixel Square", "Geist Mono", monospace',
-        fontSize: "clamp(1.75rem, 5vw, 2.5rem)",
-        fontWeight: 700,
+        fontFamily: '"VTC Du Bois", "Geist Mono", monospace',
+        fontSize: "clamp(2rem, 5vw, 3rem)",
         letterSpacing: "-0.02em",
         lineHeight: 1,
         margin: 0,
         textTransform: "uppercase" as const,
-        WebkitTextStroke: "0.5px currentColor",
-        paintOrder: "fill stroke" as const,
         width: "fit-content",
       }}
     >
-      <span style={{ fontSize: "clamp(4.9rem, 10vw, 6rem)", display: "block" }}>
+      <span
+        style={{
+          fontSize: "clamp(.5rem, 12vw, 7.5rem)",
+          display: "block",
+          marginLeft: "-4px",
+        }}
+      >
         Machine
       </span>
-      <span style={{ display: "block" }}>Payments Protocol</span>
-    </h1>
+      <span
+        className="lockup-subtitle"
+        style={{
+          display: "block",
+          textAlign: "justify",
+          textAlignLast: "justify",
+        }}
+      >
+        Payments Protocol
+      </span>
+    </span>
   );
 }

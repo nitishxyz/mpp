@@ -372,14 +372,11 @@ export function ServicesPage() {
         style={{
           maxWidth: 1600,
           margin: "0 auto",
-          padding: "3rem 2.5rem 5rem",
+          padding: "3rem 2.5rem 5rem 1.375rem",
         }}
       >
         {/* Header */}
-        <div
-          className="page-header"
-          style={{ marginBottom: "0.5rem", paddingLeft: "0.5rem" }}
-        >
+        <div className="page-header" style={{ marginBottom: "0.5rem" }}>
           <h1
             style={{
               fontSize: "2.1rem",
@@ -1928,7 +1925,9 @@ function PageStyles() {
   return (
     <style>{`
       
-      [data-layout="minimal"] main > article { max-width: none !important; }
+      [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; }
+      [data-layout="minimal"] main > article { max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+
       @media (max-width: 900px) {
         [data-layout="minimal"] main { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; overflow-x: hidden !important; }
         [data-layout="minimal"] main > article { padding-left: 0 !important; padding-right: 0 !important; max-width: none !important; width: 100% !important; }
