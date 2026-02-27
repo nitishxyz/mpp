@@ -60,7 +60,7 @@ function timeAgo(iso: string) {
 // ---------------------------------------------------------------------------
 
 const linkPattern =
-  /(https?:\/\/\S+|mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com)/g;
+  /(https?:\/\/\S+|mpp\.dev\/\S+|mpp\.sh\/\S+|x\.com\/mpp|Tempo\.xyz|Stripe\.com|parallel\.ai|fal\.ai)/g;
 
 function CssTriangle() {
   return (
@@ -133,8 +133,17 @@ function renderText(text: string): ReactNode {
         ? "https://tempo.xyz"
         : part === "Stripe.com"
           ? "https://stripe.com"
-          : `https://${part}`;
-    const color = part === "Stripe.com" ? "#635BFF" : "var(--term-teal9)";
+          : part === "parallel.ai"
+            ? "https://parallel.ai"
+            : part === "fal.ai"
+              ? "https://fal.ai"
+              : `https://${part}`;
+    const color =
+      part === "Stripe.com"
+        ? "#635BFF"
+        : part === "parallel.ai" || part === "fal.ai"
+          ? "var(--term-blue9)"
+          : "var(--term-teal9)";
     return (
       <a
         // biome-ignore lint/suspicious/noArrayIndexKey: static split parts never reorder
@@ -383,6 +392,22 @@ const pickSearch = createCyclicPicker(SEARCH_RESULTS);
 const pickArticle = createCyclicPicker(ARTICLE_SUMMARIES);
 
 // ---------------------------------------------------------------------------
+// Service label for upstream API providers
+// ---------------------------------------------------------------------------
+
+const SERVICE_LABELS: [string, string][] = [
+  ["/article", "parallel.ai article extraction"],
+  ["/ascii", "fal.ai image generation"],
+  ["/image", "fal.ai image generation"],
+  ["/lookup", "parallel.ai article extraction"],
+  ["/search", "parallel.ai web search"],
+];
+
+function serviceLabel(endpoint: string): string | undefined {
+  return SERVICE_LABELS.find(([k]) => endpoint.includes(k))?.[1];
+}
+
+// ---------------------------------------------------------------------------
 // Step components
 // ---------------------------------------------------------------------------
 
@@ -594,8 +619,8 @@ function AsyncSteps({
             liveContent = data.lines;
             onContentReceived?.(liveContent);
           }
-        } catch {
-          // live fetch failed — use simulated content
+        } catch (e) {
+          console.error("Live fetch failed, using simulated content:", e);
         }
 
         if (!paymentChannel) {
@@ -610,8 +635,8 @@ function AsyncSteps({
             await new Promise((r) => setTimeout(r, 600));
           }
         }
-      } catch {
-        // live demo error
+      } catch (e) {
+        console.error("Live demo error:", e);
       }
     })();
   }, [
@@ -730,6 +755,16 @@ function AsyncSteps({
               }}
             >
               WWW-Authenticate: Payment
+            </p>
+          )}
+          {pastStep("req402") && serviceLabel(liveEndpoint ?? endpoint) && (
+            <p
+              style={{
+                color: "var(--term-gray6)",
+                paddingLeft: "2ch",
+              }}
+            >
+              via {renderText(serviceLabel(liveEndpoint ?? endpoint)!)}
             </p>
           )}
         </>
@@ -1009,7 +1044,15 @@ function CardForm({
               className="cursor-pointer hover:underline"
               style={{ color: "#635BFF" }}
             >
-              Use test card (4242)
+              [use test card]
+            </button>{" "}
+            <button
+              type="button"
+              onClick={useTestCard}
+              className="cursor-pointer hover:underline"
+              style={{ color: "#00D66F" }}
+            >
+              [use link]
             </button>
           </>
         ) : (
@@ -1223,6 +1266,16 @@ function StripeSteps({
               }}
             >
               WWW-Authenticate: Payment method=stripe intent=charge
+            </p>
+          )}
+          {pastStep("req402") && serviceLabel(endpoint) && (
+            <p
+              style={{
+                color: "var(--term-gray6)",
+                paddingLeft: "2ch",
+              }}
+            >
+              via {renderText(serviceLabel(endpoint)!)}
             </p>
           )}
         </>
@@ -1453,12 +1506,9 @@ function Wizard({
       return;
     }
     if (opt === "Write poem" || opt === "Create ASCII art") {
-      if (demoClient) {
-        setChosenOutput([]);
-      } else {
-        if (opt === "Write poem") setChosenOutput(pickChat());
-        else setChosenOutput(pickImage());
-      }
+      // Always set canned fallback — live mode overwrites via onContentReceived
+      if (opt === "Write poem") setChosenOutput(pickChat());
+      else setChosenOutput(pickImage());
       setChosenUrl(undefined);
       setChosen(opt);
       scrollTerminalIntoView();
@@ -1473,18 +1523,14 @@ function Wizard({
     if (!urlInput.trim()) return;
     const opt = currentOptions[selected];
 
-    if (demoClient) {
-      setChosenOutput([]); // live mode — content comes from API
-    } else {
-      // simulated mode — pick from canned data
-      if (opt === "Chat with AI" || opt === "Write poem")
-        setChosenOutput(pickChat());
-      else if (opt === "Generate image" || opt === "Create ASCII art")
-        setChosenOutput(pickImage());
-      else if (opt === "Search the web") setChosenOutput(pickSearch());
-      else if (opt === "Summarize article" || opt === "Lookup company")
-        setChosenOutput(pickArticle());
-    }
+    // Always set canned fallback — live mode overwrites via onContentReceived
+    if (opt === "Chat with AI" || opt === "Write poem")
+      setChosenOutput(pickChat());
+    else if (opt === "Generate image" || opt === "Create ASCII art")
+      setChosenOutput(pickImage());
+    else if (opt === "Search the web") setChosenOutput(pickSearch());
+    else if (opt === "Summarize article" || opt === "Lookup company")
+      setChosenOutput(pickArticle());
 
     setChosenUrl(urlInput.trim());
     setWaitingForUrl(false);

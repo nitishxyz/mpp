@@ -1,3 +1,4 @@
+import { getProxyFetch } from "../../../../mppx-proxy-client";
 import { stripeMppx } from "../../../../mppx-stripe.server";
 
 const SUMMARIES: Record<string, string[]> = {
@@ -55,9 +56,57 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const input = url.searchParams.get("url") ?? "";
   const domain = normalizeUrl(input);
-  const summary = SUMMARIES[domain];
 
-  const lines = summary ?? [`  No summary available for ${domain}`];
+  // Use canned summary for known domains; try Parallel Extract for others
+  const summary = SUMMARIES[domain];
+  if (summary) {
+    return result.withReceipt(Response.json({ lines: summary }));
+  }
+
+  const proxyFetch = getProxyFetch();
+  const fullUrl = input.startsWith("http") ? input : `https://${input}`;
+  if (proxyFetch && input) {
+    try {
+      const res = await proxyFetch(
+        "https://parallel.mpp.moderato.tempo.xyz/v1beta/extract",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            excerpts: true,
+            full_content: false,
+            objective: `Summarize ${fullUrl} in 3-5 concise sentences about what the company or site does. Be factual and specific to this domain.`,
+            urls: [fullUrl],
+          }),
+        },
+      );
+
+      if (res.ok) {
+        const data = (await res.json()) as {
+          results?: Array<{
+            excerpts?: string[];
+            title?: string;
+            url?: string;
+          }>;
+        };
+        const excerpts = data.results?.[0]?.excerpts;
+        if (excerpts?.length) {
+          const lines = excerpts
+            .join("\n")
+            .split("\n")
+            .filter((line) => line.trim())
+            .map((line) => `  ${line.trim()}`);
+          return result.withReceipt(Response.json({ lines }));
+        }
+      }
+    } catch (e) {
+      console.error("mpp-proxy Parallel Extract error:", e);
+    }
+    // Fall through to canned response
+  }
+
+  // Fallback for unknown domains without Parallel results
+  const lines = [`  No summary available for ${domain}`];
 
   return result.withReceipt(Response.json({ lines }));
 }
