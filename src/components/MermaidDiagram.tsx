@@ -780,7 +780,26 @@ function esc(s: string): string {
 // Animation
 // ---------------------------------------------------------------------------
 
-function animate(svg: SVGSVGElement, onComplete: () => void) {
+interface AnimationHandle {
+  skipToEnd: () => void;
+}
+
+function showAllItems(svg: SVGSVGElement) {
+  svg.style.opacity = "1";
+  for (const el of svg.querySelectorAll<SVGElement>(
+    "[data-step],[data-step-arrow],[data-step-label],[data-step-note]",
+  )) {
+    el.style.transition = "none";
+    el.style.opacity = "1";
+    el.style.strokeDashoffset = "0";
+  }
+}
+
+function animate(
+  svg: SVGSVGElement,
+  onComplete: () => void,
+  onStart: () => void,
+): AnimationHandle {
   type Item = {
     si: number;
     draw?: SVGElement;
@@ -810,10 +829,23 @@ function animate(svg: SVGSVGElement, onComplete: () => void) {
   });
 
   const timeline = Array.from(map.values()).sort((a, b) => a.si - b.si);
+  let skipped = false;
+  const timers: ReturnType<typeof setTimeout>[] = [];
+
+  const handle: AnimationHandle = {
+    skipToEnd() {
+      if (skipped) return;
+      skipped = true;
+      for (const t of timers) clearTimeout(t);
+      showAllItems(svg);
+      onComplete();
+    },
+  };
+
   if (!timeline.length) {
     svg.style.opacity = "1";
     onComplete();
-    return;
+    return handle;
   }
 
   svg.style.opacity = "1";
@@ -832,45 +864,51 @@ function animate(svg: SVGSVGElement, onComplete: () => void) {
     ([e]) => {
       if (!e.isIntersecting) return;
       obs.disconnect();
+      onStart();
       let lastDelay = 0;
       let cumDelay = 800;
       for (let i = 0; i < timeline.length; i++) {
         const item = timeline[i];
         const delay = cumDelay;
         if (delay > lastDelay) lastDelay = delay;
-        // Notes need more time to fade in before next step starts
         cumDelay += item.isNote ? 2000 : 1200;
 
-        setTimeout(() => {
-          // Line draws and label fades in together
-          if (item.draw) {
-            item.draw.style.transition =
-              "opacity 0.3s ease, stroke-dashoffset 1.2s ease-out";
-            item.draw.style.opacity = "1";
-            item.draw.style.strokeDashoffset = "0";
-          }
-          // Label text appears alongside the line draw
-          for (const el of item.fade) {
-            el.style.transition = item.draw
-              ? "opacity 0.6s ease"
-              : "opacity 0.8s ease";
-            el.style.opacity = "1";
-          }
-          // Arrow tip appears after line finishes
-          if (item.arrow) {
-            setTimeout(() => {
-              item.arrow!.style.transition = "opacity 0.3s ease";
-              item.arrow!.style.opacity = "1";
-            }, 1000);
-          }
-        }, delay);
+        timers.push(
+          setTimeout(() => {
+            if (skipped) return;
+            if (item.draw) {
+              item.draw.style.transition =
+                "opacity 0.3s ease, stroke-dashoffset 1.2s ease-out";
+              item.draw.style.opacity = "1";
+              item.draw.style.strokeDashoffset = "0";
+            }
+            for (const el of item.fade) {
+              el.style.transition = item.draw
+                ? "opacity 0.6s ease"
+                : "opacity 0.8s ease";
+              el.style.opacity = "1";
+            }
+            if (item.arrow) {
+              timers.push(
+                setTimeout(() => {
+                  if (skipped) return;
+                  item.arrow!.style.transition = "opacity 0.3s ease";
+                  item.arrow!.style.opacity = "1";
+                }, 1000),
+              );
+            }
+          }, delay),
+        );
       }
-      // Signal completion after last item fully visible
-      setTimeout(onComplete, lastDelay + 1800);
+      timers.push(setTimeout(() => {
+        if (!skipped) onComplete();
+      }, lastDelay + 1800));
     },
     { threshold: 0.15 },
   );
   obs.observe(svg);
+
+  return handle;
 }
 
 function lineLen(el: SVGElement): number {
@@ -888,8 +926,9 @@ function lineLen(el: SVGElement): number {
 export function MermaidDiagram({ chart }: { chart: string }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<HTMLDivElement>(null);
+  const animRef = useRef<AnimationHandle | null>(null);
   const [isDark, setIsDark] = useState(false);
-  const [showReplay, setShowReplay] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "playing" | "done">("idle");
 
   useEffect(() => {
     const check = () =>
@@ -909,7 +948,7 @@ export function MermaidDiagram({ chart }: { chart: string }) {
   const renderDiagram = useCallback(() => {
     const el = svgRef.current;
     if (!el || !el.isConnected) return;
-    setShowReplay(false);
+    setPhase("idle");
     try {
       const parsed = parse(chart);
       const lo = doLayout(parsed);
@@ -921,7 +960,11 @@ export function MermaidDiagram({ chart }: { chart: string }) {
       svg.style.height = "auto";
       svg.style.display = "block";
       svg.style.margin = "0 auto";
-      animate(svg, () => setShowReplay(true));
+      animRef.current = animate(
+        svg,
+        () => setPhase("done"),
+        () => setPhase("playing"),
+      );
     } catch (err) {
       console.error("MermaidDiagram:", err);
     }
@@ -943,6 +986,25 @@ export function MermaidDiagram({ chart }: { chart: string }) {
 
   const th = isDark ? THEMES.dark : THEMES.light;
 
+  const btnStyle: React.CSSProperties = {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 28,
+    height: 28,
+    borderRadius: "50%",
+    border: `1px solid ${th.actorStroke}`,
+    background: th.actorFill,
+    color: th.textMuted,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    padding: 0,
+    opacity: 0.7,
+    transition: "opacity 0.2s",
+  };
+
   return (
     <div
       ref={wrapperRef}
@@ -958,7 +1020,33 @@ export function MermaidDiagram({ chart }: { chart: string }) {
       }}
     >
       <div ref={svgRef} />
-      {showReplay && (
+      {phase === "playing" && (
+        <button
+          type="button"
+          onClick={() => animRef.current?.skipToEnd()}
+          aria-label="Skip to end"
+          style={btnStyle}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0.7";
+          }}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            stroke="none"
+            aria-hidden="true"
+          >
+            <path d="M5 4l10 8-10 8V4z" />
+            <rect x="17" y="4" width="3" height="16" />
+          </svg>
+        </button>
+      )}
+      {phase === "done" && (
         <button
           type="button"
           onClick={() => {
@@ -968,24 +1056,7 @@ export function MermaidDiagram({ chart }: { chart: string }) {
             requestAnimationFrame(renderDiagram);
           }}
           aria-label="Replay animation"
-          style={{
-            position: "absolute",
-            top: 12,
-            right: 12,
-            width: 28,
-            height: 28,
-            borderRadius: "50%",
-            border: `1px solid ${th.actorStroke}`,
-            background: th.actorFill,
-            color: th.textMuted,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            padding: 0,
-            opacity: 0.7,
-            transition: "opacity 0.2s",
-          }}
+          style={btnStyle}
           onMouseEnter={(e) => {
             e.currentTarget.style.opacity = "1";
           }}
