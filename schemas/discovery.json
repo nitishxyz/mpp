@@ -2352,7 +2352,7 @@
         "search",
         "ai"
       ],
-      "integration": "third-party",
+      "integration": "first-party",
       "tags": [
         "search",
         "web",

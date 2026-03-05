@@ -315,6 +315,16 @@ export function ServicesPage() {
     [services],
   );
   const filtered = useMemo(() => {
+    const PINNED_IDS: string[] = [
+      "openai",
+      "anthropic",
+      "google-gemini",
+      "parallel",
+      "openrouter",
+      "stabletravel",
+      "codestorage",
+      "browserbase",
+    ];
     let list = services;
     if (integrationFilter !== "all")
       list = list.filter(
@@ -334,7 +344,12 @@ export function ServicesPage() {
           s.tags?.some((t) => t.toLowerCase().includes(q)),
       );
     }
-    return list;
+    const pinned = PINNED_IDS.flatMap((id) => list.filter((s) => s.id === id));
+    const pinnedSet = new Set(PINNED_IDS);
+    const rest = list
+      .filter((s) => !pinnedSet.has(s.id))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return [...pinned, ...rest];
   }, [services, selectedCategories, debouncedSearch, integrationFilter]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);

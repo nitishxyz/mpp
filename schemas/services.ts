@@ -991,7 +991,7 @@ export const services: ServiceDef[] = [
     description:
       "Web search, page extraction, and web-grounded chat completions.",
     categories: ["search", "ai"],
-    integration: "third-party",
+    integration: "first-party",
     tags: ["search", "web", "extraction", "chat"],
     docs: { llmsTxt: "https://parallel.ai/llms.txt" },
     provider: { name: "Parallel", url: "https://parallel.ai" },
