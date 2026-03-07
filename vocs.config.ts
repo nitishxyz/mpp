@@ -45,7 +45,7 @@ export default defineConfig({
     },
   ],
   description: "The open protocol for internet payments.",
-  checkDeadlinks: "warn",
+  checkDeadlinks: true,
   editLink: {
     link: "https://github.com/tempoxyz/mpp/edit/main/src/pages/:path",
     text: "Suggest changes to this page",
@@ -90,8 +90,8 @@ export default defineConfig({
         text: "Quick Start",
         items: [
           { text: "Overview", link: "/quickstart" },
-          { text: "Use on your App", link: "/quickstart/client" },
-          { text: "Use on your Server", link: "/quickstart/server" },
+          { text: "Use with your app", link: "/quickstart/client" },
+          { text: "Monetize your service", link: "/quickstart/server" },
           { text: "Use with your Agent", link: "/quickstart/agent" },
         ],
       },
@@ -452,6 +452,7 @@ export default defineConfig({
             collapsed: true,
             items: [
               { text: "Overview", link: "/sdk/rust" },
+              { text: "Core Types", link: "/sdk/rust/core" },
               { text: "Client", link: "/sdk/rust/client" },
               { text: "Server", link: "/sdk/rust/server" },
             ],

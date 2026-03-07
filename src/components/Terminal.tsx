@@ -106,10 +106,7 @@ function PhotoOutput({ url }: { url: string }) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="block relative rounded overflow-hidden"
       style={{
         width: 200,
@@ -135,18 +132,21 @@ function PhotoOutput({ url }: { url: string }) {
           opacity: loaded ? 1 : 0,
         }}
       />
-    </a>
+    </div>
   );
 }
 
-function GalleryThumb({ url }: { url: string }) {
+function GalleryThumb({
+  url,
+  animate = true,
+}: {
+  url: string;
+  animate?: boolean;
+}) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="block relative rounded overflow-hidden"
       style={{
         width: 80,
@@ -168,25 +168,27 @@ function GalleryThumb({ url }: { url: string }) {
         onLoad={() => setLoaded(true)}
         className="absolute inset-0 w-full h-full object-cover"
         style={{
-          transition: "opacity 0.5s",
+          transition: animate ? "opacity 0.5s" : undefined,
           opacity: loaded ? 1 : 0,
         }}
       />
-    </a>
+    </div>
   );
 }
 
 function GalleryGrid({
   urls,
   loading = false,
+  animate = true,
 }: {
   urls: string[];
   loading?: boolean;
+  animate?: boolean;
 }) {
   return (
     <div className="flex flex-wrap gap-2">
       {urls.map((url) => (
-        <GalleryThumb key={url} url={url} />
+        <GalleryThumb key={url} url={url} animate={animate} />
       ))}
       {loading && (
         <div
@@ -1685,6 +1687,7 @@ function Wizard({
 
   useEffect(() => {
     if (chosen || quit || waitingForUrl) return;
+    const terminal = document.querySelector("[data-terminal]");
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp") {
         e.preventDefault();
@@ -1692,19 +1695,23 @@ function Wizard({
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
         setSelected((s) => (s + 1) % currentItems.length);
+      } else if (e.key === "Tab") {
+        if (
+          terminal?.contains(document.activeElement) ||
+          document.activeElement === document.body
+        ) {
+          e.preventDefault();
+          confirm();
+        }
       } else if (e.key === "Enter") {
         confirm();
       }
     };
-    document
-      .querySelector("[data-terminal]")
-      ?.setAttribute("data-wizard-ready", "");
+    terminal?.setAttribute("data-wizard-ready", "");
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      document
-        .querySelector("[data-terminal]")
-        ?.removeAttribute("data-wizard-ready");
+      terminal?.removeAttribute("data-wizard-ready");
     };
   });
 
@@ -1871,7 +1878,7 @@ function Wizard({
               className="hidden md:block"
               style={{ color: "var(--term-gray5)" }}
             >
-              Use ↑↓ arrows and Enter to select
+              Use ↑↓ arrows and Tab or Enter to select
             </p>
           )}
           {waitingForUrl && (
@@ -1892,7 +1899,15 @@ function Wizard({
                 value={urlInput}
                 onChange={(e) => setUrlInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") submitUrl();
+                  if (e.key === "Tab") {
+                    e.preventDefault();
+                    const placeholder =
+                      (currentItems[selected] as PaymentStepConfig).prompt
+                        ?.placeholder ?? "";
+                    if (!urlInput && placeholder) setUrlInput(placeholder);
+                  } else if (e.key === "Enter") {
+                    submitUrl();
+                  }
                 }}
                 className="term-url-input min-w-0 flex-1 bg-transparent outline-none"
                 style={{ color: "var(--term-gray10)" }}
@@ -2118,6 +2133,7 @@ function GalleryStep({
       return () => window.removeEventListener("keydown", handler);
     }
     if (phase === "picker") {
+      const terminal = document.querySelector("[data-terminal]");
       const handler = (e: KeyboardEvent) => {
         if (e.key === "ArrowUp") {
           e.preventDefault();
@@ -2125,6 +2141,19 @@ function GalleryStep({
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
           setSelected((s) => (s + 1) % pickerItems.length);
+        } else if (e.key === "Tab") {
+          if (
+            terminal?.contains(document.activeElement) ||
+            document.activeElement === document.body
+          ) {
+            e.preventDefault();
+            const item = pickerItems[selected];
+            if (item.value === "done") {
+              setPhase("closing");
+            } else {
+              pickCount(item.value);
+            }
+          }
         } else if (e.key === "Enter") {
           const item = pickerItems[selected];
           if (item.value === "done") {
@@ -2134,15 +2163,11 @@ function GalleryStep({
           }
         }
       };
-      document
-        .querySelector("[data-terminal]")
-        ?.setAttribute("data-demo-ready", "");
+      terminal?.setAttribute("data-demo-ready", "");
       window.addEventListener("keydown", handler);
       return () => {
         window.removeEventListener("keydown", handler);
-        document
-          .querySelector("[data-terminal]")
-          ?.removeAttribute("data-demo-ready");
+        terminal?.removeAttribute("data-demo-ready");
       };
     }
     if (phase === "restart") {
@@ -2274,7 +2299,7 @@ function GalleryStep({
             {i > 0 && <p style={{ color: "var(--term-gray6)" }}>{"  "}Done</p>}
           </div>
           <BlankLine />
-          <GalleryGrid urls={run.urls} />
+          <GalleryGrid urls={run.urls} animate={false} />
           {/* biome-ignore format: contains unicode ✔︎ */}
           <p style={{ color: "var(--term-gray6)", marginTop: "0.5em" }}>
             <span style={{ color: "var(--term-green9)" }}>✔︎</span>{" "}
@@ -2324,7 +2349,7 @@ function GalleryStep({
           </div>
           {/* biome-ignore format: contains unicode ↑↓ */}
           <p className="hidden md:block" style={{ color: "var(--term-gray5)" }}>
-            Use ↑↓ arrows and Enter to select
+            Use ↑↓ arrows and Tab or Enter to select
           </p>
         </>
       )}
@@ -2634,13 +2659,9 @@ function TerminalComponent({
     const scrollEl = scrollRef.current;
     const contentEl = contentRef.current;
     if (!scrollEl || !contentEl) return;
-    const LINE_HEIGHT = 24; // 1.5rem at 16px base
     const observer = new ResizeObserver(() => {
       if (!autoScrollRef.current) return;
-      const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight;
-      // Snap to line boundary so topmost visible line is never cut off
-      const snapped = Math.ceil(maxScroll / LINE_HEIGHT) * LINE_HEIGHT;
-      scrollEl.scrollTop = snapped;
+      scrollEl.scrollTop = scrollEl.scrollHeight - scrollEl.clientHeight;
     });
     observer.observe(contentEl);
     return () => observer.disconnect();
@@ -2691,7 +2712,7 @@ function TerminalComponent({
         {/* Terminal body */}
         <div
           ref={scrollRef}
-          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem]"
+          className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 pb-5 break-words text-[0.8125rem] md:text-[0.9rem] leading-[1.35rem] md:leading-[1.5rem] md:overscroll-contain"
           style={{
             backgroundColor: "var(--term-bg2)",
           }}

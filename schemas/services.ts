@@ -118,7 +118,7 @@ export const services: ServiceDef[] = [
     description:
       "Email inboxes for AI agents — create, send, receive, and manage email programmatically.",
     categories: ["ai", "social"],
-    integration: "third-party",
+    integration: "first-party",
     tags: ["email", "inbox", "agents", "messaging"],
     docs: {
       homepage: "https://docs.agentmail.to",
@@ -572,8 +572,12 @@ export const services: ServiceDef[] = [
     docsBase: "https://context7.com/websites/digitalocean/llms.txt",
     endpoints: [
       { route: "POST /v2/droplets", desc: "Create a Droplet", dynamic: true },
-      { route: "GET /v2/droplets", desc: "List all Droplets" },
-      { route: "GET /v2/droplets/:id", desc: "Get Droplet details" },
+      { route: "GET /v2/droplets", desc: "List all Droplets", amount: "100" },
+      {
+        route: "GET /v2/droplets/:id",
+        desc: "Get Droplet details",
+        amount: "100",
+      },
       {
         route: "DELETE /v2/droplets/:id",
         desc: "Delete a Droplet",
@@ -585,9 +589,21 @@ export const services: ServiceDef[] = [
         dynamic: true,
       },
       { route: "POST /v2/account/keys", desc: "Add an SSH key", dynamic: true },
-      { route: "GET /v2/account/keys", desc: "List all SSH keys" },
-      { route: "GET /v2/account/keys/:id", desc: "Get SSH key details" },
-      { route: "DELETE /v2/account/keys/:id", desc: "Delete an SSH key" },
+      {
+        route: "GET /v2/account/keys",
+        desc: "List all SSH keys",
+        amount: "100",
+      },
+      {
+        route: "GET /v2/account/keys/:id",
+        desc: "Get SSH key details",
+        amount: "100",
+      },
+      {
+        route: "DELETE /v2/account/keys/:id",
+        desc: "Delete an SSH key",
+        amount: "100",
+      },
       { route: "GET /v2/regions", desc: "List available regions" },
       { route: "GET /v2/sizes", desc: "List available Droplet sizes" },
       { route: "GET /v2/images", desc: "List available images" },
@@ -890,9 +906,21 @@ export const services: ServiceDef[] = [
         desc: "Create a sandbox for code execution",
         dynamic: true,
       },
-      { route: "POST /sandbox/exec", desc: "Execute command in sandbox" },
-      { route: "POST /sandbox/status", desc: "Get sandbox status" },
-      { route: "POST /sandbox/terminate", desc: "Terminate a sandbox" },
+      {
+        route: "POST /sandbox/exec",
+        desc: "Execute command in sandbox",
+        amount: "100",
+      },
+      {
+        route: "POST /sandbox/status",
+        desc: "Get sandbox status",
+        amount: "100",
+      },
+      {
+        route: "POST /sandbox/terminate",
+        desc: "Terminate a sandbox",
+        amount: "100",
+      },
     ],
   },
 
@@ -1109,16 +1137,16 @@ export const services: ServiceDef[] = [
         desc: "Look up a single tweet",
         amount: "5000",
       },
-      { route: "POST /2/tweets", desc: "Create a new tweet", amount: "5000" },
+      { route: "POST /2/tweets", desc: "Create a new tweet", amount: "10000" },
       {
         route: "GET /2/users/:id",
         desc: "Look up a user by ID",
-        amount: "5000",
+        amount: "10000",
       },
       {
         route: "GET /2/users/by/username/:username",
         desc: "Look up user by username",
-        amount: "5000",
+        amount: "10000",
       },
       {
         route: "GET /2/tweets/search/recent",
@@ -2487,85 +2515,6 @@ export const services: ServiceDef[] = [
     ],
   },
 
-  // ── FlightAware AeroAPI ────────────────────────────────────────────────
-  {
-    id: "flightaware",
-    name: "FlightAware AeroAPI",
-    url: "https://aeroapi.flightaware.com",
-    serviceUrl: `https://flightaware.${MPP_REALM}`,
-    description:
-      "On-demand flight tracking, airport activity, and aviation data.",
-    categories: ["data"],
-    integration: "third-party",
-    tags: ["flights", "tracking", "airports", "aviation"],
-    provider: { name: "FlightAware", url: "https://www.flightaware.com" },
-    realm: MPP_REALM,
-    intent: "charge",
-    payment: TEMPO_PAYMENT,
-    endpoints: [
-      {
-        route: "GET /aeroapi/airports/:id",
-        desc: "Airport info",
-        amount: "10000",
-      },
-      {
-        route: "GET /aeroapi/airports/:id/flights",
-        desc: "Airport flights",
-        amount: "10000",
-      },
-      {
-        route: "GET /aeroapi/airports/:id/flights/arrivals",
-        desc: "Airport arrivals",
-        amount: "5000",
-      },
-      {
-        route: "GET /aeroapi/airports/:id/flights/departures",
-        desc: "Airport departures",
-        amount: "5000",
-      },
-      {
-        route: "GET /aeroapi/airports/:id/flights/scheduled_arrivals",
-        desc: "Scheduled arrivals",
-        amount: "5000",
-      },
-      {
-        route: "GET /aeroapi/airports/:id/flights/scheduled_departures",
-        desc: "Scheduled departures",
-        amount: "5000",
-      },
-      {
-        route: "GET /aeroapi/flights/:id/map",
-        desc: "Flight map image",
-        amount: "10000",
-      },
-      {
-        route: "GET /aeroapi/flights/:id/track",
-        desc: "Flight track positions",
-        amount: "30000",
-      },
-      {
-        route: "GET /aeroapi/flights/:ident",
-        desc: "Flight lookup by ident",
-        amount: "5000",
-      },
-      {
-        route: "GET /aeroapi/operators/:id",
-        desc: "Operator info",
-        amount: "15000",
-      },
-      {
-        route: "GET /aeroapi/operators/:id/flights",
-        desc: "Operator flights",
-        amount: "30000",
-      },
-      {
-        route: "GET /aeroapi/schedules/:start/:end",
-        desc: "Flight schedules",
-        amount: "20000",
-      },
-    ],
-  },
-
   // ── GoFlightLabs ───────────────────────────────────────────────────────
   {
     id: "goflightlabs",
@@ -2645,6 +2594,102 @@ export const services: ServiceDef[] = [
         amount: "5000",
       },
       { route: "GET /retrieve-routes", desc: "Airline routes", amount: "5000" },
+    ],
+  },
+
+  // ── Oxylabs ─────────────────────────────────────────────────────────────
+  {
+    id: "oxylabs",
+    name: "Oxylabs",
+    url: "https://realtime.oxylabs.io",
+    serviceUrl: `https://oxylabs.${MPP_REALM}`,
+    description:
+      "Web scraping API with geo-targeting by country, state, and city. Fetch any public URL with JavaScript rendering support.",
+    categories: ["web", "data"],
+    integration: "third-party",
+    tags: ["scraping", "web-scraping", "geo-targeting", "data-extraction"],
+    docs: {
+      apiReference:
+        "https://developers.oxylabs.io/scraper-apis/web-scraper-api",
+    },
+    provider: { name: "Oxylabs", url: "https://oxylabs.io" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "POST /v1/proxy",
+        desc: "Scrape a public URL with optional geo-targeting and JS rendering",
+        dynamic: true,
+      },
+    ],
+  },
+
+  // ── SpyFu ──────────────────────────────────────────────────────────────
+  {
+    id: "spyfu",
+    name: "SpyFu",
+    url: "https://api.spyfu.com",
+    serviceUrl: `https://spyfu.${MPP_REALM}`,
+    description:
+      "Competitor keyword research — SEO rankings, PPC ads, ad history, and domain analytics. 18+ years of historical data.",
+    categories: ["data", "search"],
+    integration: "third-party",
+    tags: ["seo", "ppc", "keyword-research", "competitor-analysis", "ads"],
+    docs: {
+      homepage: "https://developer.spyfu.com",
+      apiReference: "https://developer.spyfu.com",
+    },
+    provider: { name: "SpyFu", url: "https://spyfu.com" },
+    realm: MPP_REALM,
+    intent: "charge",
+    payment: TEMPO_PAYMENT,
+    endpoints: [
+      {
+        route: "GET /apis/domain_stats_api/v2/*",
+        desc: "Domain stats lookup",
+        amount: "10000",
+      },
+      {
+        route: "GET /apis/serp_api/v2/seo/*",
+        desc: "SEO keyword research",
+        amount: "10000",
+      },
+      {
+        route: "GET /apis/serp_api/v2/ppc/*",
+        desc: "PPC keyword research",
+        amount: "20000",
+      },
+      {
+        route: "GET /apis/keyword_api/v2/ppc/*",
+        desc: "PPC keyword research",
+        amount: "20000",
+      },
+      {
+        route: "GET /apis/cloud_ad_history_api/v2/*",
+        desc: "Ad history research",
+        amount: "30000",
+      },
+      {
+        route: "GET /apis/competitors_api/v2/*",
+        desc: "Competitor analysis",
+        amount: "10000",
+      },
+      {
+        route: "GET /apis/keyword_api/v2/kombat/*",
+        desc: "Keyword overlap analysis",
+        amount: "20000",
+      },
+      {
+        route: "GET /apis/keyword_api/v2/related/*",
+        desc: "Keyword research",
+        amount: "20000",
+      },
+      {
+        route: "GET /apis/organic_history_api/v2/*",
+        desc: "Ranking history research",
+        amount: "30000",
+      },
     ],
   },
 
