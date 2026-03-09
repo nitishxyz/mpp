@@ -79,7 +79,7 @@ export default defineConfig({
         items: [
           { text: "Overview", link: "/overview" },
           {
-            text: "IETF Specs",
+            text: "Specification",
             link: "https://tempoxyz.github.io/mpp-specs/",
           },
           { text: "FAQ", link: "/faq" },
@@ -465,7 +465,7 @@ export default defineConfig({
     { icon: "x", link: "https://x.com/mpp" },
     { icon: "github", link: "https://github.com/tempoxyz/mpp-specs" },
   ],
-  title: "MPP: Internet Payments Protocol",
+  title: "Machine Payments Protocol",
   titleTemplate: "%s | MPP",
   twoslash: {
     twoslashOptions: {
@@ -477,7 +477,7 @@ export default defineConfig({
   topNav: [
     { text: "Docs", link: "/overview", match: (path) => path !== "/" },
     { text: "Services", link: "/services" },
-    { text: "IETF Specs", link: "https://tempoxyz.github.io/mpp-specs/" },
+    { text: "Specification", link: "https://tempoxyz.github.io/mpp-specs/" },
     {
       text: "GitHub",
       items: [
@@ -485,7 +485,7 @@ export default defineConfig({
         { text: "mpp-rs [`Rust`]", link: "https://github.com/tempoxyz/mpp-rs" },
         { text: "pympp [`Python`]", link: "https://github.com/tempoxyz/pympp" },
         {
-          text: "IETF Specs",
+          text: "Specification",
           link: "https://github.com/tempoxyz/mpp-specs",
         },
       ],
