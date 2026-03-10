@@ -10,7 +10,7 @@ jobs:
   ci-gate:
     name: CI Gate
     if: always()
-    needs: [generated-freshness, lint, typecheck, test]
+    needs: [generated-freshness, lint, typecheck, test, build]
     runs-on: ubuntu-latest
     steps:
       - run: |
@@ -73,4 +73,17 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
 
