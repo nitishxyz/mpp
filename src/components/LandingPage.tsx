@@ -735,22 +735,27 @@ function StripeLogo() {
 function Lockup() {
   return (
     <h1 className="lockup-h1" style={{ margin: 0 }}>
-      <picture>
-        <source
-          srcSet="/lockup-dark.svg"
-          media="(prefers-color-scheme: dark)"
-        />
-        <img
-          src="/lockup-light.svg"
-          alt="Machine Payments Protocol"
-          className="lockup-img"
-          style={{
-            height: "auto",
-            width: "clamp(288px, 33.6vw, 456px)",
-            marginTop: "1rem",
-          }}
-        />
-      </picture>
+      <img
+        src="/lockup-light.svg"
+        alt="Machine Payments Protocol"
+        className="lockup-img lockup-light"
+        style={{
+          height: "auto",
+          width: "clamp(288px, 33.6vw, 456px)",
+          marginTop: "1rem",
+        }}
+      />
+      <img
+        src="/lockup-dark.svg"
+        alt="Machine Payments Protocol"
+        className="lockup-img lockup-dark"
+        style={{
+          height: "auto",
+          width: "clamp(288px, 33.6vw, 456px)",
+          marginTop: "1rem",
+          display: "none",
+        }}
+      />
     </h1>
   );
 }
