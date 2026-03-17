@@ -163,6 +163,14 @@ export default defineConfig({
             ],
           },
           {
+            text: "Card",
+            collapsed: true,
+            items: [
+              { text: "Overview", link: "/payment-methods/card" },
+              { text: "Charge", link: "/payment-methods/card/charge" },
+            ],
+          },
+          {
             text: "Lightning",
             collapsed: true,
             items: [
