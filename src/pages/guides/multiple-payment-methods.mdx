@@ -1,0 +1,257 @@
+import { Cards } from 'vocs'
+import { OneTimePaymentsCard, PayAsYouGoCard, PaymentMethodsCard } from '../../components/cards'
+import { PromptBlock } from '../../components/PromptBlock'
+
+# Accept multiple payment methods [Stablecoins, cards, and Bitcoin on a single endpoint]
+
+Build a payment-gated API that accepts [Tempo](/payment-methods/tempo) stablecoins, [Stripe](/payment-methods/stripe) cards, and [Lightning](/payment-methods/lightning) Bitcoin—all on the same endpoint. The server returns a `402` Challenge advertising every available method, and the client pays with whichever rail it supports.
+
+:::info
+MPP's multi-method support is additive. Each payment method is independent—you can start with one and add more at any time without changing your route handlers.
+:::
+
+## Prompt mode
+
+Paste this into your coding agent to build the entire guide in one prompt:
+
+<PromptBlock>
+{`Use https://mpp.dev/guides/multiple-payment-methods.md as reference.
+Add mppx to my app with a payment-gated endpoint that accepts
+three payment methods: Tempo, Stripe, and Lightning. Charge $0.01 per request.
+When payment is verified via any method, return a JSON response.`}
+</PromptBlock>
+
+## How it works
+
+When multiple methods are registered, the `402` response includes a `WWW-Authenticate` header for each one. The client picks the method it supports and sends the appropriate Credential.
+
+```
+HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment method="tempo", intent="charge", ...
+WWW-Authenticate: Payment method="stripe", intent="charge", ...
+WWW-Authenticate: Payment method="lightning", intent="charge", ...
+```
+
+The server verifies whichever Credential it receives. Your route handler stays the same regardless of which method the client chose.
+
+## Server setup
+
+::::steps
+
+#### Install dependencies
+
+:::code-group
+```bash [npm]
+npm install mppx stripe @buildonspark/lightning-mpp-sdk viem
+```
+```bash [pnpm]
+pnpm add mppx stripe @buildonspark/lightning-mpp-sdk viem
+```
+```bash [bun]
+bun add mppx stripe @buildonspark/lightning-mpp-sdk viem
+```
+:::
+
+#### Configure payment methods
+
+Register all three methods in a single `Mppx.create` call. Each method has its own configuration—Tempo needs a recipient address and currency, Stripe needs API credentials, and Lightning needs a wallet mnemonic.
+
+```ts [server.ts]
+import Stripe from 'stripe'
+import { Mppx, tempo, stripe } from 'mppx/server'
+import { spark } from '@buildonspark/lightning-mpp-sdk/server'
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+    }),
+    stripe.charge({
+      client: stripeClient,
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+    }),
+    spark.charge({
+      mnemonic: process.env.MNEMONIC!,
+    }),
+  ],
+})
+```
+
+#### Create a payment-gated route
+
+The route handler is identical to a single-method setup. `mppx.charge` advertises all registered methods in the Challenge and verifies whichever Credential the client presents.
+
+```ts [server.ts]
+import Stripe from 'stripe'
+import { Mppx, tempo, stripe } from 'mppx/server'
+import { spark } from '@buildonspark/lightning-mpp-sdk/server'
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+    }),
+    stripe.charge({
+      client: stripeClient,
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+    }),
+    spark.charge({
+      mnemonic: process.env.MNEMONIC!,
+    }),
+  ],
+})
+
+// [!code focus:start]
+Bun.serve({
+  async fetch(request) {
+    const result = await mppx.charge({
+      amount: '0.01',
+      description: 'Premium API access',
+    })(request)
+
+    if (result.status === 402) return result.challenge
+
+    return result.withReceipt(Response.json({ message: 'Paid content' }))
+  },
+})
+// [!code focus:end]
+```
+
+#### Test via the `mppx` CLI
+
+The `mppx` CLI uses Tempo by default. Each payment method has its own client SDK—see the individual method docs for client setup.
+
+```bash [terminal]
+# Create account funded with testnet tokens
+$ npx mppx account create
+
+# Make a paid request (pays with Tempo)
+$ npx mppx http://localhost:3000
+```
+
+::::
+
+## Framework examples
+
+The `Mppx.create` configuration is the same across frameworks—only the route handler syntax changes.
+
+### Hono
+
+```ts [server.ts]
+import { Hono } from 'hono'
+import Stripe from 'stripe'
+import { Mppx, tempo, stripe } from 'mppx/hono'
+import { spark } from '@buildonspark/lightning-mpp-sdk/server'
+
+const app = new Hono()
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+    }),
+    stripe.charge({
+      client: stripeClient,
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+    }),
+    spark.charge({
+      mnemonic: process.env.MNEMONIC!,
+    }),
+  ],
+})
+
+app.get(
+  '/api/resource',
+  mppx.charge({ amount: '0.01', description: 'Premium API access' }),
+  async (c) => c.json({ message: 'Paid content' }),
+)
+```
+
+### Express
+
+```ts [server.ts]
+import express from 'express'
+import Stripe from 'stripe'
+import { Mppx, tempo, stripe } from 'mppx/express'
+import { spark } from '@buildonspark/lightning-mpp-sdk/server'
+
+const app = express()
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+    }),
+    stripe.charge({
+      client: stripeClient,
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+    }),
+    spark.charge({
+      mnemonic: process.env.MNEMONIC!,
+    }),
+  ],
+})
+
+app.get(
+  '/api/resource',
+  mppx.charge({ amount: '0.01', description: 'Premium API access' }),
+  async (req, res) => res.json({ message: 'Paid content' }),
+)
+```
+
+### Next.js
+
+```ts [app/api/resource/route.ts]
+import Stripe from 'stripe'
+import { Mppx, tempo, stripe } from 'mppx/nextjs'
+import { spark } from '@buildonspark/lightning-mpp-sdk/server'
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+const mppx = Mppx.create({
+  methods: [
+    tempo({
+      currency: '0x20c0000000000000000000000000000000000000', // pathUSD on Tempo
+      recipient: '0xa726a1CD723409074DF9108A2187cfA19899aCF8',
+    }),
+    stripe.charge({
+      client: stripeClient,
+      networkId: 'internal',
+      paymentMethodTypes: ['card'],
+    }),
+    spark.charge({
+      mnemonic: process.env.MNEMONIC!,
+    }),
+  ],
+})
+
+export const GET =
+  mppx.charge({ amount: '0.01', description: 'Premium API access' })
+  (async () => Response.json({ message: 'Paid content' }))
+```
+
+## Method-specific configuration
+
+Each payment method has its own parameters. Refer to the individual method docs for the full configuration reference:
+
+## Next steps
+
+<Cards>
+  <OneTimePaymentsCard />
+  <PayAsYouGoCard />
+  <PaymentMethodsCard />
+</Cards>
