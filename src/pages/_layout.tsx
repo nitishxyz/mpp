@@ -424,7 +424,7 @@ export default function Layout(props: React.PropsWithChildren) {
       <script
         // biome-ignore lint/security/noDangerouslySetInnerHtml: inline perf fix
         dangerouslySetInnerHTML={{
-          __html: `(function(){var o=Element.prototype.scrollTo;Element.prototype.scrollTo=function(a){if(a&&typeof a==='object'&&this.matches&&this.matches('[data-v-sidebar-container]')){a=Object.assign({},a,{behavior:'instant'})}return o.apply(this,arguments)};})();`,
+          __html: `(function(){var o=Element.prototype.scrollTo;Element.prototype.scrollTo=function(a){if(a&&typeof a==='object'&&this.matches&&this.matches('[data-v-sidebar-container]')){a=Object.assign({},a,{behavior:'instant'})}return o.apply(this,arguments)};var w=window.scrollTo.bind(window);window.scrollTo=function(){var top=arguments[0]&&typeof arguments[0]==='object'?arguments[0].top:arguments.length>=2?arguments[1]:undefined;if(top===0&&window.scrollY===0)return;return w.apply(window,arguments)};})();`,
         }}
       />
       <meta
